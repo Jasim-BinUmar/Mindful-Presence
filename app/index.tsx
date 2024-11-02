@@ -18,7 +18,7 @@ const Index = () => {
       const timer =   setTimeout(() => {
         setIsLoading(false)
         router.push('/(auth)/userAuthScreen');
-      }, 2000)
+      }, 200)
       return () => clearTimeout(timer)
  
     // Cleanup timer on unmount

@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, ImageBackground, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { images } from "../../constants";
-export default function MeditationBackground() {
+import CustomButton from '../../components/CustomButton';
+export default function userAuthScreen() {
   return (
     <View className="flex-1">
       <StatusBar style="light" />
@@ -22,12 +23,18 @@ export default function MeditationBackground() {
               </Text>
             </View>
             <View className="w-full mb-10 px-5">
-              <TouchableOpacity className="bg-white py-4 rounded-full items-center mb-4">
-                <Text className="text-lg font-bold text-[#3C1B9B]">Log in</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="border-2 border-white py-4 rounded-full items-center">
-                <Text className="text-lg font-bold text-white">Sign Up</Text>
-              </TouchableOpacity>
+              
+              <CustomButton title='Log in'
+              handlePress={()=>{}}
+              containerStyles="bg-white py-4 mb-4"
+              textStyles="text-lg font-bold text-primary"
+              />
+              <CustomButton title='Sign up'
+              handlePress={()=>{}}
+              containerStyles="bg-transparent py-4 mb-4 border-2 border-secondary"
+              textStyles="text-lg font-bold text-secondary"
+              />
+{/* hello world */}
             </View>
           </SafeAreaView>
         
