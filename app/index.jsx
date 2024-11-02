@@ -17,8 +17,8 @@ const Index = () => {
     
       const timer =   setTimeout(() => {
         setIsLoading(false)
-        router.push('/(auth)/userAuthScreen');
-      }, 200)
+        router.push('/(auth)/signUpOrg');
+      }, 20)
       return () => clearTimeout(timer)
  
     // Cleanup timer on unmount
