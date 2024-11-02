@@ -20,33 +20,43 @@ const AuthLayout = () => {
             }
           }
         />
+
         <Stack.Screen name='OTP'
           options={
             {
               headerShown: false
             }
           }
-        
-        
+
+
         />
         <Stack.Screen name='signUpSubscriber'
-        options={
+          options={
             {
               headerShown: false
             }
-        }
-        
+          }
+
         />
         <Stack.Screen name='signUpOrg'
-        options={
+          options={
             {
               headerShown: false
             }
-        }
-        
+          }
+
         />
+
+        <Stack.Screen name='SuccessfulReg'
+          options={
+            {
+              headerShown: false
+            }
+          }
+        />
+        
       </Stack>
-      
+
       {/* <StatusBar backgroundColor="#161622" style="light"/> */}
     </>
   )
