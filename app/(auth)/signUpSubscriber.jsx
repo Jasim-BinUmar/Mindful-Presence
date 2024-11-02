@@ -3,6 +3,7 @@ import React from 'react'
 import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
 import { StatusBar } from 'expo-status-bar';
+// jello world
 const signUpSubscriber = () => {
     return (
         // <SafeAreaView style={{ flex: 1, backgroundColor: '#6A3DE8' }}>
@@ -30,7 +31,7 @@ const signUpSubscriber = () => {
                         labelStyles="text-gray-500 font-semibold mb-3"
                         outerInput="border-gray-300 focus:border-primary focus:bg-primary"
                         placeholder= "Enter Last Name"
-
+                        
                     />
                     <FormField
                         title="Email"
