@@ -3,6 +3,8 @@ import { View, Text, ImageBackground, TouchableOpacity, SafeAreaView } from 'rea
 import { StatusBar } from 'expo-status-bar';
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
+import { router, Redirect } from "expo-router";
+
 export default function userAuthScreen() {
   return (
     <View className="flex-1">
@@ -13,7 +15,7 @@ export default function userAuthScreen() {
       >
         
           <SafeAreaView className="flex-1 justify-between p-5">
-            <View className="flex items-center justify-center mt-32 px-16">
+            <View className="flex items-center justify-center mt-32 px-16 ">
               <Text className="text-4xl font-bold text-white text-center mb-5">
                 Calm, Relax, Meditate, Self Reflect & Sleep
               </Text>
@@ -26,11 +28,13 @@ export default function userAuthScreen() {
               
               <CustomButton title='Log in'
               handlePress={()=>{}}
-              containerStyles="bg-white py-4 mb-4"
+              containerStyles="bg-white py-4 mb-4 "
               textStyles="text-lg font-bold text-primary"
               />
+        {/* router.push('/(auth)/userRegistrationScreen'); */}
+
               <CustomButton title='Sign up'
-              handlePress={()=>{}}
+              handlePress={()=>{router.push('/(auth)/userRegistrationScreen')}}
               containerStyles="bg-transparent py-4 mb-4 border-2 border-secondary"
               textStyles="text-lg font-bold text-secondary"
               />
