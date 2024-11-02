@@ -23,12 +23,12 @@ export default function userRegistrationScreen() {
               
               <CustomButton title='Register As a Subscriber'
               handlePress={()=>{}}
-              containerStyles="rounded-full bg-primary py-4 mb-4"
+              containerStyles="bg-primary py-4 mb-4"
               textStyles="text-lg font-bold text-primary text-white"
               />
               <CustomButton title='Register with Organization Key'
               handlePress={()=>{}}
-              containerStyles="rounded-full bg-secondary-100 py-4 mb-4 border-2 border-gray-500"
+              containerStyles="bg-secondary-100 py-4 mb-4 border-2 border-gray-500"
               textStyles="text-lg font-bold bg-secondary-100 text-gray-500 "
               />
             </View>
