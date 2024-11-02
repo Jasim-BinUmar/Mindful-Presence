@@ -89,12 +89,12 @@ export default function OTPScreen() {
 
       {/* Number Pad */}
       <View className="absolute bottom-8 left-4 right-4">
-        <View className="flex-row flex-wrap justify-between">
+        <View className="flex-row flex-wrap justify-between w-full bg-gray-300 pt-3 rounded-lg px-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0].map((num) => (
             <TouchableOpacity
               key={num}
               onPress={() => handleNumberPress(num.toString())}
-              className="w-[30%] h-14 mb-4 items-center justify-center bg-gray-50 rounded-xl"
+              className="w-[30%] h-14 mb-4 items-center justify-center bg-white rounded-xl"
             >
               <Text className="text-2xl">{num}</Text>
             </TouchableOpacity>
