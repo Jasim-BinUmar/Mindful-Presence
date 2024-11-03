@@ -7,7 +7,7 @@ import CustomButton from '../components/CustomButton'
 
 import { router, Redirect } from "expo-router";
 
-
+// sample checout
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true)
 
