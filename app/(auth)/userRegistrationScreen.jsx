@@ -3,6 +3,8 @@ import { View, Text, ImageBackground, TouchableOpacity, SafeAreaView } from 'rea
 import { StatusBar } from 'expo-status-bar';
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
+import { router } from 'expo-router';
+
 export default function userRegistrationScreen() {
   return (
     <View className="flex-1">
@@ -22,12 +24,12 @@ export default function userRegistrationScreen() {
             <View className="w-full mb-10 px-5">
               
               <CustomButton title='Register As a Subscriber'
-              handlePress={()=>{}}
+              handlePress={() => { router.push('/(auth)/signUpSubscriber') }}
               containerStyles="bg-primary py-4 mb-4"
               textStyles="text-lg font-bold text-primary text-white"
               />
               <CustomButton title='Register with Organization Key'
-              handlePress={()=>{}}
+              handlePress={() => { router.push('/(auth)/signUpOrg') }}
               containerStyles="bg-secondary-100 py-4 mb-4 border-2 border-gray-500"
               textStyles="text-lg font-bold bg-secondary-100 text-gray-500 "
               />

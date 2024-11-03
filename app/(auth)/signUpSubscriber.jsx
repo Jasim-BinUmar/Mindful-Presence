@@ -3,6 +3,7 @@ import React from 'react'
 import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
 import { StatusBar } from 'expo-status-bar';
+import { router } from 'expo-router';
 const signUpSubscriber = () => {
     return (
         // <SafeAreaView style={{ flex: 1, backgroundColor: '#6A3DE8' }}>
@@ -63,7 +64,7 @@ const signUpSubscriber = () => {
                 <View>
                     <CustomButton
                         title='Sign Up'
-                        handlePress={()=>{}}
+                        handlePress={() => { router.push('/(auth)/successfulReg') }}
                         containerStyles="bg-primary py-4 mb-4 rounded-full mx-3"
                         textStyles="text-lg font-bold text-secondary"
                     />
