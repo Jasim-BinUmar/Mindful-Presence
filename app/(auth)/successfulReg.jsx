@@ -10,23 +10,23 @@ export default function SuccessfulReg() {
     };
 
     return (
-        <View className="flex-1 bg-white px-8 items-center justify-center">
+        <View className="flex-1 bg-white px-8 py-16 items-center justify-evenly ">
             {/* Success Icon */}
-            <View className="items-center justify-center relative h-1">
+            <View className="items-center justify-center ">
                 <Image
                     source={images.successIcon}
-                    style={{ width: 120, height: 120 }}
-                    resizeMode="center"
+                    style={{ width: 150, height: 150 }}
+                    resizeMode="contain"
                 />
             </View>
 
             {/* Congratulations Text */}
-            <Text className="text-primary text-3xl font-semibold mt-8 mb-4">
+            <Text className="text-primary text-3xl font-semibold ">
                 Congratulations
             </Text>
 
             {/* Registration Complete */}
-            <View className="border border-primary rounded-full px-8 py-2 mb-8">
+            <View className="border border-primary rounded-full px-8 py-2 ">
                 <Text className="text-primary text-lg">
                     Registration Completed
                 </Text>
@@ -34,7 +34,7 @@ export default function SuccessfulReg() {
 
             {/* Description */}
             <Text className="text-center text-gray-800 text-lg mb-12 leading-7">
-                This App includes resources for all types{'\n'}
+                This App includes resources For all types{'\n'}
                 of people. So to get personalized{'\n'}
                 relevant resources do the self{'\n'}
                 Assesment. You can always redo it by{'\n'}
