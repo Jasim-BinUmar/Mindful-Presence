@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { images } from '../../constants';
+import { router } from 'expo-router';
 
 export default function SuccessfulReg() {
     const handleSelfAssessment = () => {
         // Handle navigation to self assessment
+        router.push('/(home)/homeScreen')
         console.log('Navigating to self assessment...');
     };
 

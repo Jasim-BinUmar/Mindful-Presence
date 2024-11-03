@@ -4,7 +4,7 @@ import {Stack} from 'expo-router';
 const _layout = () => {
     return (
         <>
-            <Stack>
+            {/* <Stack>
                 <Stack.Screen name='/(home)'
                     options={
                         {
@@ -13,7 +13,7 @@ const _layout = () => {
                     }
 
                 />
-            </Stack>
+            </Stack> */}
 
             {/* <StatusBar backgroundColor="#161622" style="light"/> */}
         </>
