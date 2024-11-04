@@ -17,7 +17,8 @@ const Index = () => {
     
       const timer =   setTimeout(() => {
         setIsLoading(false)
-        router.push('/(auth)/userAuthScreen');
+        // router.push('/(auth)/userAuthScreen');
+        router.push('/(auth)/successfulReg')
       }, 200)
       return () => clearTimeout(timer)
  
