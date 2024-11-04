@@ -7,7 +7,7 @@ import CustomButton from '../components/CustomButton'
 
 import { router, Redirect } from "expo-router";
 
-
+// sample checout
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true)
 
@@ -17,7 +17,8 @@ const Index = () => {
     
       const timer =   setTimeout(() => {
         setIsLoading(false)
-        router.push('/(auth)/userAuthScreen');
+        // router.push('/(auth)/userAuthScreen');
+        router.push('/(auth)/successfulReg')
       }, 200)
       return () => clearTimeout(timer)
  
