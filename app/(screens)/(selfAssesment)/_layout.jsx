@@ -54,7 +54,7 @@ const _layout = () => {
                     }
 
                 />
-                {/* <Stack.Screen name='questionnaire7'
+                <Stack.Screen name='questionnaire7'
                     options={
                         {
                             headerShown: false
@@ -69,7 +69,23 @@ const _layout = () => {
                         }
                     }
 
-                />  */}
+                />
+                <Stack.Screen name='questionnaire9'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+
+                />
+                <Stack.Screen name='questionnaire10'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+
+                />
             </Stack>
 
             {/* <StatusBar backgroundColor="#161622" style="light"/> */}

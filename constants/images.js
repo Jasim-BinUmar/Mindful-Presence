@@ -10,7 +10,8 @@ import survey5 from '../assets/images/survey5.png'
 import survey6 from '../assets/images/survey6.png'
 import survey7 from '../assets/images/survey7.png'
 import survey8 from '../assets/images/survey8.png'
+import survey9 from '../assets/images/survey9.png'
 
 
 
-export default { logo, reactLogo, homeBg, userRegisterScreen, successIcon, survey1, survey2, survey4, survey5, survey6, survey7, survey8 };
+export default { logo, reactLogo, homeBg, userRegisterScreen, successIcon, survey1, survey2, survey4, survey5, survey6, survey7, survey8, survey9 };

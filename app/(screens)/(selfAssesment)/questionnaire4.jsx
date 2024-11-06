@@ -6,7 +6,7 @@ import { images } from '../../../constants';
 import { ChevronLeft } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
 
-export default function Questionnaire1() {
+export default function Questionnaire4() {
     const [emotionalStatus, setEmotionalStatus] = useState('');
     const [error, setError] = useState('');
 

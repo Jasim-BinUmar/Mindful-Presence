@@ -6,7 +6,7 @@ import { images } from '../../../constants';
 import { ChevronLeft } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
 
-export default function Questionnaire5() {
+export default function Questionnaire7() {
     const [emotionalStatus, setEmotionalStatus] = useState('');
     const [error, setError] = useState('');
 
@@ -22,7 +22,7 @@ export default function Questionnaire5() {
         // if (!validateInput(emotionalStatus)) {
         //     return;
         // }
-        router.push('/(selfAssesment)/questionnaire6');
+        router.push('/(selfAssesment)/questionnaire8');
         if (emotionalStatus) {
             console.log('Selected option:', emotionalStatus);
             // Add your submission logic here
@@ -49,14 +49,14 @@ export default function Questionnaire5() {
 
                 <View className=''>
                     <Image
-                        source={images.survey5}
+                        source={images.survey7}
                         style={{ width: '100%', height: undefined, aspectRatio: 1 }}
                         resizeMode="contain"
                     />
                 </View>
 
                 <Text className="text-black text-2xl py-5 font-semibold text-center">
-                    If anything, what do you do to help with your mental health or emotional state?
+                    How would you describe your mood within the last year (could be longer)
                 </Text>
 
                 <View className="w-full px-5">
@@ -73,13 +73,27 @@ export default function Questionnaire5() {
 
                             accessibilityLabel="Select an option for mental health support"
                         >
-                            <Picker.Item label="Select an option" value="" />
+                            <Picker.Item label="Joyful" value="" />
                             <Picker.Item label="Exercise regularly" value="exercise" />
-                            <Picker.Item label="Practice mindfulness or meditation" value="mindfulness" />
-                            <Picker.Item label="Talk to friends or family" value="socialSupport" />
-                            <Picker.Item label="Seek professional help" value="professionalHelp" />
-                            <Picker.Item label="Engage in hobbies" value="hobbies" />
-                            <Picker.Item label="Other" value="other" />
+
+                        </Picker>
+                    </View>
+                    <View className="w-full mb-5 border border-gray-100 rounded-xl">
+                        <Picker
+                            selectedValue={emotionalStatus}
+                            onValueChange=
+                            {(itemValue) => {
+                                setEmotionalStatus(itemValue);
+                                validateInput(itemValue);
+                            }
+
+                            }
+
+                            accessibilityLabel="Select an option for mental health support"
+                        >
+                            <Picker.Item label="Sad" value="" />
+                            <Picker.Item label="Feeling blues" value="feeling blues" />
+
                         </Picker>
                     </View>
                     {error ? <Text style={{ color: 'red', marginBottom: 10 }}>{error}</Text> : null}
