@@ -17,26 +17,26 @@ export default function questionnaire2() {
     const submitResponse = async () => {
         router.push('/(selfAssesment)/questionnaire3')
 
-        try {
-            const response = await fetch('https://your-backend-url/api/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    gender: selectedGender,
-                }),
-            });
+        // try {
+        //     const response = await fetch('https://your-backend-url/api/submit', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             gender: selectedGender,
+        //         }),
+        //     });
 
-            if (response.ok) {
-                Alert.alert("Response submitted successfully!");
-            } else {
-                Alert.alert("Failed to submit response.");
-            }
-        } catch (error) {
-            console.error("Error submitting response:", error);
-            Alert.alert("An error occurred while submitting.");
-        }
+        //     if (response.ok) {
+        //         Alert.alert("Response submitted successfully!");
+        //     } else {
+        //         Alert.alert("Failed to submit response.");
+        //     }
+        // } catch (error) {
+        //     console.error("Error submitting response:", error);
+        //     Alert.alert("An error occurred while submitting.");
+        // }
     };
 
     // Function to go back to the previous screen
