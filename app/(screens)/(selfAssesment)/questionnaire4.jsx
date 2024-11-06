@@ -35,27 +35,27 @@ export default function Questionnaire1() {
         }
         router.push('/(selfAssesment)/questionnaire5')
 
-        try {
-            const response = await fetch('https://your-backend-url/api/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    emotionalStatus: parseInt(emotionalStatus, 10),
-                }),
-            });
+        // try {
+        //     const response = await fetch('https://your-backend-url/api/submit', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             emotionalStatus: parseInt(emotionalStatus, 10),
+        //         }),
+        //     });
 
-            if (response.ok) {
-                Alert.alert("Response submitted successfully!");
-                router.push('/(selfAssesment)/questionnaire5');
-            } else {
-                Alert.alert("Failed to submit response.");
-            }
-        } catch (error) {
-            console.error("Error submitting response:", error);
-            Alert.alert("An error occurred while submitting.");
-        }
+        //     if (response.ok) {
+        //         Alert.alert("Response submitted successfully!");
+        //         router.push('/(selfAssesment)/questionnaire5');
+        //     } else {
+        //         Alert.alert("Failed to submit response.");
+        //     }
+        // } catch (error) {
+        //     console.error("Error submitting response:", error);
+        //     Alert.alert("An error occurred while submitting.");
+        // }
     };
 
     return (
