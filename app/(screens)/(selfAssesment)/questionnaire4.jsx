@@ -12,7 +12,7 @@ export default function Questionnaire1() {
 
     const goBack = () => {
         // <Link href={('/(home)/homeScreen')}/>
-        router.replace('/(auth)/successfulReg');
+        router.push('/(auth)/successfulReg');
         // <Link href="/(home)/homeScreen">
         //     <ChevronLeft size={24} color="#000" />
         // </Link>
@@ -88,7 +88,8 @@ export default function Questionnaire1() {
                     <FormField
                         placeholder="Enter a number from 1 to 10"
                         value={emotionalStatus}
-                        handleChangeText={(value) => {
+                        handleChangeText=
+                        {(value) => {
                             setEmotionalStatus(value);
                             validateInput(value);
                         }}

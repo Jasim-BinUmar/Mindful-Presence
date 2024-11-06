@@ -30,7 +30,7 @@ const _layout = () => {
                     }
 
                 />
-                 <Stack.Screen name='questionnaire4'
+                <Stack.Screen name='questionnaire4'
                     options={
                         {
                             headerShown: false
@@ -38,7 +38,7 @@ const _layout = () => {
                     }
 
                 />
-                 {/* <Stack.Screen name='questionnaire5'
+                <Stack.Screen name='questionnaire5'
                     options={
                         {
                             headerShown: false
@@ -46,7 +46,7 @@ const _layout = () => {
                     }
 
                 />
-                 <Stack.Screen name='questionnaire6'
+                <Stack.Screen name='questionnaire6'
                     options={
                         {
                             headerShown: false
@@ -54,7 +54,7 @@ const _layout = () => {
                     }
 
                 />
-                 <Stack.Screen name='questionnaire7'
+                {/* <Stack.Screen name='questionnaire7'
                     options={
                         {
                             headerShown: false
@@ -62,14 +62,14 @@ const _layout = () => {
                     }
 
                 />
-                 <Stack.Screen name='questionnaire8'
+                <Stack.Screen name='questionnaire8'
                     options={
                         {
                             headerShown: false
                         }
                     }
 
-                /> */}
+                />  */}
             </Stack>
 
             {/* <StatusBar backgroundColor="#161622" style="light"/> */}
