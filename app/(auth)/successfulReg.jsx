@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 export default function SuccessfulReg() {
     const handleSelfAssessment = () => {
         // Handle navigation to self assessment
-        router.push('/(payment)/payment')
+        router.push('/(payment)/paymentMethod')
         console.log('Navigating to self assessment...');
     };
 
