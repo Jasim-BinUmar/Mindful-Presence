@@ -30,6 +30,22 @@ const _layout = () => {
 
                 />
 
+                <Stack.Screen name='successfulPayment'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+
+                /><Stack.Screen name='checkout'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+
+                />
+
             </Stack>
 
             {/* <StatusBar backgroundColor="#161622" style="dark"/> */}

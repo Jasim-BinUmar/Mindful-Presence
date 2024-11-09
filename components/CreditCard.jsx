@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-// import tailwind from 'tailwind-rn';
 
 const CreditCard = ({ cardHolder, lastFour , expiry}) => {
   return (

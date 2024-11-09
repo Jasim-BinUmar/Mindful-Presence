@@ -19,6 +19,7 @@ export default function paymentMethod() {
     const submitResponse = (paymentMethod) => {
         router.push('/cardDetails')
     }
+    
     // Function to go back to the previous screen
     const goBack = () => {
         router.push('/(selfAssesment)/questionnaire1');
@@ -38,7 +39,6 @@ export default function paymentMethod() {
                 </View>
 
                 <View>
-                    <Text>Payment Method Screen</Text>
                     <CreditCard cardHolder="KELLY OLIVER" lastFour="8014" expiry="08/21" />
                 </View>
 
@@ -48,7 +48,7 @@ export default function paymentMethod() {
                             handleSelect('Paypal');
                             submitResponse();
                         }}
-                        containerStyles="bg-white py-4 mb-4 border-2 border-grey"
+                        containerStyles="bg-white py-4 mb-4 border border-gray"
                         textStyles="text-lg font-bold text-black"
                     />
                     <CustomButton title="Credit Card"
@@ -56,7 +56,7 @@ export default function paymentMethod() {
                             handleSelect('Credit Card');
                             submitResponse();
                         }}
-                        containerStyles="bg-white py-4 mb-4 border-2 border-grey"
+                        containerStyles="bg-white py-4 mb-4 border border-gray"
                         textStyles="text-lg font-bold  text-black"
                     />
                     <CustomButton title="Apple Pay"
@@ -64,7 +64,7 @@ export default function paymentMethod() {
                             handleSelect('Apple Pay');
                             submitResponse();
                         }}
-                        containerStyles="bg-white py-4 mb-4 border-2 border-grey-[50]"
+                        containerStyles="bg-white py-4 mb-4 border border-gray"
                         textStyles="text-lg font-bold text-black"
                     />
                 </View>
