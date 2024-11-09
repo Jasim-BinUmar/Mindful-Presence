@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 export default function SuccessfulReg() {
     const handleSelfAssessment = () => {
         // Handle navigation to self assessment
-        router.push('/(selfAssesment)/questionnaire10')
+        router.push('/(screens)/(home)/Home')
         console.log('Navigating to self assessment...');
     };
 
