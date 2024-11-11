@@ -1,21 +1,21 @@
-import { View, Text } from 'react-native'
+import { View, Text, StatusBar } from 'react-native'
 import React from 'react'
 import {Stack} from 'expo-router';
 const _layout = () => {
     return (
         <>
-            {/* <Stack>
-                <Stack.Screen name='/(home)'
+            <Stack>
+                <Stack.Screen name='profile'
                     options={
                         {
-                            headerShown: true
+                            headerShown: false
                         }
                     }
 
                 />
-            </Stack> */}
+            </Stack>
 
-            {/* <StatusBar backgroundColor="#161622" style="light"/> */}
+            {/* <StatusBar style="light"/> */}
         </>
     )
 }
