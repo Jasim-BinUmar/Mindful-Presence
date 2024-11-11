@@ -64,14 +64,14 @@ const payment = () => {
                 className="flex items-center px-4 py-2 rounded-lg bg-white shadow-md  w-full"
               >
                 {/* Duration Label */}
-                <View className="bg-purple-500 rounded-t-md px-3 ">
+                <View className="bg-primary rounded-t-md px-3 ">
                   <Text className="text-white font-bold text-center">
                     {plan.duration}
                   </Text>
                 </View>
 
                 {/* Price */}
-                <Text className="text-purple-500 text-4xl font-bold mt-4">
+                <Text className="text-primary text-4xl font-bold mt-4">
                   ${plan.price}
                 </Text>
 

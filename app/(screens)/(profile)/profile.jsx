@@ -2,30 +2,39 @@ import React from 'react'
 import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
 import { ChevronLeft, ChevronRight, CreditCard, Calendar, HeadphonesIcon } from 'lucide-react-native'
 import { icons } from '../../../constants'
+import { router } from 'expo-router'
 export default function Component() {
     const menuItems = [
         {
             title: 'Profile',
+            link: '/profileSettings',
+            // `/${item.link}
             // icon: '👨‍🎓'
             icon: icons.profileicon,
         },
         {
             title: 'Self Assesment',
+            link: '/(selfAssesment)/questionnaire1',
             icon: icons.selfAssesmentIcon,
             // icon: '📋',
         },
         {
             title: 'Payments History',
+            link: '/(payment)/payment',
             icon: icons.paymentIcon,
             // icon: '💳',
         },
         {
             title: 'Bookings',
+            link: '/(bookSession)/BookSession',
+
             icon: icons.bookingIcon,
             // icon: '📅',
         },
         {
             title: 'Support',
+            link: '/(support)/support',
+
             icon: icons.supportIcon,
             // icon: '🎧',
         },
@@ -58,7 +67,7 @@ export default function Component() {
                                 key={index}
                                 activeOpacity={0.5}
                                 className="flex-row items-center justify-between px-4 py-5 m-2 bg-gray-50 rounded-full border border-gray-100"
-                                onPress={() => { }}
+                                onPress={() => { router.push(`${item.link}`) }}
                             >
                                 <View className="flex-row items-center space-x-3 ">
                                     <Image source={item.icon} className="mr-4" />
