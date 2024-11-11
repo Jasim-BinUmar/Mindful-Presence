@@ -8,7 +8,7 @@ const _layout = () => {
                 <Stack.Screen name='support'
                     options={
                         {
-                            headerShown: true
+                            headerShown: false
                         }
                     }
 
