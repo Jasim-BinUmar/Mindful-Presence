@@ -13,7 +13,8 @@ import survey8 from '../assets/images/survey8.png'
 import survey9 from '../assets/images/survey9.png'
 import mainBg from  '../assets/images/mainBg.png'
 import contentCard1 from '../assets/images/contentCard1.png'
-
+import fullGuide from '../assets/images/fullGuide.png'
+import support from '../assets/images/support.png'
 export default 
 {
     logo, 
@@ -31,4 +32,6 @@ export default
     survey9,
     mainBg,
     contentCard1,
+    fullGuide,
+    support,
  };

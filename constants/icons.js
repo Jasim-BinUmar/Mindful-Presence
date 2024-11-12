@@ -14,6 +14,8 @@ import play from "../assets/icons/play.png";
 import bookSession from "../assets/icons/bookSession.png"
 import pricing from "../assets/icons/pricing.png"
 import favourite from "../assets/icons/favourite.png"
+import contact from "../assets/icons/contact.png"
+import selfAssessment from "../assets/icons/selfAssessment.png"
 
 export default {
   play,
@@ -32,4 +34,6 @@ export default {
   bookSession,
   favourite,
   pricing,
+  contact,
+  selfAssessment,
 };
