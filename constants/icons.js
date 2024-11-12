@@ -19,6 +19,11 @@ import supportIcon from "../assets/icons/supportIcon.png"
 import phone from "../assets/icons/phone.png"
 import email from "../assets/icons/email.png"
 import whatsapp from "../assets/icons/whatsapp.png"
+import favourite from "../assets/icons/favourite.png"
+import pricing from "../assets/icons/pricing.png"
+import contact from "../assets/icons/contact.png"
+import selfAssessment from "../assets/icons/selfAssessment.png"
+import bookSession from "../assets/icons/bookSession.png"
 
 export default {
   play,

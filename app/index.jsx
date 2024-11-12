@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from "../constants"
 import CustomSpinner from '../components/CustomSpinner'
-import CustomButton from '../components/CustomButton'
+
 
 import { router, Redirect } from "expo-router";
 
@@ -18,7 +18,7 @@ const Index = () => {
       const timer =   setTimeout(() => {
         setIsLoading(false)
         // router.push('/(auth)/userAuthScreen');
-        router.push('/(screens)/(guide)/FullGuide')
+        router.push('/(screens)/(home)/Home')
       }, 200)
       return () => clearTimeout(timer)
  
