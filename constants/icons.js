@@ -11,6 +11,14 @@ import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
+import profileicon from "../assets/icons/profileicon.png";
+import selfAssesmentIcon from "../assets/icons/selfAssesmentIcon.png";
+import paymentIcon from "../assets/icons/paymentIcon.png"
+import bookingIcon from "../assets/icons/bookingIcon.png"
+import supportIcon from "../assets/icons/supportIcon.png"
+import phone from "../assets/icons/phone.png"
+import email from "../assets/icons/email.png"
+import whatsapp from "../assets/icons/whatsapp.png"
 
 export default {
   play,
@@ -26,4 +34,12 @@ export default {
   logout,
   eyeHide,
   eye,
+  profileicon,
+  selfAssesmentIcon,
+  bookingIcon,
+  paymentIcon,
+  supportIcon,
+  email,
+  whatsapp,
+  phone
 };
