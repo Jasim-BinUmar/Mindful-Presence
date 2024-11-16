@@ -1,0 +1,55 @@
+import bookmark from "../assets/icons/bookmark.png";
+import home from "../assets/icons/home.png";
+import plus from "../assets/icons/plus.png";
+import profile from "../assets/icons/profile.png";
+import leftArrow from "../assets/icons/left-arrow.png";
+import menu from "../assets/icons/menu.png";
+import search from "../assets/icons/search.png";
+import upload from "../assets/icons/upload.png";
+import rightArrow from "../assets/icons/right-arrow.png";
+import logout from "../assets/icons/logout.png";
+import eyeHide from "../assets/icons/eye-hide.png";
+import eye from "../assets/icons/eye.png";
+import play from "../assets/icons/play.png";
+import profileicon from "../assets/icons/profileicon.png";
+import selfAssesmentIcon from "../assets/icons/selfAssesmentIcon.png";
+import paymentIcon from "../assets/icons/paymentIcon.png"
+import bookingIcon from "../assets/icons/bookingIcon.png"
+import supportIcon from "../assets/icons/supportIcon.png"
+import phone from "../assets/icons/phone.png"
+import email from "../assets/icons/email.png"
+import whatsapp from "../assets/icons/whatsapp.png"
+import favourite from "../assets/icons/favourite.png"
+import pricing from "../assets/icons/pricing.png"
+import contact from "../assets/icons/contact.png"
+import selfAssessment from "../assets/icons/selfAssessment.png"
+import bookSession from "../assets/icons/bookSession.png"
+
+export default {
+  play,
+  bookmark,
+  home,
+  plus,
+  profile,
+  leftArrow,
+  menu,
+  search,
+  upload,
+  rightArrow,
+  logout,
+  eyeHide,
+  eye,
+  profileicon,
+  selfAssesmentIcon,
+  bookingIcon,
+  paymentIcon,
+  supportIcon,
+  email,
+  whatsapp,
+  phone,
+  bookSession,
+  favourite,
+  pricing,
+  contact,
+  selfAssessment,
+};
