@@ -54,6 +54,27 @@ const AuthLayout = () => {
             }
           }
         />
+        <Stack.Screen name='Login'
+          options={
+            {
+              headerShown: false
+            }
+          }
+        />
+        <Stack.Screen name='OrgLogin'
+          options={
+            {
+              headerShown: false
+            }
+          }
+        />
+        <Stack.Screen name='LoginOption'
+          options={
+            {
+              headerShown: false
+            }
+          }
+        />
 
       </Stack>
 

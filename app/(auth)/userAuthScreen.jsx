@@ -27,7 +27,7 @@ export default function userAuthScreen() {
           <View className="w-full mb-10 px-5">
 
             <CustomButton title='Log in'
-              handlePress={() => { router.replace('/(auth)/OTP') }}
+              handlePress={() => { router.replace('/(auth)/LoginOption') }}
               containerStyles="bg-white py-4 mb-4 "
               textStyles="text-lg font-bold text-primary"
             />
