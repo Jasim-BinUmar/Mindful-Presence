@@ -10,7 +10,7 @@ import { router } from 'expo-router'
 const FullGuide = () => {
     const handleSubmit = () => {
         console.log("Reached handle Submit")
-        router.push('/(courseView)/courseContentView')
+        router.push('/(courseView)/CurriculumView')
     }
     return (
         <SafeAreaView className='h-full'>

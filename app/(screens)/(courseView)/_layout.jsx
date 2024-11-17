@@ -5,11 +5,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../(home)/Home'
 import BookSession from '../(bookSession)/BookSession';
 import Favourite from '../Favourite'
-import courseContentView from './courseContentView';
+import CurriculumView from './CurriculumView';
 import { icons } from '../../../constants';
 import { images } from '../../../constants';
 import support from '../(support)/support';
 import questionnaire1 from '../(selfAssesment)/questionnaire1'
+import ContentView from './ContentView'
 const Tab = createBottomTabNavigator();
 
 
@@ -38,8 +39,16 @@ const guideLayout = () => {
     >
       {/* use icons icons.home, icons.pricing, icons.bookSession,icons.favourite  from the icons import*/}
       <Tab.Screen
-        name="courseContentView"
-        component={courseContentView} // or an empty component that does nothing
+        name="CurriculumView"
+        component={CurriculumView} // or an empty component that does nothing
+        options={{
+          headerShown: false,
+          tabBarButton: () => null, // This hides the tab bar item
+        }}
+      />
+      <Tab.Screen
+        name="ContentView"
+        component={ContentView} // or an empty component that does nothing
         options={{
           headerShown: false,
           tabBarButton: () => null, // This hides the tab bar item

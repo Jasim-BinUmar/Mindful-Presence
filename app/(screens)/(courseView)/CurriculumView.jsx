@@ -4,35 +4,23 @@ import { ScrollView } from 'react-native';
 import images from '../../../constants/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CourseContent from '../../../components/CourseContent';
+import { router } from 'expo-router';
 
-const CourseContentView = () => {
+
+// router.replace('/(auth)/userAuthScreen'); 
+
+const CurriculumView = () => {
   // Data array that holds all the information
   const data = [
     {
       title: "Daily Quizzes",
       guideCards: [
-        { title: "Daily Introspection - Journaling - Achievements", buttonTitle: "Start", handlePress: () => console.log("Guide 1 pressed") },
+        { title: "Daily Introspection - Journaling - Achievements", buttonTitle: "Start", handlePress: () => {router.push('/ContentView')} },
         { title: "Daily 5 Sense Quiz (Daily Journaling)", buttonTitle: "Start", handlePress: () => console.log("Guide 2 pressed") },
         { title: "Daily Forgiveness Quiz", buttonTitle: "Start", handlePress: () => console.log("Guide 3 pressed") },
         { title: "My Expression Corner", buttonTitle: "Start", handlePress: () => console.log("Guide 4 pressed") }
       ]
     },
-    {
-      title: "Daily Spiritual Visualisations",
-      guideCards: [
-        { title: "Visualise The Kaba", buttonTitle: "Start", handlePress: () => console.log("Guide 1 pressed") },
-        { title: "Visualise Masjid Al Nabwi/Madinah", buttonTitle: "Start", handlePress: () => console.log("Guide 2 pressed") },
-        { title: "30min: Spiritual Focus Time Session", buttonTitle: "Start", handlePress: () => console.log("Guide 3 pressed") }
-      ]
-    },
-    {
-      title: "Daily Adhkar's & Special Nights Plan",
-      guideCards: [
-        { title: "Daily Adhkar", buttonTitle: "Start", handlePress: () => console.log("Guide 1 pressed") },
-        { title: "My Daily Darood Bank", buttonTitle: "Start", handlePress: () => console.log("Guide 2 pressed") },
-        { title: "Special Nights Preparation", buttonTitle: "Start", handlePress: () => console.log("Guide 3 pressed") }
-      ]
-    }
   ];
 
   return (
@@ -65,4 +53,4 @@ const CourseContentView = () => {
   );
 }
 
-export default CourseContentView;
+export default CurriculumView;

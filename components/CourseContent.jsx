@@ -13,12 +13,12 @@ const CourseContent = ({ title, guideCards }) => {
             key={index} // Unique key for each GuideCard
             title={guide.title}
             buttonTitle={guide.buttonTitle}
-            handlePress={guide.handlePress}
+            handlePress={guide.handlePress} // Pass the handlePress function directly
           />
         ))}
       </View>
     </View>
   );
-}
+};
 
 export default CourseContent;

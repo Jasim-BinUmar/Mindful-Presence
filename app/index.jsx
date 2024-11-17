@@ -18,8 +18,8 @@ const Index = () => {
       const timer =   setTimeout(() => {
         setIsLoading(false)
         // router.push('/(auth)/userAuthScreen');
-        router.replace('/(auth)/userAuthScreen')
-      }, 3000)
+        router.replace('/(screens)/(courseView)/ContentView')
+      }, 300)
       return () => clearTimeout(timer)
  
     // Cleanup timer on unmount
