@@ -35,12 +35,12 @@ const FullGuide = () => {
                         <GuideCard
                             title='Visualisations Therapeutically & Islamically'
                             buttonTitle='Preview'
-                            handlePress={() => {}}
+                            handlePress={handleSubmit}
                         />
                         <GuideCard
                             title='Visualisations Therapeutically & Islamically'
                             buttonTitle='Preview'
-                            handlePress={() => {}}
+                            handlePress={handleSubmit}
                         />
                         
                     </View>

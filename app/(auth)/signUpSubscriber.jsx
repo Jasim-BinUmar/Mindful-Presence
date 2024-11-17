@@ -4,9 +4,9 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { createUser } from '../../lib/appWrite'; // Adjust import based on your project structure
+import { createUser } from '../../lib/appWrite';
 
-const signUpSubscriber = () => {
+const SignUpSubscriber = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -19,10 +19,12 @@ const signUpSubscriber = () => {
             return;
         }
         
+        const trimmedEmail = email.trim();
+        
         try {
-            console.log("email in signup form :" + email)
+            console.log("email in signup form :" + trimmedEmail);
 
-            const newUser = await createUser(email, password, firstName, lastName);
+            const newUser = await createUser(trimmedEmail, password, firstName, lastName);
             if (newUser) {
                 router.push('/(auth)/successfulReg');
             }
@@ -31,7 +33,6 @@ const signUpSubscriber = () => {
         }
     };
 
-  
     return (
         <SafeAreaView className="flex-1 bg-secondary-100 h-full">
             <StatusBar style="dark" />
@@ -58,12 +59,12 @@ const signUpSubscriber = () => {
                     />
                     <FormField
                         title="Email"
-                        handleChangeText={(value) => setEmail(value)}
+                        handleChangeText={(value) => setEmail(value.trim())}
                         otherStyles="mt-7"
                         labelStyles="text-gray-500 font-semibold mb-3"
                         outerInput="border-gray-300 focus:border-primary focus:bg-primary"
                         placeholder="Enter Email"
-                    // keyboardType="email-address"
+                        keyboardType="email-address"
                     />
                     <FormField
                         title="Password"
@@ -97,4 +98,4 @@ const signUpSubscriber = () => {
     );
 };
 
-export default signUpSubscriber;
+export default SignUpSubscriber;

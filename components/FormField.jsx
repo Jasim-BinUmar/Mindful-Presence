@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native';
 import { icons } from '../constants';
 const FormField = ({title, value, placeholder, handleChangeText, otherStyles, labelStyles, outerInput, inputStyles ,...props}) => {
   const [showPassword, setShowPassword] = useState(false);
+  //const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     return (
     <View  className={`space-y-2 ${otherStyles}`}>
       <Text className={`text-base ${labelStyles}`}>{title}</Text>
@@ -14,7 +15,8 @@ const FormField = ({title, value, placeholder, handleChangeText, otherStyles, la
             placeholder={placeholder}
             placeholderTextColor="#d1d5db"
             onChangeText={handleChangeText}
-            secureTextEntry= {title === 'Password' && !showPassword}
+            secureTextEntry={((title === 'Password' || title === 'Confirm Password') && !showPassword)}
+
         />
 
         {title === 'Password' && (

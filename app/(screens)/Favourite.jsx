@@ -3,8 +3,8 @@ import React from 'react'
 
 const Favourite = () => {
   return (
-    <View>
-      <Text>Favourite</Text>
+    <View className='h-full items-center justify-center'>
+      <Text>Favourites feature will be launched soon</Text>
     </View>
   )
 }

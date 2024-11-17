@@ -11,7 +11,6 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    // Check for an existing session on component mount
     useEffect(() => {
         const checkUserSession = async () => {
             try {
@@ -29,14 +28,17 @@ const Login = () => {
     }, []);
 
     const handleLogin = async () => {
+        const trimmedEmail = email.trim();
         try {
-            const session = await signIn(email, password);
+            console.log("Email in login form:", trimmedEmail);
+            const session = await signIn(trimmedEmail, password);
             if (session) {
                 Alert.alert('Success', 'Logged in successfully');
                 router.replace('/(home)/Home');
             }
         } catch (error) {
-            Alert.alert('Login Failed', error.message);
+            console.error('Login error:', error);
+            Alert.alert('Login Failed', error.message || 'An unknown error occurred');
         }
     };
 
@@ -50,7 +52,7 @@ const Login = () => {
                 <View className="w-full justify-start min-h-[75vh] px-4 mb-6">
                     <FormField
                         title="Email"
-                        handleChangeText={setEmail}
+                        handleChangeText={(value) => setEmail(value.trim())}
                         otherStyles="mt-7"
                         labelStyles="text-gray-500 font-semibold mb-3"
                         outerInput="border-gray-300 focus:border-primary focus:bg-primary"

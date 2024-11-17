@@ -27,14 +27,14 @@ export default function userAuthScreen() {
           <View className="w-full mb-10 px-5">
 
             <CustomButton title='Log in'
-              handlePress={() => { router.replace('/(auth)/LoginOption') }}
+              handlePress={() => { router.push('/(auth)/LoginOption') }}
               containerStyles="bg-white py-4 mb-4 "
               textStyles="text-lg font-bold text-primary"
             />
             {/* router.push('/(auth)/userRegistrationScreen'); */}
 
             <CustomButton title='Sign up'
-              handlePress={() => { router.replace('/(auth)/userRegistrationScreen') }}
+              handlePress={() => { router.push('/(auth)/userRegistrationScreen') }}
               containerStyles="bg-transparent py-4 mb-4 border-2 border-secondary"
               textStyles="text-lg font-bold text-secondary"
             />
