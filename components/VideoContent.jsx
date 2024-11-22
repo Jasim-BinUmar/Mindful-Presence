@@ -1,24 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StatusBar, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Video } from 'expo-av';
+// import { Video } from 'expo-av';
 
 
 
 const VideoContent = ({ videoUrl, content }) => (
     <View>
-      <Video
+      {/* <Video
         source={{ uri: videoUrl }}
-        // rate={1.0}
-        // volume={1.0}
-        // isMuted={false}
-        // resizeMode="contain"
-        // shouldPlay={false}
-        // isLooping={false}
-        // style={styles.video}
+        rate={1.0}
+        volume={1.0}
+        isMuted={false}
+        resizeMode="contain"
+        shouldPlay={false}
+        isLooping={false}
+        style={styles.video}
         useNativeControls
-      />
+      /> */}
       <Text style={[styles.contentText, styles.videoText]}>{content}</Text>
     </View>
   );
+
+
+const styles = {
+
+    contentText: {
+      fontSize: 16,
+      color: 'black',
+    },
+    video: {
+      width: 300,
+      height: 200,
+      alignSelf: 'center',
+    },
+    videoText: {
+      marginTop: 10,
+    },
+
+  };
+  
 export default VideoContent;

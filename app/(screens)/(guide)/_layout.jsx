@@ -29,19 +29,20 @@ const guideLayout = () => {
       tabBarLabelStyle: {
         fontSize: 12,
         fontWeight: 'bold',
-        marginTop: -10,
+        width: 100,
+        marginTop: 5,
       },
       tabBarActiveTintColor: '#623AD9', // Icon color when focused
       tabBarInactiveTintColor: 'gray', // Icon color when not focused
     }}
     >
-      {/* use icons icons.home, icons.pricing, icons.bookSession,icons.favourite  from the icons import*/}
+     
       <Tab.Screen
         name="FullGuideScreen"
         component={FullGuide} // or an empty component that does nothing
         options={{
           headerShown: false,
-          tabBarButton: () => null, // This hides the tab bar item
+          tabBarItemStyle: { display: 'none' },
         }}
       />
       <Tab.Screen

@@ -26,7 +26,8 @@ const homeLayout = () => {
       tabBarLabelStyle: {
         fontSize: 12,
         fontWeight: 'bold',
-        marginTop: -10,
+        width: 100,
+        marginTop: 5,
       },
       tabBarActiveTintColor: '#623AD9', // Icon color when focused
       tabBarInactiveTintColor: 'gray', // Icon color when not focused

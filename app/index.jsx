@@ -17,8 +17,9 @@ const Index = () => {
     
       const timer =   setTimeout(() => {
         setIsLoading(false)
-        // router.push('/(auth)/userAuthScreen');
+        //router.push('/(auth)/userAuthScreen');
         router.replace('/(screens)/(courseView)/ContentView')
+        //router.replace('/(screens)/(guide)/FullGuide')
       }, 300)
       return () => clearTimeout(timer)
  

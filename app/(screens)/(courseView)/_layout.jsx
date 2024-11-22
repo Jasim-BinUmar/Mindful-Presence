@@ -11,6 +11,7 @@ import { images } from '../../../constants';
 import support from '../(support)/support';
 import questionnaire1 from '../(selfAssesment)/questionnaire1'
 import ContentView from './ContentView'
+import VideoContent from './VideoContent';
 const Tab = createBottomTabNavigator();
 
 
@@ -31,7 +32,13 @@ const guideLayout = () => {
       tabBarLabelStyle: {
         fontSize: 12,
         fontWeight: 'bold',
-        marginTop: -10,
+        width: 100,
+        marginTop: 5,
+      },
+      tabBarItemStyle: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       tabBarActiveTintColor: '#623AD9', // Icon color when focused
       tabBarInactiveTintColor: 'gray', // Icon color when not focused
@@ -43,7 +50,8 @@ const guideLayout = () => {
         component={CurriculumView} // or an empty component that does nothing
         options={{
           headerShown: false,
-          tabBarButton: () => null, // This hides the tab bar item
+          //tabBarButton: () => null, // This hides the tab bar item
+          tabBarItemStyle: { display: 'none' },
         }}
       />
       <Tab.Screen
@@ -52,6 +60,7 @@ const guideLayout = () => {
         options={{
           headerShown: false,
           tabBarButton: () => null, // This hides the tab bar item
+          tabBarItemStyle: { display: 'none' },
         }}
       />
       <Tab.Screen
