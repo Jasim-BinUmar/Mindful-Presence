@@ -13,6 +13,9 @@ import survey8 from '../assets/images/survey8.png'
 import survey9 from '../assets/images/survey9.png'
 import mainBg from  '../assets/images/mainBg.png'
 import contentCard1 from '../assets/images/contentCard1.png'
+import contentCard2 from '../assets/images/contentCard2.png'
+import contentCard3 from '../assets/images/contentCard3.png'
+import contentCard4 from '../assets/images/contentCard4.png'
 import fullGuide from '../assets/images/fullGuide.png'
 import support from '../assets/images/support.png'
 import bookings from '../assets/images/bookings.png'
@@ -33,6 +36,9 @@ export default
     survey9,
     mainBg,
     contentCard1,
+    contentCard2,
+    contentCard3,
+    contentCard4,
     fullGuide,
     support,
     bookings,

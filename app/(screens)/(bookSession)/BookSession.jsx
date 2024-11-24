@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import CustomButton from '../../../components/CustomButton'
+import { router } from 'expo-router';
 
 export default function BookSession() {
   const [selectedDate, setSelectedDate] = useState(15);
@@ -106,7 +107,7 @@ export default function BookSession() {
             title="Book Now"
             containerStyles="bg-primary py-4 mb-4 rounded-full "
             textStyles="text-lg font-bold text-secondary"
-            handlePress={()=>{}}
+            handlePress={()=>{router.replace('SuccessfulBooking')}}
 
           />
         </View>

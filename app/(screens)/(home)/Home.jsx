@@ -11,11 +11,9 @@ export default function Component() {
 
   const contentCardData = [
     { id: '1', image: images.contentCard1, title: 'Daily Meditative Practices Morning or Evening' },
-    { id: '2', image: images.contentCard1, title: 'Daily Meditative Practices Morning or Evening' },
-    { id: '3', image: images.contentCard1, title: 'Daily Meditative Practices Morning or Evening' },
-    { id: '4', image: images.contentCard1, title: 'Daily Meditative Practices Morning or Evening' },
-    { id: '5', image: images.contentCard1, title: 'Additional Card 1' },
-    { id: '6', image: images.contentCard1, title: 'Additional Card 2' },
+    { id: '2', image: images.contentCard2, title: 'Daily Set-back Soulful meditations, Inner Awakening, Wellbeing areas' },
+    { id: '3', image: images.contentCard3, title: 'Situational/Occasional Resources, Challenges, Affirmations & Visualisations' },
+    { id: '4', image: images.contentCard4, title: 'Self Growth Action Steps' },
   ];
 
   const renderContentCard = ({ item }) => (
@@ -46,7 +44,7 @@ export default function Component() {
               </Text>
               <CustomButton
                 title="Full Guide"
-                handlePress={() => { router.push('../(guide)/FullGuide') }}
+                handlePress={() => { router.push('../(courseView)/CurriculumView') }}
                 containerStyles="bg-primary min-w-[350px] rounded-full mt-5 border-2 border-gray-500"
                 textStyles="text-lg font-bold text-secondary"
               />

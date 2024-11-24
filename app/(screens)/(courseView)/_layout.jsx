@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../(home)/Home'
@@ -10,8 +11,9 @@ import { icons } from '../../../constants';
 import { images } from '../../../constants';
 import support from '../(support)/support';
 import questionnaire1 from '../(selfAssesment)/questionnaire1'
-import ContentView from './ContentView'
-import VideoContent from './VideoContent';
+import ContentView from './ContentView';
+
+
 const Tab = createBottomTabNavigator();
 
 
@@ -92,6 +94,16 @@ const guideLayout = () => {
           tabBarIcon: ({ color = '#623AD9', size }) => (
             <Image source={icons.home} style={{ width: size, height: size, tintColor: color }} />
           ),
+          tabBarButton: (props) => {
+            const router = useRouter(); // Hook for navigation
+      
+            return (
+              <TouchableOpacity
+                {...props}
+                onPress={() => router.replace('../(home)/Home')} // Replace navigation logic
+              />
+            );
+          },
         }}
 
       />
