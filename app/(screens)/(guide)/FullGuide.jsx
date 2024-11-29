@@ -18,7 +18,7 @@ const FullGuide = () => {
             <ScrollView className="flex-1 h-full">
                 <View className="flex-1 h-full">
                     <View className="mt-6 mb-3 ">
-                        <Text className='font-bold text-2xl text-center'>Understanding The Power Of Affirmations, Visulizations And Meditation</Text>
+                        <Text className='font-bold text-2xl text-center'>Understanding The Power Of Affirmation, Visualisation And Meditation</Text>
                     </View>
                     <View className=' justify-center '>
                         <ContentCard
