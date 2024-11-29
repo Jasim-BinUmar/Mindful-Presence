@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Link, router } from 'expo-router';
 import { signIn, getCurrentUser } from '../../lib/appWrite'; // Adjust path as needed
 
-const Login = () => {
+const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -47,7 +47,7 @@ const Login = () => {
             <StatusBar style="dark" />
             <ScrollView>
                 <View className='flex-1 mt-12 items-center'>
-                    <Text className='font-bold text-2xl'>Log In</Text>
+                    <Text className='font-bold text-2xl'>Forgot Password</Text>
                 </View>
                 <View className="w-full justify-start min-h-[75vh] px-4 mb-6">
                     <FormField
@@ -71,10 +71,6 @@ const Login = () => {
                         value={password}
                     />
 
-                    <Text className="mt-4 text-lg text-gray-100 font-pregular">
-                        Forgot Password {' '}
-                        <Link href="/ForgotPassword" className='text-lg font-psemibold text-primary'>Click Here</Link>
-                    </Text>
                     <View className='mt-10'>
                         <CustomButton
                             title='Log In'
@@ -89,4 +85,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default ForgotPassword;

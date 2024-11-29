@@ -4,7 +4,7 @@ import React from 'react'
 import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 const OrgLogin = () => {
     return (
         // <SafeAreaView style={{ flex: 1, backgroundColor: '#6A3DE8' }}>
@@ -43,6 +43,11 @@ const OrgLogin = () => {
                         outerInput="border-gray-300 focus:border-primary focus:bg-primary"
                         placeholder="Organization Id"
                     />
+
+                    <Text className="mt-4 text-lg text-gray-100 font-pregular">
+                        Forgot Password {' '}
+                        <Link href="/ForgotPassword" className='text-lg font-psemibold text-primary'>Click Here</Link>
+                    </Text>
 
                     <View className='mt-10'>
                         <CustomButton

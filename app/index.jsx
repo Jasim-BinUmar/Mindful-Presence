@@ -20,7 +20,7 @@ const Index = () => {
         //router.push('/(auth)/userAuthScreen');
         //router.replace('/(screens)/(courseView)/CurriculumView')
         //router.replace('/(screens)/(guide)/FullGuide')
-        router.replace('/(screens)/(home)/Home')
+        router.replace('/(auth)/userAuthScreen')
       }, 300)
       return () => clearTimeout(timer)
  
