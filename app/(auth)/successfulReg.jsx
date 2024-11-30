@@ -38,9 +38,9 @@ export default function SuccessfulReg() {
             <Text className="text-center text-gray-800 text-lg mb-12 leading-7">
                 This App includes resources For all types{'\n'}
                 of people. So to get personalized{'\n'}
-                relevant resources do the self{'\n'}
-                Assesment. You can always redo it by{'\n'}
-                going into your Profile.
+                relevant resources complete the self{'\n'}
+                Assesment. You can always recomplete it {'\n'}
+                by going into your Profile.
             </Text>
 
             {/* Self Assessment Button */}

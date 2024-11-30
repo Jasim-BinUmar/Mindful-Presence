@@ -10,10 +10,11 @@ export default function Component() {
   const router = useRouter(); // Get router instance
 
   const contentCardData = [
-    { id: '1', image: images.contentCard1, title: 'Daily Meditative Practices Morning or Evening' },
-    { id: '2', image: images.contentCard2, title: 'Daily Set-back Soulful meditations, Inner Awakening, Wellbeing areas' },
+    { id: '1', image: images.contentCard1, title: 'Daily Journaling & Introspection' },
+    { id: '2', image: images.contentCard2, title: 'Daily Wellbeing Tools & Meditative Techniques' },
     { id: '3', image: images.contentCard3, title: 'Situational/Occasional Resources, Challenges, Affirmations & Visualisations' },
-    { id: '4', image: images.contentCard4, title: 'Self Growth Action Steps' },
+    { id: '4', image: images.contentCard4, title: 'Self Growth Strategies' },
+    { id: '5', image: images.contentCard5, title: 'Well-Being & Coping Mechanism' },
   ];
 
   const renderContentCard = ({ item }) => (

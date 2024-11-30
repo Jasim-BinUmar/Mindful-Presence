@@ -81,7 +81,7 @@ const CurriculumView = () => {
         <View>
           <View className="mt-6 -mb-4">
             <Text className="font-bold text-2xl text-center mb-4">
-              Understanding The Power Of Affirmation, Visualisation, And Meditation
+              Understanding The Power Of Affirmation, visualisation, And Meditation
             </Text>
           </View>
           <View>

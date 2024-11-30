@@ -74,7 +74,7 @@ export default function Questionnaire7() {
                             accessibilityLabel="Select an option for mental health support"
                         >
                             <Picker.Item label="Joyful moods (e.g happiness, hope)" value="" />
-                            <Picker.Item label="Sad Modds (e.g loneliness)" value="" />
+                            <Picker.Item label="Sad Moods (e.g loneliness)" value="" />
                             <Picker.Item label="Anxiety moods (e.g worry, fear)" value="" />
                             <Picker.Item label="Irritable moods (e.g anger, aggression)" value="" />
                         </Picker>
