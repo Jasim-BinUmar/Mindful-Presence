@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import CustomButton from '../../../components/CustomButton';
-import { router } from 'expo-router';
+//import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
+import {getCurrentUser} from '../../../lib/appWrite'; 
 
 const payment = () => {
+  router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState(null); // Track selected plan
+  const [uId, setUid] = useState(null);
+  //Getting current user id
+      useEffect(() => {
+          const checkUserSession = async () => {
+              try {
+                  const currentUser = await getCurrentUser();
+                  console.log("Current user's Id "+ currentUser.$id)
+                  if (currentUser) {
+                     setUid(currentUser.$id);
+                     console.log("Current user's Id "+ currentUser.$id + " uId " + uId)
+                  }
+              } catch (error) {
+                  console.log('No active session found', error);
+              }
+          };
+  
+          checkUserSession();
+      }, []);
+  
+
 
   // Function to handle card selection
   const handleSelectPlan = (index) => {
-    setSelectedPlan(index);
+    setSelectedPlan(index);         
   };
   const paymentPlan = [
     { duration: '1 month', price: '119' },
@@ -21,14 +44,30 @@ const payment = () => {
 
   // Function to go back to the previous screen
   const goBack = () => {
-    router.push('/(selfAssesment)/questionnaire1');
+    router.replace('/(home)/Home');
   };
 
   // Function to submit response using fetch
   const submitResponse = async () => {
-    router.push('/paymentMethod')
+    
+    if (selectedPlan !== null) {
 
+      // console.log("user Id " + uId + " Duration " + paymentPlan[selectedPlan].duration);
+
+      // router.push({
+      //   pathname: '/paymentMethod',
+      //   params: {
+      //     duration: paymentPlan[selectedPlan].duration,
+      //     price: paymentPlan[selectedPlan].price,
+      //     userId: uId,
+      //   },
+      // });
+      router.push('../paymentMethod');
+    } else {
+      alert('Please select a plan before proceeding.');
+    }
   };
+  
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

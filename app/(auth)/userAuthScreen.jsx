@@ -7,11 +7,11 @@ import { router, Redirect } from "expo-router";
 
 export default function userAuthScreen() {
   return (
-    <View className="flex-1">
+    <View className="flex-1 ">
       <StatusBar style="light" />
       <ImageBackground
         source={images.homeBg}
-        className="flex-1 "
+        className="h-screen"
       >
 
         <SafeAreaView className="flex-1 justify-between p-5">

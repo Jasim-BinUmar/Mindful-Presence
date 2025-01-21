@@ -17,10 +17,10 @@ const Index = () => {
     
       const timer =   setTimeout(() => {
         setIsLoading(false)
-        //router.push('/(auth)/userAuthScreen');
+        router.replace('/(auth)/userAuthScreen');
         //router.replace('/(screens)/(courseView)/CurriculumView')
         //router.replace('/(screens)/(guide)/FullGuide')
-        router.replace('/(screens)/(home)/Home')
+        //router.replace('/(screens)/(home)/Home')
       }, 300)
       return () => clearTimeout(timer)
  

@@ -5,7 +5,7 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { signIn, getCurrentUser } from '../../lib/appWrite'; // Adjust path as needed
+import { signIn, getCurrentUser } from '../../lib/appWrite'; 
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -17,6 +17,7 @@ const Login = () => {
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
                     Alert.alert('Welcome Back', `You are already logged in as ${currentUser.email}`);
+                    console.log(currentUser.$id);
                     router.replace('/(home)/Home'); // Redirect if a session exists
                 }
             } catch (error) {
