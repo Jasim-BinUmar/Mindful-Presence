@@ -66,14 +66,35 @@ export default function BookSession() {
       timeSlot: selectedTime,
       userId,
     };
+    // try {
+    //   const response = await apiService.post(endpoints.bookSession, sessionDetails);
+    //   console.log('Booking successful:', response);
+    //   router.replace('SuccessfulBooking');
+    // } catch (error) {
+    //     Alert.alert('Session Not booked', );
+    //     console.error('Error booking session:', error);
+    // }
+
+    
+    
     try {
       const response = await apiService.post(endpoints.bookSession, sessionDetails);
-      console.log('Booking successful:', response);
-      router.replace('SuccessfulBooking');
+      
+      if (
+        response.message === "You already have a session after the current date." ||
+        response.message === "This time slot is already booked"
+      ) {
+        // Show an alert for the specific message
+        Alert.alert('Session not booked', response.message); // Fixed response.message access
+      } else {
+        console.log('Booking successful:', response);
+        router.replace('SuccessfulBooking');
+      }
+      
     } catch (error) {
-        Alert.alert('Session Not booked', );
-        console.error('Error booking session:', error);
+      console.log('Error: ' + error);
     }
+    
 };
 
   return (
