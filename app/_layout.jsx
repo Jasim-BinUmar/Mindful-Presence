@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import "../global.css";
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { GlobalProvider } from '../lib/globalContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,15 +28,14 @@ export default function RootLayout() {
   }
 
   return (
-    
-    <Stack
-    screenOptions={{
-      headerShown: false,
-    }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name = "(auth)"/>
-      
-    </Stack>
-    
+    <GlobalProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+      </Stack>
+    </GlobalProvider>
   );
 }

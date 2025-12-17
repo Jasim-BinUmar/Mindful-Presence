@@ -4,7 +4,8 @@ import CustomButton from '../../../components/CustomButton'
 import { images } from '../../../constants'
 import { ChevronLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
-export default function questionnaire1() {
+
+export default function Questionnaire1() {
     // State to keep track of the selected answer
     const [selectedAgeRange, setSelectedAgeRange] = useState(null);
 

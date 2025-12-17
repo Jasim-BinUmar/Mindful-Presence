@@ -1,44 +1,49 @@
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { signIn, getCurrentUser } from '../../lib/appWrite'; // Adjust path as needed
+import { useGlobalContext } from '../../lib/globalContext';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { login, isAuthenticated, isLoading } = useGlobalContext();
 
     useEffect(() => {
-        const checkUserSession = async () => {
-            try {
-                const currentUser = await getCurrentUser();
-                if (currentUser) {
-                    Alert.alert('Welcome Back', `You are already logged in as ${currentUser.email}`);
-                    router.replace('/(home)/Home'); // Redirect if a session exists
-                }
-            } catch (error) {
-                console.log('No active session found', error);
-            }
-        };
-
-        checkUserSession();
-    }, []);
+        // Redirect if already authenticated
+        if (isAuthenticated && !isLoading) {
+            router.replace('/(screens)/(home)/Home');
+        }
+    }, [isAuthenticated, isLoading]);
 
     const handleLogin = async () => {
+        if (!email.trim() || !password) {
+            Alert.alert('Error', 'Please enter both email and password');
+            return;
+        }
+
         const trimmedEmail = email.trim();
+        setIsSubmitting(true);
+
         try {
-            console.log("Email in login form:", trimmedEmail);
-            const session = await signIn(trimmedEmail, password);
-            if (session) {
+            console.log("Attempting login with email:", trimmedEmail);
+            const response = await login({ email: trimmedEmail, password });
+            
+            if (response.success) {
                 Alert.alert('Success', 'Logged in successfully');
-                router.replace('/(home)/Home');
+                router.replace('/(screens)/(home)/Home');
+            } else {
+                Alert.alert('Login Failed', response.message || 'Invalid credentials');
             }
         } catch (error) {
             console.error('Login error:', error);
             Alert.alert('Login Failed', error.message || 'An unknown error occurred');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -72,11 +77,15 @@ const Login = () => {
                     />
                     <View className='mt-10'>
                         <CustomButton
-                            title='Log In'
+                            title={isSubmitting ? 'Logging in...' : 'Log In'}
                             handlePress={handleLogin}
                             containerStyles="bg-primary rounded-full w-full"
                             textStyles="text-lg font-bold text-secondary"
+                            disabled={isSubmitting}
                         />
+                        {isSubmitting && (
+                            <ActivityIndicator size="small" color="#0000ff" style={{ marginTop: 10 }} />
+                        )}
                     </View>
                 </View>
             </ScrollView>
