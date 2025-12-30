@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { icons } from '../../../constants';
 import { router } from 'expo-router';
@@ -146,22 +144,22 @@ export default function Component() {
 
                     {/* Profile Tags Section - Clean Display */}
                     {profileInsights && (
-                        <View className="mt-6 mx-4 p-4 bg-gradient-to-br from-primary/10 to-purple-50 rounded-xl border border-primary/20">
-                            <View className="flex-row items-center justify-between mb-3">
+                    <View className="mt-6 mx-4 p-4 bg-gradient-to-br from-primary/10 to-purple-50 rounded-xl border border-primary/20">
+                        <View className="flex-row items-center justify-between mb-3">
                                 <Text className="text-lg font-semibold text-gray-800">Your Profile Tags</Text>
-                                <TouchableOpacity 
-                                    onPress={fetchProfileInsights}
-                                    disabled={insightsLoading}
-                                    className="px-3 py-1 bg-primary rounded-full"
-                                >
-                                    {insightsLoading ? (
-                                        <ActivityIndicator size="small" color="#FFFFFF" />
-                                    ) : (
-                                        <Text className="text-white text-xs font-semibold">Refresh</Text>
-                                    )}
-                                </TouchableOpacity>
-                            </View>
-                            
+                            <TouchableOpacity 
+                                onPress={fetchProfileInsights}
+                                disabled={insightsLoading}
+                                className="px-3 py-1 bg-primary rounded-full"
+                            >
+                                {insightsLoading ? (
+                                    <ActivityIndicator size="small" color="#FFFFFF" />
+                                ) : (
+                                    <Text className="text-white text-xs font-semibold">Refresh</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                        
                             {/* Collect all tags from insights */}
                             {(() => {
                                 const allTags = [];
@@ -194,14 +192,14 @@ export default function Component() {
                                 
                                 if (allTags.length === 0) {
                                     return (
-                                        <View className="py-4">
-                                            <Text className="text-sm text-gray-600 text-center mb-2">
+                            <View className="py-4">
+                                <Text className="text-sm text-gray-600 text-center mb-2">
                                                 No tags available yet.
                                             </Text>
                                             <Text className="text-xs text-gray-500 text-center">
                                                 Complete assessments to get personalized tags.
                                             </Text>
-                                        </View>
+                                                        </View>
                                     );
                                 }
                                 
@@ -222,23 +220,23 @@ export default function Component() {
                                                 <Text className="text-white text-sm font-semibold">
                                                     {tag.name}
                                                     {tag.score && ` (${tag.score})`}
-                                                </Text>
-                                            </View>
-                                        ))}
-                                    </View>
+                                                            </Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
                                 );
                             })()}
-                            
+
                             {/* One-line summary if available */}
                             {profileInsights.recommendations && profileInsights.recommendations.length > 0 && (
                                 <View className="mt-4 pt-4 border-t border-primary/20">
                                     <Text className="text-sm text-gray-700 leading-5">
                                         {profileInsights.recommendations[0]}
-                                    </Text>
+                                            </Text>
                                 </View>
                             )}
                         </View>
-                    )}
+                        )}
                     
                     {!profileInsights && !insightsLoading && (
                         <View className="mt-6 mx-4 p-4 bg-gray-50 rounded-xl">
@@ -248,7 +246,7 @@ export default function Component() {
                             <Text className="text-xs text-gray-500 text-center">
                                 Complete assessments to get personalized insights.
                             </Text>
-                        </View>
+                    </View>
                     )}
 
                     <View className="mt-8 space-y-4 p-4">
