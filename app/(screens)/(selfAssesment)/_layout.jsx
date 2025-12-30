@@ -86,6 +86,27 @@ const _layout = () => {
                     }
 
                 />
+                <Stack.Screen name='AssessmentQuestion'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+                />
+                <Stack.Screen name='AssessmentComplete'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+                />
+                <Stack.Screen name='AssessmentStart'
+                    options={
+                        {
+                            headerShown: false
+                        }
+                    }
+                />
             </Stack>
 
             {/* <StatusBar backgroundColor="#161622" style="light"/> */}

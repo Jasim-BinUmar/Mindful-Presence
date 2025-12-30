@@ -1,18 +1,24 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { api } from '../../services/api';
+import { useGlobalContext } from '../../lib/globalContext';
 
 export default function OTPScreen() {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const { email, registrationData } = useLocalSearchParams();
+  const { login } = useGlobalContext();
+  const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits
   const [activeInput, setActiveInput] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const handleNumberPress = (num) => {
-    if (activeInput < 4) {
+    if (activeInput < 6) {
       const newOtp = [...otp];
       newOtp[activeInput] = num;
       setOtp(newOtp);
-      setActiveInput(prev => Math.min(prev + 1, 3));
+      setActiveInput(prev => Math.min(prev + 1, 5));
     }
   };
 
@@ -27,23 +33,96 @@ export default function OTPScreen() {
     setOtp(newOtp);
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const otpString = otp.join('');
-    // Handle verification logic here
-    router.replace('../(screens)/(home)/Home')
-    console.log('Verifying OTP:', otpString);
+    
+    if (otpString.length !== 6) {
+      Alert.alert('Error', 'Please enter the complete 6-digit OTP');
+      return;
+    }
+
+    if (!email) {
+      Alert.alert('Error', 'Email not found. Please try registering again.');
+      router.back();
+      return;
+    }
+
+    setIsVerifying(true);
+
+    try {
+      const response = await api.auth.registerVerifyOtp({
+        email: email,
+        otp: otpString
+      });
+
+      if (response.success) {
+        // Auto-login after successful verification
+        if (response.accessToken) {
+          // User is already logged in via token storage
+          // Navigate to success screen, then auto-navigate to home
+          router.replace({
+            pathname: '/(auth)/successfulReg',
+            params: { autoLogin: 'true' }
+          });
+        } else {
+          Alert.alert('Success', 'Registration successful!', [
+            {
+              text: 'OK',
+              onPress: () => router.replace('/(screens)/(home)/Home')
+            }
+          ]);
+        }
+      } else {
+        Alert.alert('Verification Failed', response.message || 'Invalid OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      let errorMessage = error.message || 'Failed to verify OTP';
+      if (error.data?.message) {
+        errorMessage = error.data.message;
+      }
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
-  const handleResendCode = () => {
-    // Handle resend logic here
-    console.log('Resending code...');
+  const handleResendCode = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Email not found');
+      return;
+    }
+
+    setIsResending(true);
+
+    try {
+      const response = await api.auth.registerResendOtp({ email });
+      
+      if (response.success) {
+        Alert.alert('Success', 'OTP has been resent to your email');
+        // Reset OTP input
+        setOtp(['', '', '', '', '', '']);
+        setActiveInput(0);
+      } else {
+        Alert.alert('Error', response.message || 'Failed to resend OTP');
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      let errorMessage = error.message || 'Failed to resend OTP';
+      if (error.data?.message) {
+        errorMessage = error.data.message;
+      }
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
     <View className="flex-1 bg-white px-4">
       {/* Header */}
       <View className="flex-row items-center justify-between pt-12 pb-8">
-        <TouchableOpacity className="p-2">
+        <TouchableOpacity className="p-2" onPress={() => router.back()}>
           <ChevronLeft size={24} color="#000" />
         </TouchableOpacity>
         <Text className="text-xl font-semibold">OTP</Text>
@@ -51,20 +130,20 @@ export default function OTPScreen() {
       </View>
 
       {/* Instructions */}
-      <Text className="text-center text-lg mb-8">
-        Enter 4 digit otp that we just send in your email
+      <Text className="text-center text-lg mb-8 px-4">
+        Enter 6 digit otp that we just send in your email
       </Text>
 
       {/* OTP Input Boxes */}
-      <View className="flex-row justify-center space-x-4 mb-8">
+      <View className="flex-row justify-center mb-8 px-4" style={{ gap: 12 }}>
         {otp.map((digit, index) => (
           <Pressable
             key={index}
             onPress={() => setActiveInput(index)}
-            className={`w-16 h-16 items-center justify-center rounded-2xl ${
+            className={`w-14 h-14 items-center justify-center rounded-2xl ${
               index === activeInput
                 ? 'bg-purple-50 border-2 border-primary'
-                : 'bg-gray-50'
+                : 'bg-gray-50 border border-gray-200'
             }`}
           >
             <Text className="text-2xl font-semibold">{digit}</Text>
@@ -75,18 +154,36 @@ export default function OTPScreen() {
       {/* Verify Button */}
       <TouchableOpacity
         onPress={handleVerify}
-        className="bg-primary rounded-full py-4 mb-4"
+        disabled={isVerifying || otp.join('').length !== 6}
+        className={`bg-primary rounded-full py-4 mb-4 ${(isVerifying || otp.join('').length !== 6) ? 'opacity-50' : ''}`}
       >
-        <Text className="text-white text-center text-lg font-semibold">
-          Verify
-        </Text>
+        {isVerifying ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text className="text-white text-center text-lg font-semibold">
+            Verify
+          </Text>
+        )}
       </TouchableOpacity>
 
       {/* Resend Code */}
-      <TouchableOpacity onPress={handleResendCode}>
-        <Text className="text-primary text-center text-base">
-          Resend Code
-        </Text>
+      <TouchableOpacity 
+        onPress={handleResendCode}
+        disabled={isResending}
+        className={isResending ? 'opacity-50' : ''}
+      >
+        {isResending ? (
+          <View className="flex-row items-center justify-center">
+            <ActivityIndicator size="small" color="#623AD9" />
+            <Text className="text-primary text-center text-base ml-2">
+              Resending...
+            </Text>
+          </View>
+        ) : (
+          <Text className="text-primary text-center text-base">
+            Resend Code
+          </Text>
+        )}
       </TouchableOpacity>
 
       {/* Number Pad */}

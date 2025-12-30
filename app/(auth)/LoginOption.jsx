@@ -23,16 +23,17 @@ export default function LoginOption() {
             </View>
             <View className="w-full mb-10 px-5">
               
-              <CustomButton title='Login As a Subscriber'
+              <CustomButton title='Login As A Subscriber'
               handlePress={() => { router.push('/(auth)/Login') }}
               containerStyles="bg-primary py-4 mb-4"
               textStyles="text-lg font-bold text-primary text-white"
               />
-              <CustomButton title='Login with Organization Key'
+              {/* Temporarily commented out - Login with Organization Key */}
+              {/* <CustomButton title='Login with Organization Key'
               handlePress={() => { router.push('/(auth)/OrgLogin') }}
               containerStyles="bg-secondary-100 py-4 mb-4 border-2 border-gray-500"
               textStyles="text-lg font-bold bg-secondary-100 text-gray-500 "
-              />
+              /> */}
             </View>
           </SafeAreaView>
         

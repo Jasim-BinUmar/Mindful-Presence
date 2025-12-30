@@ -3,15 +3,37 @@ import React from 'react'
 import FormField from '../../../components/FormField'
 import CustomButton from '../../../components/CustomButton'
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native';
 
 const cardDetails = () => {
+    const params = useLocalSearchParams();
+    const { courseId, courseTitle, coursePrice, paymentType } = params;
 
     // Function to go back to the previous screen
     const goBack = () => {
-        router.push('../(home)/Home');
+        if (paymentType === 'course') {
+            router.push({
+                pathname: '/(payment)/paymentMethod',
+                params: { courseId, courseTitle, coursePrice, paymentType }
+            });
+        } else {
+            router.push('../(home)/Home');
+        }
+    };
+
+    const handleCheckout = () => {
+        const routeParams = {
+            ...(courseId && { courseId }),
+            ...(courseTitle && { courseTitle }),
+            ...(coursePrice && { coursePrice }),
+            ...(paymentType && { paymentType }),
+        };
+        router.push({
+            pathname: '/checkout',
+            params: routeParams
+        });
     };
 
     return (
@@ -22,7 +44,7 @@ const cardDetails = () => {
                     <View className='flex-row items-center mb-6 '>
 
                         <TouchableOpacity className="pr-2"
-                            handlePress={goBack}
+                            onPress={goBack}
                         >
                             <ChevronLeft size={24} color="#000" />
                         </TouchableOpacity>
@@ -91,8 +113,8 @@ const cardDetails = () => {
                 </View>
                 <View>
                     <CustomButton
-                        title='Sign Up'
-                        handlePress={() => { router.push('/checkout') }}
+                        title='Continue'
+                        handlePress={handleCheckout}
                         containerStyles="bg-primary py-4 mb-4 rounded-full mx-3"
                         textStyles="text-lg font-bold text-secondary"
                     />

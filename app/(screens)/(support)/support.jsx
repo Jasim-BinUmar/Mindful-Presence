@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, CreditCard, Calendar, HeadphonesIcon } from 
 import { icons, images } from '../../../constants'
 import { router } from 'expo-router'
 
-export default function support() {
+export default function Support() {
 
 
     return (

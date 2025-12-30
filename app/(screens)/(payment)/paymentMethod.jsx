@@ -4,10 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import CreditCard from '../../../components/CreditCard';
 import { TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import CustomButton from '../../../components/CustomButton';
 
 export default function paymentMethod() {
+    const params = useLocalSearchParams();
+    const { courseId, courseTitle, coursePrice, paymentType } = params;
+    
     // State to keep track of the selected credit method
     const [paymentMethod, setPaymentMethod] = useState(null);
 
@@ -16,13 +19,29 @@ export default function paymentMethod() {
         setPaymentMethod(payment);
     };
 
-    const submitResponse = (paymentMethod) => {
-        router.push('/cardDetails')
+    const submitResponse = () => {
+        const routeParams = {
+            ...(courseId && { courseId }),
+            ...(courseTitle && { courseTitle }),
+            ...(coursePrice && { coursePrice }),
+            ...(paymentType && { paymentType }),
+        };
+        router.push({
+            pathname: '/cardDetails',
+            params: routeParams
+        });
     }
     
     // Function to go back to the previous screen
     const goBack = () => {
-        router.push('/(payment)/Payment');
+        if (paymentType === 'course') {
+            router.push({
+                pathname: '/(payment)/coursePayment',
+                params: { courseId, courseTitle, coursePrice }
+            });
+        } else {
+            router.push('/(payment)/Payment');
+        }
     };
 
     return (

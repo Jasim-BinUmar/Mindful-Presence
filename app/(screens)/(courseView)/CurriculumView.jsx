@@ -4,11 +4,23 @@ import { ScrollView } from 'react-native';
 import images from '../../../constants/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CourseContent from '../../../components/CourseContent';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { setContent } from '../../../lib/globalContext';
 
 const CurriculumView = () => {
   const router = useRouter();
+  const { courseId } = useLocalSearchParams();
+  const hasRedirectedRef = React.useRef(false);
+
+  // State for managing refresh - MUST be before any conditional returns
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   const handleSubmit = (id) => {
     setContent(id);
@@ -57,17 +69,34 @@ const CurriculumView = () => {
     },
   ];
 
-  // State for managing refresh
-  const [refreshing, setRefreshing] = useState(false);
+  // If courseId is provided, redirect to CourseDetails (only once)
+  // This MUST be after all hooks are called
+  React.useEffect(() => {
+    if (courseId && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      console.log('CurriculumView: Redirecting to CourseDetails with courseId:', courseId);
+      
+      // Use setTimeout to ensure navigation happens after render
+      setTimeout(() => {
+        router.replace({
+          pathname: '/(courseView)/CourseDetails',
+          params: { courseId }
+        });
+      }, 100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId]); // Only depend on courseId, use ref for redirect guard
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-
-    // Simulate fetching new data or performing some operation
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000); // Replace this with actual data-fetching logic
-  }, []);
+  // If redirecting, show a simple loading view instead of returning null
+  if (courseId && hasRedirectedRef.current) {
+    return (
+      <SafeAreaView className="h-full bg-white">
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-600">Loading course...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="h-full">

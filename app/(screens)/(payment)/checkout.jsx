@@ -3,20 +3,38 @@ import React from 'react'
 import FormField from '../../../components/FormField'
 import CustomButton from '../../../components/CustomButton'
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native';
 import CreditCard from '../../../components/CreditCard';
 import { images } from '../../../constants';
+
 const checkout = () => {
+    const params = useLocalSearchParams();
+    const { courseId, courseTitle, coursePrice, paymentType } = params;
+    const price = parseFloat(coursePrice) || 0;
+    const tax = price * 0.1; // 10% tax
+    const total = price + tax;
 
     // Function to go back to the previous screen
     const goBack = () => {
-        router.push('/cardDetails');
+        router.push({
+            pathname: '/cardDetails',
+            params: { courseId, courseTitle, coursePrice, paymentType }
+        });
     };
 
-    const submit = () =>{
-        router.replace('../(home)/Home')
+    const submit = () => {
+        const routeParams = {
+            ...(courseId && { courseId }),
+            ...(courseTitle && { courseTitle }),
+            ...(coursePrice && { coursePrice }),
+            ...(paymentType && { paymentType }),
+        };
+        router.push({
+            pathname: '/(payment)/successfulPayment',
+            params: routeParams
+        });
     }
     return (
         <SafeAreaView className='flex-1 bg-white'>
@@ -32,23 +50,30 @@ const checkout = () => {
 
                 <View className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-80">
                     <Text className="text-lg font-semibold text-gray-700 mb-4">Payment Summary</Text>
+                    
+                    {paymentType === 'course' && courseTitle && (
+                        <View className="mb-3 pb-3 border-b border-gray-200">
+                            <Text className="text-gray-500 text-sm mb-1">Course</Text>
+                            <Text className="text-gray-800 font-medium text-sm">{courseTitle}</Text>
+                        </View>
+                    )}
 
                     <View className="flex-row justify-between mb-2">
                         <Text className="text-gray-500">Subtotal</Text>
-                        <Text className="text-gray-800 font-medium">$199</Text>
+                        <Text className="text-gray-800 font-medium">${price > 0 ? price.toFixed(2) : '199.00'}</Text>
                     </View>
                     <View className="border-t border-gray-300 my-2" />
 
                     <View className="flex-row justify-between mb-2">
                         <Text className="text-gray-500">Tax</Text>
-                        <Text className="text-gray-800 font-medium">$10</Text>
+                        <Text className="text-gray-800 font-medium">${price > 0 ? tax.toFixed(2) : '10.00'}</Text>
                     </View>
 
                     <View className="border-t border-gray-300 my-2" />
 
                     <View className="flex-row justify-between">
                         <Text className="text-gray-700 font-semibold">Total</Text>
-                        <Text className="text-gray-800 font-semibold">$209</Text>
+                        <Text className="text-gray-800 font-semibold">${price > 0 ? total.toFixed(2) : '209.00'}</Text>
                     </View>
                 </View>
 

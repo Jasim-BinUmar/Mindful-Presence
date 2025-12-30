@@ -1,14 +1,59 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { images } from '../../../constants';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import api from '../../../services/api';
 
 export default function successfulPayment() {
-    const handleSelfAssessment = () => {
-        // Handle navigation to self assessment
-        router.push('/(payment)/paymentMethod')
-        console.log('Navigating to self assessment...');
+    const params = useLocalSearchParams();
+    const { courseId, courseTitle, coursePrice, paymentType } = params;
+    const [enrolling, setEnrolling] = useState(false);
+    const [enrolled, setEnrolled] = useState(false);
+
+    useEffect(() => {
+        // If this is a course payment, enroll the user
+        if (paymentType === 'course' && courseId && !enrolled && !enrolling) {
+            enrollInCourse();
+        }
+    }, [paymentType, courseId]);
+
+    const enrollInCourse = async () => {
+        if (!courseId) return;
+        
+        try {
+            setEnrolling(true);
+            await api.courses.enrollInCourse(courseId);
+            setEnrolled(true);
+            console.log('Successfully enrolled in course after payment');
+        } catch (err) {
+            console.error('Error enrolling in course:', err);
+            // If user is already enrolled (409 Conflict), that's fine
+            if (err.status === 409 || err.statusCode === 409 || err.message?.toLowerCase().includes('already enrolled')) {
+                setEnrolled(true);
+            } else {
+                Alert.alert(
+                    'Enrollment Error',
+                    'Payment was successful but there was an issue enrolling you in the course. Please contact support.',
+                    [{ text: 'OK' }]
+                );
+            }
+        } finally {
+            setEnrolling(false);
+        }
+    };
+
+    const handleContinue = () => {
+        if (paymentType === 'course' && courseId) {
+            // Navigate back to course details
+            router.replace({
+                pathname: '/(courseView)/CourseDetails',
+                params: { courseId }
+            });
+        } else {
+            // Default navigation for other payment types
+            router.push('/(home)/Home');
+        }
     };
 
     return (
@@ -32,13 +77,33 @@ export default function successfulPayment() {
                 Your Payment has been Completed Successfully
             </Text>
 
-            {/* Self Assessment Button */}
+            {paymentType === 'course' && (
+                <View className="mb-4">
+                    {enrolling ? (
+                        <View className="items-center mb-4">
+                            <ActivityIndicator size="small" color="#623AD9" />
+                            <Text className="text-gray-600 text-sm mt-2">
+                                Enrolling you in the course...
+                            </Text>
+                        </View>
+                    ) : enrolled ? (
+                        <View className="bg-green-100 px-4 py-2 rounded-lg mb-4">
+                            <Text className="text-green-800 text-center text-sm font-semibold">
+                                ✓ Successfully enrolled in {courseTitle || 'the course'}
+                            </Text>
+                        </View>
+                    ) : null}
+                </View>
+            )}
+
+            {/* Continue Button */}
             <TouchableOpacity
-                onPress={handleSelfAssessment}
+                onPress={handleContinue}
                 className="w-full bg-primary rounded-full py-4 px-6 mb-6"
+                disabled={enrolling}
             >
                 <Text className="text-white text-center text-xl font-semibold">
-                    Continue
+                    {paymentType === 'course' ? 'Go to Course' : 'Continue'}
                 </Text>
             </TouchableOpacity>
         </View>

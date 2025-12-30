@@ -28,11 +28,12 @@ export default function userRegistrationScreen() {
               containerStyles="bg-primary py-4 mb-4"
               textStyles="text-lg font-bold text-primary text-white"
               />
-              <CustomButton title='Register with Organization Key'
+              {/* Temporarily commented out - Register with Organization Key */}
+              {/* <CustomButton title='Register with Organization Key'
               handlePress={() => { router.push('/(auth)/signUpOrg') }}
               containerStyles="bg-secondary-100 py-4 mb-4 border-2 border-gray-500"
               textStyles="text-lg font-bold bg-secondary-100 text-gray-500 "
-              />
+              /> */}
             </View>
           </SafeAreaView>
         

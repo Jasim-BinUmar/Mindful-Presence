@@ -18,7 +18,7 @@ export default function questionnaire10() {
             useNativeDriver: true,
         }).start(() => {
             // Navigate to the home screen once animation is complete
-            router.replace('/(home)/Home')
+            router.replace('/(screens)/(home)/Home')
         });
 
         // Update percentage counter

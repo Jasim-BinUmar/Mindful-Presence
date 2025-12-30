@@ -7,8 +7,8 @@ import BookSession from '../(bookSession)/BookSession';
 import Favourite from '../Favourite'
 import FullGuide from './FullGuide';
 import { icons } from '../../../constants';
-import support from '../(support)/support';
-import questionnaire1 from '../(selfAssesment)/questionnaire1'
+import Support from '../(support)/support';
+import Questionnaire1 from '../(selfAssesment)/questionnaire1'
 const Tab = createBottomTabNavigator();
 
 
@@ -47,7 +47,7 @@ const guideLayout = () => {
       />
       <Tab.Screen
         name="Contact"
-        component={support}
+        component={Support}
         options={{
           headerShown: false,
           tabBarIcon: ({ color = '#623AD9', size }) => (
@@ -58,7 +58,7 @@ const guideLayout = () => {
       />
       <Tab.Screen
         name="Assessment"
-        component={questionnaire1}
+        component={Questionnaire1}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (

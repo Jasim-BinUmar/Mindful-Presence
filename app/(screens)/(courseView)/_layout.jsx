@@ -1,134 +1,14 @@
 import * as React from 'react';
-import { Text, View, Image, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Home from '../(home)/Home'
-import BookSession from '../(bookSession)/BookSession';
-import Favourite from '../Favourite'
-import CurriculumView from './CurriculumView';
-import { icons } from '../../../constants';
-import { images } from '../../../constants';
-import support from '../(support)/support';
-import questionnaire1 from '../(selfAssesment)/questionnaire1'
-import ContentView from './ContentView';
+import { Stack } from 'expo-router';
 
-
-const Tab = createBottomTabNavigator();
-
-
-const guideLayout = () => {
+export default function CourseViewLayout() {
   return (
-
-    <Tab.Navigator screenOptions={{
-      tabBarStyle: {
-        height: 70,
-        borderTopWidth: 0, // remove top border
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -5 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        paddingBottom: 10,
-        elevation: 5, // for Android shadow
-      },
-      tabBarLabelStyle: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        width: 100,
-        marginTop: 5,
-      },
-      tabBarItemStyle: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      tabBarActiveTintColor: '#623AD9', // Icon color when focused
-      tabBarInactiveTintColor: 'gray', // Icon color when not focused
-    }}
-    >
-      {/* use icons icons.home, icons.pricing, icons.bookSession,icons.favourite  from the icons import*/}
-      <Tab.Screen
-        name="CurriculumView"
-        component={CurriculumView} // or an empty component that does nothing
-        options={{
-          headerShown: false,
-          //tabBarButton: () => null, // This hides the tab bar item
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
-      <Tab.Screen
-        name="ContentView"
-        component={ContentView} // or an empty component that does nothing
-        options={{
-          headerShown: false,
-          tabBarButton: () => null, // This hides the tab bar item
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
-      <Tab.Screen
-        name="Contact"
-        component={support}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color = '#623AD9', size }) => (
-            <Image source={icons.contact} style={{ width: size, height: size, tintColor: color }} />
-          ),
-        }}
-
-      />
-      <Tab.Screen
-        name="Assessment"
-        component={questionnaire1}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Image source={icons.selfAssessment} style={{ width: size, height: size, tintColor: color }} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color = '#623AD9', size }) => (
-            <Image source={icons.home} style={{ width: size, height: size, tintColor: color }} />
-          ),
-          tabBarButton: (props) => {
-            const router = useRouter(); // Hook for navigation
-      
-            return (
-              <TouchableOpacity
-                {...props}
-                onPress={() => router.replace('../(home)/Home')} // Replace navigation logic
-              />
-            );
-          },
-        }}
-
-      />
-      <Tab.Screen
-        name="Book Session"
-        component={BookSession}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Image source={icons.bookSession} style={{ width: size, height: size, tintColor: color }} />
-          ),
-        }} />
-      <Tab.Screen
-        name="Favourites"
-        component={Favourite}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Image source={icons.favourite} style={{ width: size, height: size, tintColor: color }} />
-          ),
-        }} />
-
-    </Tab.Navigator>
-
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CourseDetails" />
+      <Stack.Screen name="CurriculumView" />
+      <Stack.Screen name="ContentView" />
+      <Stack.Screen name="VideoPlayer" />
+      <Stack.Screen name="QuizView" />
+    </Stack>
   );
 }
-
-export default guideLayout

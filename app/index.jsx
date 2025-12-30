@@ -3,30 +3,32 @@ import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from "../constants"
 import CustomSpinner from '../components/CustomSpinner'
-
-
 import { router, Redirect } from "expo-router";
+import { useGlobalContext } from '../lib/globalContext';
 
-// sample checout
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true)
+  const { isAuthenticated, isLoading: authLoading } = useGlobalContext();
 
   
-  useEffect(() =>   {
-    // Show spinner for 2 seconds when component mounts
+  useEffect(() => {
+    // Wait for auth check to complete
+    if (authLoading) {
+      return;
+    }
+
+    // Show spinner briefly, then redirect based on auth status
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      if (isAuthenticated) {
+        router.replace('/(screens)/(home)/Home');
+      } else {
+        router.replace('/(auth)/userAuthScreen');
+      }
+    }, 300);
     
-      const timer =   setTimeout(() => {
-        setIsLoading(false)
-        //router.push('/(auth)/userAuthScreen');
-        //router.replace('/(screens)/(courseView)/CurriculumView')
-        //router.replace('/(screens)/(guide)/FullGuide')
-        router.replace('/(screens)/(home)/Home')
-      }, 300)
-      return () => clearTimeout(timer)
- 
-    // Cleanup timer on unmount
-    
-  }, [])
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, authLoading])
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#6A3DE8' }}>
