@@ -837,6 +837,123 @@ export const api = {
       });
     },
   },
+
+  // ==================== APPOINTMENTS & DOCTORS ====================
+  appointments: {
+    /**
+     * Get all doctors
+     * @param {Object} queryParams - Query parameters (isActive, designation)
+     */
+    getAllDoctors: async (queryParams = {}) => {
+      const url = getEndpointWithQuery(endpoints.appointments.getAllDoctors, queryParams);
+      return await apiRequest(url);
+    },
+
+    /**
+     * Get doctor by ID
+     * @param {string} doctorId - Doctor ID
+     */
+    getDoctorById: async (doctorId) => {
+      return await apiRequest(endpoints.appointments.getDoctorById(doctorId));
+    },
+
+    /**
+     * Get doctor with schedule
+     * @param {string} doctorId - Doctor ID
+     */
+    getDoctorWithSchedule: async (doctorId) => {
+      return await apiRequest(endpoints.appointments.getDoctorWithSchedule(doctorId));
+    },
+
+    /**
+     * Get available doctors for a specific date
+     * @param {string} date - Date in YYYY-MM-DD format
+     */
+    getAvailableDoctors: async (date) => {
+      const url = getEndpointWithQuery(endpoints.appointments.getAvailableDoctors, { date });
+      return await apiRequest(url);
+    },
+
+    /**
+     * Get week view for a doctor
+     * @param {string} doctorId - Doctor ID
+     * @param {string} weekStartDate - Week start date in YYYY-MM-DD format (optional)
+     */
+    getWeekView: async (doctorId, weekStartDate = null) => {
+      const queryParams = weekStartDate ? { weekStartDate } : {};
+      const url = getEndpointWithQuery(endpoints.appointments.getWeekView(doctorId), queryParams);
+      return await apiRequest(url);
+    },
+
+    /**
+     * Get time slots for a doctor on a specific date
+     * @param {string} doctorId - Doctor ID
+     * @param {string} date - Date in YYYY-MM-DD format
+     */
+    getTimeSlots: async (doctorId, date) => {
+      const url = getEndpointWithQuery(endpoints.appointments.getTimeSlots(doctorId), { date });
+      return await apiRequest(url);
+    },
+
+    /**
+     * Book an appointment
+     * @param {Object} appointmentData - Appointment data
+     * @param {string} appointmentData.doctorId - Doctor ID
+     * @param {string} appointmentData.appointmentDate - Date in YYYY-MM-DD format
+     * @param {string} appointmentData.startTime - Start time in HH:mm format
+     * @param {string} appointmentData.endTime - End time in HH:mm format
+     * @param {string} appointmentData.notes - Optional notes
+     */
+    bookAppointment: async (appointmentData) => {
+      return await apiRequest(endpoints.appointments.bookAppointment, {
+        method: 'POST',
+        body: JSON.stringify(appointmentData),
+      });
+    },
+
+    /**
+     * Get user's appointments
+     * @param {Object} queryParams - Query parameters (status, startDate, endDate)
+     */
+    getUserAppointments: async (queryParams = {}) => {
+      const url = getEndpointWithQuery(endpoints.appointments.getUserAppointments, queryParams);
+      return await apiRequest(url);
+    },
+
+    /**
+     * Get appointment by ID
+     * @param {string} appointmentId - Appointment ID
+     */
+    getAppointmentById: async (appointmentId) => {
+      return await apiRequest(endpoints.appointments.getAppointmentById(appointmentId));
+    },
+
+    /**
+     * Get appointment history (past appointments)
+     */
+    getAppointmentHistory: async () => {
+      return await apiRequest(endpoints.appointments.getAppointmentHistory);
+    },
+
+    /**
+     * Get upcoming appointments
+     */
+    getUpcomingAppointments: async () => {
+      return await apiRequest(endpoints.appointments.getUpcomingAppointments);
+    },
+
+    /**
+     * Cancel an appointment
+     * @param {string} appointmentId - Appointment ID
+     * @param {string} cancellationReason - Optional cancellation reason
+     */
+    cancelAppointment: async (appointmentId, cancellationReason = '') => {
+      return await apiRequest(endpoints.appointments.cancelAppointment(appointmentId), {
+        method: 'POST',
+        body: JSON.stringify({ cancellationReason }),
+      });
+    },
+  },
 };
 
 export default api;

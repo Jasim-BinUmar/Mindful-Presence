@@ -3,27 +3,26 @@
  * 
  * Handles normalization of image/video URLs from the backend uploads folder.
  * Ensures URLs are properly formatted for display in the frontend.
+ * Uses BASE_URL from endpoints.js to ensure consistency.
  */
+
+import { getBaseServerUrl } from '../services/endpoints';
 
 /**
  * Get the base API URL without the /api/v1 suffix
- * @returns {string} Base URL (e.g., http://192.168.1.6:3005)
+ * Uses BASE_URL from endpoints.js dynamically
+ * @returns {string} Base URL (e.g., http://192.168.1.10:3005)
  */
 const getBaseUrl = () => {
-  const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.6:3005/api/v1';
-  // Remove /api/v1 if present to get the base server URL
-  let url = baseUrl.replace(/\/api\/v1\/?$/, '');
+  let url = getBaseServerUrl();
   
   // Replace localhost with the actual IP if needed
   // This handles cases where the backend might return localhost URLs
   if (url.includes('localhost') || url.includes('127.0.0.1')) {
-    // Use the configured IP from environment or default
-    const defaultIp = '192.168.1.6:3005';
-    const ipMatch = baseUrl.match(/(\d+\.\d+\.\d+\.\d+:\d+)/);
+    // Extract IP from the base URL if available
+    const ipMatch = url.match(/(\d+\.\d+\.\d+\.\d+:\d+)/);
     if (ipMatch) {
       url = url.replace(/localhost:\d+|127\.0\.0\.1:\d+/, ipMatch[1]);
-    } else {
-      url = url.replace(/localhost:\d+|127\.0\.0\.1:\d+/, defaultIp);
     }
   }
   

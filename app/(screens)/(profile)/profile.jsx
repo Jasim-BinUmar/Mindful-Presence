@@ -30,15 +30,28 @@ export default function Component() {
     const fetchProfile = async () => {
         try {
             setLoading(true);
+            console.log('👤 Fetching profile data...');
+            console.log('👤 Current user context:', JSON.stringify(user, null, 2));
+            
             const response = await api.user.getProfile();
+            console.log('👤 Profile API response:', JSON.stringify(response, null, 2));
+            
             if (response.success && response.data) {
-                setProfileData(response.data);
+                const apiData = response.data;
+                console.log('👤 Setting profile data from API:', apiData);
+                console.log('👤 API Name:', apiData.name || `${apiData.firstName || ''} ${apiData.lastName || ''}`.trim());
+                console.log('👤 API Email:', apiData.email);
+                setProfileData(apiData);
             } else {
+                console.log('👤 API response not successful, using user context data');
+                console.log('👤 User context name:', user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
                 // Fallback to user data from context if profile API fails
                 setProfileData(user);
             }
         } catch (error) {
-            console.error('Error fetching profile:', error);
+            console.error('❌ Error fetching profile:', error);
+            console.error('❌ Error details:', JSON.stringify(error, null, 2));
+            console.log('👤 Using user context as fallback:', user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
             // Fallback to user data from context
             setProfileData(user);
         } finally {
@@ -94,7 +107,7 @@ export default function Component() {
         },
         {
             title: 'Bookings',
-            link: '/(bookSession)/BookSession',
+            link: '/(bookSession)/Bookings',
             icon: icons.bookingIcon,
         },
         {
@@ -138,6 +151,18 @@ export default function Component() {
                                 <Text className="text-gray-500 mt-1">
                                     {profileData?.email || user?.email || ''}
                                 </Text>
+                                
+                                {/* Phone Number Only */}
+                                {profileData?.phoneNumber && (
+                                    <View className="mt-4">
+                                        <View className="flex-row items-center justify-center">
+                                            <Text className="text-gray-600 text-sm">Phone: </Text>
+                                            <Text className="text-gray-800 font-medium">
+                                                {profileData.phoneNumber}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
                             </>
                         )}
                     </View>

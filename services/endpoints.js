@@ -8,9 +8,18 @@
  * import { endpoints } from '../services/endpoints';
  * const url = endpoints.auth.login;
  */
-const BASE_URL =
+// Export BASE_URL so it can be used in other files (like imageUtils.js)
+export const BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ||
-  'http://192.168.1.6:3005/api/v1';
+  'http://192.168.1.10:3005/api/v1';
+
+// Get base server URL without /api/v1 suffix (for image/video URLs)
+export const getBaseServerUrl = () => {
+  const baseUrl = BASE_URL;
+  // Remove /api/v1 if present to get the base server URL
+  let url = baseUrl.replace(/\/api\/v1\/?$/, '');
+  return url;
+};
 
 
 
@@ -156,6 +165,27 @@ export const endpoints = {
     getTagsByCategory: (category) => `${BASE_URL}/tags/category/${category}`,
     getCourseTags: (courseId) => `${BASE_URL}/courses/${courseId}/tags`,
     getCoursesByTag: (tagId) => `${BASE_URL}/tags/${tagId}/courses`,
+  },
+
+  // ==================== APPOINTMENTS & DOCTORS ====================
+  appointments: {
+    // Doctors
+    getAllDoctors: `${BASE_URL}/user/doctors`,
+    getDoctorById: (doctorId) => `${BASE_URL}/user/doctors/${doctorId}`,
+    getDoctorWithSchedule: (doctorId) => `${BASE_URL}/user/doctors/${doctorId}/schedule`,
+    
+    // Available Doctors & Slots
+    getAvailableDoctors: `${BASE_URL}/user/appointments/available-doctors`,
+    getWeekView: (doctorId) => `${BASE_URL}/user/appointments/week-view/${doctorId}`,
+    getTimeSlots: (doctorId) => `${BASE_URL}/user/appointments/time-slots/${doctorId}`,
+    
+    // Appointments
+    bookAppointment: `${BASE_URL}/user/appointments`,
+    getUserAppointments: `${BASE_URL}/user/appointments`,
+    getAppointmentById: (appointmentId) => `${BASE_URL}/user/appointments/${appointmentId}`,
+    getAppointmentHistory: `${BASE_URL}/user/appointments/history`,
+    getUpcomingAppointments: `${BASE_URL}/user/appointments/upcoming`,
+    cancelAppointment: (appointmentId) => `${BASE_URL}/user/appointments/${appointmentId}/cancel`,
   },
 };
 

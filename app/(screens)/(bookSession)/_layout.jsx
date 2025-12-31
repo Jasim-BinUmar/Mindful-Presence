@@ -5,6 +5,15 @@ const _layout = () => {
     return (
         <>
             <Stack>
+                <Stack.Screen name='DoctorsList'
+                    options={
+                        {
+                            headerShown: false
+
+                        }
+                    }
+
+                />
                 <Stack.Screen name='BookSession'
                     options={
                         {
