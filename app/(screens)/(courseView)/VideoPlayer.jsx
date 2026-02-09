@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Video, ResizeMode } from 'expo-av';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import api from '../../../services/api';
-import { normalizeMediaUrl, getVideoSource } from '../../../utils/imageUtils';
+import { normalizeMediaUrl, getVideoSource, getYoutubeId } from '../../../utils/imageUtils';
 
 const VideoPlayer = () => {
   const router = useRouter();
   const { lessonId, blockId, courseId } = useLocalSearchParams();
-  
+
   const [loading, setLoading] = useState(true);
   const [block, setBlock] = useState(null);
   const [error, setError] = useState(null);
@@ -20,10 +21,10 @@ const VideoPlayer = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await api.courses.getBlock(blockId);
       console.log('Video block data response:', response);
-      
+
       // Handle different response structures
       let blockData = null;
       if (response?.success && response?.data) {
@@ -33,16 +34,16 @@ const VideoPlayer = () => {
       } else if (response && typeof response === 'object' && !response.success) {
         blockData = response;
       }
-      
+
       console.log('Extracted block data:', blockData);
       console.log('Block type:', blockData?.blockType);
       console.log('Block content:', blockData?.content);
       console.log('Video URL:', blockData?.content?.videoUrl || blockData?.content?.url);
-      
+
       if (!blockData) {
         throw new Error('Block data not found in response');
       }
-      
+
       setBlock(blockData);
     } catch (err) {
       console.error('Error fetching video:', err);
@@ -89,23 +90,24 @@ const VideoPlayer = () => {
   }
 
   // Try multiple possible locations for video URL
-  const rawVideoUrl = block.content?.videoUrl || 
-                      block.content?.url || 
-                      block.content?.video?.url ||
-                      block.videoUrl ||
-                      block.url;
-  
+  const rawVideoUrl = block.content?.videoUrl ||
+    block.content?.url ||
+    block.content?.video?.url ||
+    block.videoUrl ||
+    block.url;
+
   // Normalize the video URL to handle uploads folder paths
   const videoUrl = normalizeMediaUrl(rawVideoUrl);
-  
-  const videoTitle = block.title || 
-                     block.content?.title || 
-                     block.content?.heading ||
-                     'Video Lesson';
-  
+  const youtubeId = getYoutubeId(rawVideoUrl);
+
+  const videoTitle = block.title ||
+    block.content?.title ||
+    block.content?.heading ||
+    'Video Lesson';
+
   const videoDescription = block.content?.description || block.description;
   const transcript = block.content?.transcript;
-  
+
   console.log('Video Player - Final extracted data:', {
     videoUrl,
     videoTitle,
@@ -115,13 +117,24 @@ const VideoPlayer = () => {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <StatusBar backgroundColor="#000000" style="light" />
-      
-      <ScrollView className="flex-1">
-        {/* Video Player */}
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar backgroundColor="#000000" barStyle="light-content" />
+
+      <ScrollView className="flex-1 bg-white">
+        {/* Video Player Section */}
         <View className="bg-black">
-          {videoUrl ? (
+          {youtubeId ? (
+            <YoutubePlayer
+              height={230}
+              play={false}
+              videoId={youtubeId}
+              onChangeState={(state) => {
+                if (state === 'ended') {
+                  setVideoStatus({ isLoaded: true, didJustFinish: true });
+                }
+              }}
+            />
+          ) : videoUrl ? (
             <Video
               ref={videoRef}
               source={{ uri: videoUrl }}
@@ -143,20 +156,16 @@ const VideoPlayer = () => {
           )}
         </View>
 
-        {/* Video Info */}
-        <View className="bg-white p-5">
+        {/* Action Section */}
+        <View className="bg-white p-5 flex-1">
           <TouchableOpacity
             onPress={() => router.back()}
-            className="mb-4"
+            className="mb-4 flex-row items-center border border-primary/20 p-4 rounded-xl bg-primary/5"
           >
-            <Text className="text-primary font-semibold">← Back to Course</Text>
+            <Text className="text-primary font-bold text-center w-full">{"< Back to Course"}</Text>
           </TouchableOpacity>
 
-          <Text className="text-gray-800 font-bold text-xl mb-3">
-            {videoTitle}
-          </Text>
-
-          {videoDescription && (
+          {videoDescription && typeof videoDescription === 'string' && (
             <View className="mb-4">
               <Text className="text-gray-700 text-base leading-6">
                 {videoDescription}
@@ -164,16 +173,16 @@ const VideoPlayer = () => {
             </View>
           )}
 
-          {block.content?.duration && (
+          {block.content?.duration ? (
             <View className="bg-gray-100 px-3 py-2 rounded-lg self-start mb-4">
               <Text className="text-gray-700 text-sm">
                 ⏱️ Duration: {Math.floor(block.content.duration / 60)}:{String(block.content.duration % 60).padStart(2, '0')}
               </Text>
             </View>
-          )}
+          ) : null}
 
           {/* Transcript Section */}
-          {transcript && (
+          {transcript && typeof transcript === 'string' && (
             <View className="mt-4 border-t border-gray-200 pt-4">
               <Text className="text-gray-800 font-bold text-lg mb-3">
                 📝 Transcript
@@ -192,9 +201,9 @@ const VideoPlayer = () => {
               </Text>
               {block.content.resources.map((resource, index) => (
                 <View key={index} className="bg-gray-50 p-3 rounded-lg mb-2">
-                  <Text className="text-gray-800 font-semibold">{resource.title}</Text>
+                  <Text className="text-gray-800 font-semibold">{String(resource.title || '')}</Text>
                   {resource.description && (
-                    <Text className="text-gray-600 text-sm mt-1">{resource.description}</Text>
+                    <Text className="text-gray-600 text-sm mt-1">{String(resource.description)}</Text>
                   )}
                 </View>
               ))}

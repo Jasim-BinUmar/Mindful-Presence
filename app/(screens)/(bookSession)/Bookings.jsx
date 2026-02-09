@@ -21,11 +21,11 @@ export default function Bookings() {
         try {
             setLoading(true);
             console.log('📅 Fetching appointments...');
-            
+
             // Fetch upcoming appointments
             const upcomingResponse = await api.appointments.getUpcomingAppointments();
             console.log('📅 Upcoming appointments:', JSON.stringify(upcomingResponse, null, 2));
-            
+
             if (upcomingResponse.success && upcomingResponse.data) {
                 const scheduled = upcomingResponse.data.filter(apt => apt.status === 'scheduled');
                 const sorted = scheduled.sort((a, b) => {
@@ -41,7 +41,7 @@ export default function Bookings() {
             // Fetch appointment history
             const historyResponse = await api.appointments.getAppointmentHistory();
             console.log('📅 Appointment history:', JSON.stringify(historyResponse, null, 2));
-            
+
             if (historyResponse.success && historyResponse.data) {
                 // Sort by date (most recent first)
                 const sorted = historyResponse.data.sort((a, b) => {
@@ -76,7 +76,7 @@ export default function Bookings() {
                         try {
                             setCancelling(prev => ({ ...prev, [appointmentId]: true }));
                             const response = await api.appointments.cancelAppointment(appointmentId, 'User cancelled');
-                            
+
                             if (response.success) {
                                 Alert.alert('Success', 'Appointment cancelled successfully');
                                 fetchAppointments(); // Refresh list
@@ -148,7 +148,7 @@ export default function Bookings() {
         const doctor = appointment.doctorId || {};
         const isCancelling = cancelling[appointment._id];
         const isUpcoming = appointment.status === 'scheduled';
-        
+
         return (
             <View
                 key={appointment._id}
@@ -204,9 +204,15 @@ export default function Bookings() {
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
             <View className="px-4 py-6 flex-row items-center">
-                <TouchableOpacity 
+                <TouchableOpacity
                     className="p-2"
-                    onPress={() => router.back()}
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/(screens)/(home)/Home');
+                        }
+                    }}
                 >
                     <ChevronLeft size={24} color="#000" />
                 </TouchableOpacity>
@@ -229,28 +235,24 @@ export default function Bookings() {
                 <View className="flex-row bg-gray-100 rounded-full p-1">
                     <TouchableOpacity
                         onPress={() => setActiveTab('upcoming')}
-                        className={`flex-1 py-2 rounded-full ${
-                            activeTab === 'upcoming' ? 'bg-primary' : 'bg-transparent'
-                        }`}
+                        className={`flex-1 py-2 rounded-full ${activeTab === 'upcoming' ? 'bg-primary' : 'bg-transparent'
+                            }`}
                     >
                         <Text
-                            className={`text-center font-semibold ${
-                                activeTab === 'upcoming' ? 'text-white' : 'text-gray-700'
-                            }`}
+                            className={`text-center font-semibold ${activeTab === 'upcoming' ? 'text-white' : 'text-gray-700'
+                                }`}
                         >
                             Upcoming ({upcomingAppointments.length})
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => setActiveTab('history')}
-                        className={`flex-1 py-2 rounded-full ${
-                            activeTab === 'history' ? 'bg-primary' : 'bg-transparent'
-                        }`}
+                        className={`flex-1 py-2 rounded-full ${activeTab === 'history' ? 'bg-primary' : 'bg-transparent'
+                            }`}
                     >
                         <Text
-                            className={`text-center font-semibold ${
-                                activeTab === 'history' ? 'text-white' : 'text-gray-700'
-                            }`}
+                            className={`text-center font-semibold ${activeTab === 'history' ? 'text-white' : 'text-gray-700'
+                                }`}
                         >
                             History ({historyAppointments.length})
                         </Text>
@@ -266,7 +268,7 @@ export default function Bookings() {
             ) : currentAppointments.length === 0 ? (
                 <View className="flex-1 justify-center items-center px-4">
                     <Text className="text-gray-500 text-center text-lg">
-                        {activeTab === 'upcoming' 
+                        {activeTab === 'upcoming'
                             ? 'No upcoming appointments'
                             : 'No appointment history'}
                     </Text>

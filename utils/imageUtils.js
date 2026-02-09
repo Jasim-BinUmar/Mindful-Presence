@@ -15,7 +15,7 @@ import { getBaseServerUrl } from '../services/endpoints';
  */
 const getBaseUrl = () => {
   let url = getBaseServerUrl();
-  
+
   // Replace localhost with the actual IP if needed
   // This handles cases where the backend might return localhost URLs
   if (url.includes('localhost') || url.includes('127.0.0.1')) {
@@ -25,7 +25,7 @@ const getBaseUrl = () => {
       url = url.replace(/localhost:\d+|127\.0\.0\.1:\d+/, ipMatch[1]);
     }
   }
-  
+
   return url;
 };
 
@@ -146,11 +146,11 @@ export const isValidMediaUrl = (url) => {
  */
 export const getImageSource = (url, fallbackImage = null) => {
   const normalizedUrl = normalizeMediaUrl(url);
-  
+
   if (normalizedUrl) {
     return { uri: normalizedUrl };
   }
-  
+
   // Return fallback image if provided, otherwise return null
   // Components should handle null by using their own fallback
   return fallbackImage;
@@ -163,11 +163,24 @@ export const getImageSource = (url, fallbackImage = null) => {
  */
 export const getVideoSource = (url) => {
   const normalizedUrl = normalizeMediaUrl(url);
-  
+
   if (normalizedUrl) {
     return { uri: normalizedUrl };
   }
-  
+
   return null;
 };
 
+/**
+ * Extract YouTube ID from a URL
+ * @param {string} url - The YouTube URL
+ * @returns {string|null} The YouTube video ID or null
+ */
+export const getYoutubeId = (url) => {
+  if (!url || typeof url !== 'string') return null;
+
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+
+  return (match && match[2].length === 11) ? match[2] : null;
+};

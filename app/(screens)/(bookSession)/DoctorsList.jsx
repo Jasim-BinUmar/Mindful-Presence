@@ -20,16 +20,16 @@ export default function DoctorsList() {
         try {
             setLoading(true);
             console.log('👨‍⚕️ Fetching doctors with filter:', filter);
-            
+
             const queryParams = { isActive: true };
             if (filter !== 'all') {
                 queryParams.designation = filter;
             }
-            
+
             const response = await api.appointments.getAllDoctors(queryParams);
-            
+
             console.log('👨‍⚕️ Doctors response:', JSON.stringify(response, null, 2));
-            
+
             if (response.success && response.data) {
                 setDoctors(response.data);
                 console.log(`👨‍⚕️ Loaded ${response.data.length} doctors`);
@@ -57,9 +57,15 @@ export default function DoctorsList() {
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
             <View className="px-4 py-6 flex-row items-center">
-                <TouchableOpacity 
+                <TouchableOpacity
                     className="p-2"
-                    onPress={() => router.back()}
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/(screens)/(home)/Home');
+                        }
+                    }}
                 >
                     <ChevronLeft size={24} color="#000" />
                 </TouchableOpacity>
@@ -82,18 +88,16 @@ export default function DoctorsList() {
                             <TouchableOpacity
                                 key={key}
                                 onPress={() => setFilter(key)}
-                                className={`px-4 py-2 rounded-full ${
-                                    filter === key
-                                        ? 'bg-primary'
-                                        : 'bg-gray-100'
-                                }`}
+                                className={`px-4 py-2 rounded-full ${filter === key
+                                    ? 'bg-primary'
+                                    : 'bg-gray-100'
+                                    }`}
                             >
                                 <Text
-                                    className={`font-medium ${
-                                        filter === key
-                                            ? 'text-white'
-                                            : 'text-gray-700'
-                                    }`}
+                                    className={`font-medium ${filter === key
+                                        ? 'text-white'
+                                        : 'text-gray-700'
+                                        }`}
                                 >
                                     {label}
                                 </Text>

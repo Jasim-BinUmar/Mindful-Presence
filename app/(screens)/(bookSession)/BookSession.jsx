@@ -71,7 +71,7 @@ export default function BookSession() {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
@@ -82,7 +82,7 @@ export default function BookSession() {
       const date = new Date(year, month, day);
       const dateStr = formatDate(date);
       const isPast = isPastDate(date);
-      
+
       days.push({
         day,
         date: dateStr,
@@ -119,7 +119,7 @@ export default function BookSession() {
     try {
       setLoading(true);
       console.log('👨‍⚕️ Fetching doctor with ID:', doctorId);
-      
+
       // If doctorId provided, fetch that specific doctor
       if (doctorId) {
         const response = await api.appointments.getDoctorById(doctorId);
@@ -153,12 +153,12 @@ export default function BookSession() {
       setLoadingTimeSlots(true);
       const doctorId = String(selectedDoctor._id);
       console.log('⏰ Fetching time slots for date:', date, 'doctor:', doctorId);
-      
+
       // Use new time-slots endpoint
       const response = await api.appointments.getTimeSlots(doctorId, date);
-      
+
       console.log('⏰ Time slots response:', JSON.stringify(response, null, 2));
-      
+
       if (response.success && response.data && response.data.timeSlots) {
         // Use time slots directly from response (already formatted with timeSlot field)
         const formattedSlots = response.data.timeSlots.map(slot => ({
@@ -168,7 +168,7 @@ export default function BookSession() {
           isAvailable: slot.isAvailable !== false, // Default to true if not specified
           duration: slot.duration || '1 hour',
         }));
-        
+
         console.log('⏰ Formatted time slots:', formattedSlots.length);
         setAvailableTimeSlots(formattedSlots);
       } else {
@@ -201,14 +201,14 @@ export default function BookSession() {
       const doctorId = String(selectedDoctor._id);
 
       const response = await api.appointments.getWeekView(doctorId, weekStartStr);
-      
+
       if (response.success && response.data && response.data.weekView) {
         const dayData = response.data.weekView.find(day => day.date.split('T')[0] === date);
-        
+
         if (dayData && dayData.isAvailable && dayData.timeSlots) {
           // Get booked appointment times
           const bookedTimes = dayData.appointments?.map(apt => apt.startTime) || [];
-          
+
           // Format time slots with availability
           const formattedSlots = dayData.timeSlots.map(slot => {
             const start = new Date(`2000-01-01T${slot.startTime}`);
@@ -216,7 +216,7 @@ export default function BookSession() {
             const durationMs = end - start;
             const durationHours = durationMs / (1000 * 60 * 60);
             const isAvailable = !bookedTimes.includes(slot.startTime);
-            
+
             return {
               startTime: slot.startTime,
               endTime: slot.endTime,
@@ -224,7 +224,7 @@ export default function BookSession() {
               duration: durationHours >= 1 ? `${durationHours} hour${durationHours > 1 ? 's' : ''}` : `${durationMs / (1000 * 60)} minutes`,
             };
           });
-          
+
           setAvailableTimeSlots(formattedSlots);
         } else {
           setAvailableTimeSlots([]);
@@ -295,7 +295,7 @@ export default function BookSession() {
       };
 
       const response = await api.appointments.bookAppointment(appointmentData);
-      
+
       if (response.success) {
         // Navigate to success screen with booking details
         router.push({
@@ -337,9 +337,15 @@ export default function BookSession() {
         <View className="px-4 py-6">
           {/* Header */}
           <View className="flex-row items-center mb-6">
-            <TouchableOpacity 
+            <TouchableOpacity
               className="p-2"
-              onPress={() => router.back()}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace('/(screens)/(home)/Home');
+                }
+              }}
             >
               <ChevronLeft size={24} color="#000" />
             </TouchableOpacity>
@@ -404,33 +410,30 @@ export default function BookSession() {
                     key={index}
                     onPress={() => !isPast && handleDateSelect(date)}
                     disabled={isPast}
-                    className={`w-[14%] items-center p-2 rounded-lg ${
-                      isSelected
-                        ? 'bg-primary'
-                        : isPast
+                    className={`w-[14%] items-center p-2 rounded-lg ${isSelected
+                      ? 'bg-primary'
+                      : isPast
                         ? 'opacity-30'
                         : 'bg-white border border-gray-200'
-                    }`}
+                      }`}
                   >
                     <Text
-                      className={`text-xs ${
-                        isSelected
-                          ? 'text-white'
-                          : isPast
+                      className={`text-xs ${isSelected
+                        ? 'text-white'
+                        : isPast
                           ? 'text-gray-400'
                           : 'text-gray-600'
-                      }`}
+                        }`}
                     >
                       {dayName}
                     </Text>
                     <Text
-                      className={`text-base font-medium mt-1 ${
-                        isSelected
-                          ? 'text-white'
-                          : isPast
+                      className={`text-base font-medium mt-1 ${isSelected
+                        ? 'text-white'
+                        : isPast
                           ? 'text-gray-400'
                           : 'text-black'
-                      }`}
+                        }`}
                     >
                       {day}
                     </Text>
@@ -456,36 +459,33 @@ export default function BookSession() {
                       key={index}
                       onPress={() => handleTimeSelect(slot)}
                       disabled={!slot.isAvailable}
-                      className={`w-[48%] py-3 rounded-lg mb-2 ${
-                        selectedTime === slot.startTime
-                          ? 'bg-primary'
-                          : slot.isAvailable
+                      className={`w-[48%] py-3 rounded-lg mb-2 ${selectedTime === slot.startTime
+                        ? 'bg-primary'
+                        : slot.isAvailable
                           ? 'bg-white border-2 border-gray-300'
                           : 'bg-gray-200 border-2 border-gray-300 opacity-50'
-                      }`}
+                        }`}
                     >
                       <Text
-                        className={`text-center font-semibold text-base ${
-                          selectedTime === slot.startTime
-                            ? 'text-white'
-                            : slot.isAvailable
+                        className={`text-center font-semibold text-base ${selectedTime === slot.startTime
+                          ? 'text-white'
+                          : slot.isAvailable
                             ? 'text-black'
                             : 'text-gray-400'
-                        }`}
+                          }`}
                       >
-                        {slot.timeSlot || (slot.startTime && slot.endTime 
+                        {slot.timeSlot || (slot.startTime && slot.endTime
                           ? `${formatTime12Hour(String(slot.startTime))} - ${formatTime12Hour(String(slot.endTime))}`
                           : 'Time slot')}
                       </Text>
                       {slot.duration && (
                         <Text
-                          className={`text-center text-xs mt-1 ${
-                            selectedTime === slot.startTime
-                              ? 'text-white opacity-90'
-                              : slot.isAvailable
+                          className={`text-center text-xs mt-1 ${selectedTime === slot.startTime
+                            ? 'text-white opacity-90'
+                            : slot.isAvailable
                               ? 'text-gray-600'
                               : 'text-gray-400'
-                          }`}
+                            }`}
                         >
                           {String(slot.duration)} session
                         </Text>

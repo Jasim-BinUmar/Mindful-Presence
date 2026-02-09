@@ -1,37 +1,68 @@
-import { View, Text, ImageBackground, StatusBar, RefreshControl, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
-import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, ImageBackground, RefreshControl, TouchableOpacity, ActivityIndicator, ScrollView, Animated } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Play, Lock, Info, Star, Clock, Users, Globe, CheckCircle, MoreVertical, Layers, ChevronRight, Bookmark, HelpCircle, FileText, Video } from 'lucide-react-native';
 import api from '../../../services/api';
 import images from '../../../constants/images';
 import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
 import SubscriptionPopup from '../../../components/SubscriptionPopup';
 
+const Skeleton = ({ className }) => (
+  <View className={`bg-gray-200 animate-pulse rounded ${className}`} />
+);
+
 const CourseDetails = () => {
   const router = useRouter();
   const { courseId } = useLocalSearchParams();
-  
+
   console.log('🎯 CourseDetails component rendered with courseId:', courseId);
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [expandedLessons, setExpandedLessons] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [progress, setProgress] = useState(null);
+  const [lastViewedLessonId, setLastViewedLessonId] = useState(null);
   const [error, setError] = useState(null);
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Animation for list items
+  const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);
+
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 5,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 5,
+    }).start();
+  };
 
   // Fetch course details
   const fetchCourseDetails = useCallback(async () => {
     try {
       setError(null);
       setLoading(true);
-      
+
       console.log('Fetching course details for courseId:', courseId);
-      
+
       // Fetch course with details (includes lessons and blocks)
       console.log('📡 Making API call to:', `courses/${courseId}?includeDetails=true`);
       const courseResponse = await api.courses.getCourse(courseId, { includeDetails: 'true' });
@@ -43,23 +74,23 @@ const CourseDetails = () => {
         keys: Object.keys(courseResponse || {})
       });
       console.log('Course response:', JSON.stringify(courseResponse, null, 2));
-      
+
       if (!courseResponse) {
         throw new Error('No course data received');
       }
-      
+
       // Backend returns: { success: true, data: course }
       const courseData = courseResponse.success ? courseResponse.data : (courseResponse.data || courseResponse);
       if (!courseData) {
         throw new Error('Invalid course data structure');
       }
-      
+
       console.log('Extracted course data:', courseData);
       console.log('Course has lessons?', !!courseData.lessons, 'Type:', typeof courseData.lessons);
       if (courseData.lessons) {
         console.log('Lessons in course:', Array.isArray(courseData.lessons), 'Length:', courseData.lessons.length);
       }
-      
+
       setCourse(courseData);
 
       // Check if course already has lessons populated (from includeDetails)
@@ -79,7 +110,7 @@ const CourseDetails = () => {
           responseKeys: Object.keys(lessonsResponse || {})
         });
         console.log('Full lessons response:', JSON.stringify(lessonsResponse, null, 2));
-        
+
         // Backend returns: { success: true, data: lessons }
         if (lessonsResponse.success) {
           lessonsData = Array.isArray(lessonsResponse.data) ? lessonsResponse.data : [];
@@ -91,7 +122,7 @@ const CourseDetails = () => {
           lessonsData = [];
         }
       }
-      
+
       console.log('✅ Final lessons data:', lessonsData.length, 'lessons');
       if (lessonsData.length > 0) {
         console.log('First lesson sample:', {
@@ -106,11 +137,11 @@ const CourseDetails = () => {
       const lessonsWithBlocks = await Promise.all(
         lessonsData.map(async (lesson) => {
           // Check if lesson already has valid blocks
-          const hasValidBlocks = lesson.blocks && 
-                                Array.isArray(lesson.blocks) && 
-                                lesson.blocks.length > 0 &&
-                                lesson.blocks.some(block => block && block._id);
-          
+          const hasValidBlocks = lesson.blocks &&
+            Array.isArray(lesson.blocks) &&
+            lesson.blocks.length > 0 &&
+            lesson.blocks.some(block => block && block._id);
+
           if (hasValidBlocks) {
             console.log(`✅ Lesson "${lesson.title}" (${lesson._id}) already has ${lesson.blocks.length} blocks`);
             // Filter out any null/undefined blocks and ensure they have required fields
@@ -134,7 +165,7 @@ const CourseDetails = () => {
               isArray: Array.isArray(blocksResponse?.data),
               responseType: typeof blocksResponse
             });
-            
+
             let blocks = [];
             if (blocksResponse?.success && blocksResponse?.data) {
               blocks = Array.isArray(blocksResponse.data) ? blocksResponse.data : [];
@@ -172,52 +203,38 @@ const CourseDetails = () => {
 
       setLessons(Array.isArray(lessonsWithBlocks) ? lessonsWithBlocks : []);
 
-      // Check enrollment status
+      // Check enrollment and progress
       try {
         const enrollmentResponse = await api.courses.getCourseWithEnrollment(courseId);
-        console.log('Enrollment response:', enrollmentResponse);
-        const enrollmentData = enrollmentResponse.success 
-          ? enrollmentResponse.data 
+        const enrollmentData = enrollmentResponse.success
+          ? enrollmentResponse.data
           : (enrollmentResponse.data || enrollmentResponse);
-        
-        // More robust enrollment check
+
         const isUserEnrolled = !!(
-          enrollmentData?.enrollment?.status === 'active' || 
+          enrollmentData?.enrollment?.status === 'active' ||
           enrollmentData?.isEnrolled === true ||
-          (enrollmentData?.enrollment && enrollmentData.enrollment !== null && enrollmentData.enrollment !== undefined)
+          (enrollmentData?.enrollment && enrollmentData.enrollment !== null)
         );
-        
-        console.log('✅ Enrollment check:', {
-          hasEnrollment: !!enrollmentData?.enrollment,
-          enrollmentStatus: enrollmentData?.enrollment?.status,
-          isEnrolled: enrollmentData?.isEnrolled,
-          finalDecision: isUserEnrolled
-        });
-        
+
         setIsEnrolled(isUserEnrolled);
-      } catch (enrollError) {
-        console.log('Enrollment check error:', {
-          message: enrollError.message,
-          status: enrollError.status,
-          statusCode: enrollError.statusCode
-        });
-        
-        // If error is 409 (Conflict = already enrolled), set as enrolled
-        if (enrollError.status === 409 || enrollError.statusCode === 409) {
-          console.log('✅ 409 detected - User is already enrolled');
-          setIsEnrolled(true);
-        } else {
-          setIsEnrolled(false);
+
+        if (isUserEnrolled) {
+          // Fetch progress data
+          try {
+            const progressRes = await api.courses.getCourseProgress(courseId);
+            setProgress(progressRes?.data || progressRes);
+
+            const lastViewedRes = await api.courses.getLastViewed(courseId);
+            setLastViewedLessonId(lastViewedRes?.data?.lessonId || lastViewedRes?.lessonId);
+          } catch (pErr) {
+            console.warn('Progress fetch error:', pErr);
+          }
         }
+      } catch (enrollError) {
+        if (enrollError.status === 409) setIsEnrolled(true);
+        else setIsEnrolled(false);
       }
     } catch (err) {
-      console.error('Error fetching course details:', err);
-      console.error('Error stack:', err.stack);
-      console.error('Error details:', {
-        message: err.message,
-        status: err.status,
-        data: err.data
-      });
       setError(err.message || 'Failed to load course details');
     } finally {
       setLoading(false);
@@ -227,14 +244,14 @@ const CourseDetails = () => {
 
   useEffect(() => {
     console.log('CourseDetails useEffect triggered, courseId:', courseId);
-    
+
     if (!courseId) {
       console.error('CourseDetails: No courseId provided');
       setError('Course ID is missing');
       setLoading(false);
       return;
     }
-    
+
     console.log('CourseDetails: Starting to fetch course details for:', courseId);
     fetchCourseDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,6 +273,22 @@ const CourseDetails = () => {
         coursePrice: coursePrice.toString(),
       }
     });
+  };
+
+  const handleLessonPress = (lessonId) => {
+    if (!isEnrolled) {
+      setShowSubscriptionPopup(true);
+      return;
+    }
+    router.push({
+      pathname: '/(courseView)/LessonView',
+      params: { lessonId, courseId }
+    });
+  };
+
+  const handleResume = () => {
+    const targetId = lastViewedLessonId || (lessons[0]?._id);
+    if (targetId) handleLessonPress(targetId);
   };
 
   const toggleLesson = (lessonId) => {
@@ -287,41 +320,41 @@ const CourseDetails = () => {
         blockQuizContentId: block?.quizContentId,  // This is the key field!
         fullBlock: JSON.stringify(block, null, 2)
       });
-      
+
       // First, try to get quizContentId from the block object
       let quizContentId = block?.quizContentId;  // Primary location: block.quizContentId
-      
+
       // If not found in block, fetch the block individually to get full data
       if (!quizContentId) {
         try {
           console.log('📦 Fetching block individually to get quizContentId...');
           const blockResponse = await api.courses.getBlock(blockId);
-          const fullBlockData = blockResponse.success 
-            ? blockResponse.data 
+          const fullBlockData = blockResponse.success
+            ? blockResponse.data
             : (blockResponse.data || blockResponse);
-          
+
           console.log('📦 Full block data:', {
             quizContentId: fullBlockData?.quizContentId,
             allKeys: fullBlockData ? Object.keys(fullBlockData) : 'no data',
             fullData: JSON.stringify(fullBlockData, null, 2)
           });
-          
+
           quizContentId = fullBlockData?.quizContentId;
-          
+
           // If still not found, try getting from lesson blocks
           if (!quizContentId && lessonId) {
             try {
               console.log('🔍 quizContentId not in block response, trying to get from lesson blocks...');
               const lessonBlocksResponse = await api.courses.getBlocksByLesson(lessonId);
-              const lessonBlocks = lessonBlocksResponse.success 
-                ? lessonBlocksResponse.data 
+              const lessonBlocks = lessonBlocksResponse.success
+                ? lessonBlocksResponse.data
                 : (Array.isArray(lessonBlocksResponse.data) ? lessonBlocksResponse.data : []);
-              
+
               // Find the block in the lesson blocks array
-              const foundBlock = Array.isArray(lessonBlocks) 
+              const foundBlock = Array.isArray(lessonBlocks)
                 ? lessonBlocks.find(b => b._id === blockId || b._id?.toString() === blockId?.toString())
                 : null;
-              
+
               if (foundBlock?.quizContentId) {
                 quizContentId = foundBlock.quizContentId;
                 console.log('✅ Found quizContentId from lesson blocks:', quizContentId);
@@ -334,16 +367,16 @@ const CourseDetails = () => {
           console.error('❌ Error fetching block:', fetchError);
         }
       }
-      
+
       // Final check - if still not found, show error
       if (!quizContentId) {
         console.error('❌ quizContentId not found. Backend should include quizContentId in block response.');
         alert('Error: Quiz content ID not found. Please contact support.');
         return;
       }
-      
+
       console.log('✅ Using quizContentId:', quizContentId);
-      
+
       router.push({
         pathname: '/(courseView)/QuizView',
         params: { lessonId, blockId, courseId, quizContentId }
@@ -353,6 +386,28 @@ const CourseDetails = () => {
         pathname: '/(courseView)/ContentView',
         params: { lessonId, blockId, courseId }
       });
+    }
+  };
+
+  const getBlockIcon = (type) => {
+    switch (type) {
+      case 'video': return '🎥';
+      case 'quiz': return '📝';
+      case 'text': return '📄';
+      case 'image': return '🖼️';
+      case 'heading': return '📌';
+      default: return '📚';
+    }
+  };
+
+  const getBlockTypeLabel = (type) => {
+    switch (type) {
+      case 'video': return 'Video';
+      case 'quiz': return 'Quiz';
+      case 'text': return 'Reading';
+      case 'image': return 'Image';
+      case 'heading': return 'Section';
+      default: return 'Content';
     }
   };
 
@@ -367,28 +422,6 @@ const CourseDetails = () => {
         blockType: block.blockType
       });
     }
-
-    const getBlockIcon = (type) => {
-      switch (type) {
-        case 'video': return '🎥';
-        case 'quiz': return '📝';
-        case 'text': return '📄';
-        case 'image': return '🖼️';
-        case 'heading': return '📌';
-        default: return '📚';
-      }
-    };
-
-    const getBlockTypeLabel = (type) => {
-      switch (type) {
-        case 'video': return 'Video';
-        case 'quiz': return 'Quiz';
-        case 'text': return 'Reading';
-        case 'image': return 'Image';
-        case 'heading': return 'Section';
-        default: return 'Content';
-      }
-    };
 
     const isLocked = !isEnrolled;
 
@@ -511,10 +544,16 @@ const CourseDetails = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#623AD9" />
-          <Text className="text-gray-600 mt-4">Loading course details...</Text>
+        <StatusBar barStyle="dark-content" />
+        <View className="px-5 pt-8">
+          <Skeleton className="w-full h-56 mb-6" />
+          <Skeleton className="w-3/4 h-8 mb-4" />
+          <Skeleton className="w-1/2 h-4 mb-8" />
+          <View className="space-y-4">
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -586,134 +625,166 @@ const CourseDetails = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#161622" style="light" />
-      <ScrollView
-        className="flex-1 bg-white"
+      <StatusBar backgroundColor="#161622" style="dark" />
+
+      {/* Fixed Sticky Header */}
+      <View className="flex-row items-center px-4 py-3 bg-white z-50">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+          <ChevronLeft size={24} color="#000" />
+        </TouchableOpacity>
+        <Text className="text-lg font-bold flex-1" numberOfLines={1}>
+          {course?.title || course?.name}
+        </Text>
+      </View>
+
+      <Animated.ScrollView
+        className="flex-1 bg-gray-50/30"
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />
         }
       >
-        {/* Header with Back Button */}
-        <View className="flex-row items-center px-4 py-3 bg-white">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <ChevronLeft size={24} color="#000" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold flex-1" numberOfLines={2}>
-            {course.title || course.name}
-          </Text>
-        </View>
+        {/* Parallax Image / Course Banner */}
+        <Animated.View
+          className="px-5 mt-4"
+          style={{
+            transform: [{
+              translateY: scrollY.interpolate({
+                inputRange: [-300, 0, 300],
+                outputRange: [-150, 0, 100],
+                extrapolate: 'clamp'
+              })
+            }]
+          }}
+        >
+          <View className="rounded-[32px] overflow-hidden shadow-2xl shadow-black/30 border-2 border-white">
+            <ImageBackground
+              source={getImageSource(course.thumbnail, images.fullGuide)}
+              className="w-full h-80 justify-end"
+            >
+              <LinearGradient
+                colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)']}
+                style={{ position: 'absolute', inset: 0 }}
+              />
 
-        {/* Course Banner - Show actual course image and title */}
-        <View className="relative bg-black">
-          <ImageBackground
-            source={getImageSource(course.thumbnail, images.fullGuide)}
-            className="w-full"
-            style={{ minHeight: 280 }}
-            imageStyle={{ opacity: 0.7 }}
-          >
-            <LinearGradient
-              colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            />
-            <View className="p-6" style={{ minHeight: 280 }}>
-              {/* Course Title */}
-              <View className="mb-4">
-                <Text className="text-white text-2xl font-bold" numberOfLines={3}>
+              <TouchableOpacity className="absolute top-6 right-6 bg-white/20 p-2 rounded-xl border border-white/30">
+                <Bookmark size={20} color="white" />
+              </TouchableOpacity>
+
+              <View className="p-8">
+                <Text className="text-white text-3xl font-black mb-1">
                   {course.title || course.name}
                 </Text>
-              </View>
-              
-              {/* Scenic Image Area - Bottom part of banner */}
-              <View className="absolute bottom-0 left-0 right-0 h-40">
-                <ImageBackground
-                  source={getImageSource(course.thumbnail, images.fullGuide)}
-                  className="w-full h-full"
-                  imageStyle={{ opacity: 0.9 }}
-                >
-                  {/* Overlay for text readability */}
-                  <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.5)']}
-                    style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 50 }}
-                  />
-                  {/* Bottom Text */}
-                  <View className="absolute bottom-2 left-0 right-0 px-6">
-                    <Text className="text-white text-xs" style={{ fontSize: 10, letterSpacing: 0.5 }}>
-                      MY DAILY WELL-BEING ONLINE PORTAL
+                <View className="flex-row items-center">
+                  <View className="bg-primary/30 px-2 py-0.5 rounded-md mr-2">
+                    <Text className="text-white text-[10px] font-bold uppercase tracking-widest">
+                      {course.category || 'Expert Course'}
                     </Text>
                   </View>
-                </ImageBackground>
+                  <Text className="text-white/60 text-xs font-medium">
+                    {lessons.length} Modules • Lifetime Access
+                  </Text>
+                </View>
+              </View>
+            </ImageBackground>
+          </View>
+        </Animated.View>
+
+        {/* Progress Section - Refined & Slimmer */}
+        {isEnrolled && progress && (
+          <View className="px-5 mb-8 mt-6">
+            <View className="bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm">
+              <View className="flex-row justify-between items-center mb-3">
+                <View className="flex-row items-center">
+                  <CheckCircle size={14} color="#623AD9" />
+                  <Text className="text-gray-900 font-bold text-xs ml-2 uppercase tracking-wide">Course Progress</Text>
+                </View>
+                <Text className="text-primary font-black text-xs">{progress.percentage || 0}%</Text>
+              </View>
+
+              <View className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+                <View
+                  className="h-full bg-primary"
+                  style={{ width: `${progress.percentage || 0}%` }}
+                />
+              </View>
+
+              <View className="flex-row justify-between items-center">
+                <Text className="text-gray-400 text-[10px] font-medium">
+                  {progress.completedLessons || 0}/{progress.totalLessons || lessons.length} COMPLETED
+                </Text>
+                <TouchableOpacity
+                  onPress={handleResume}
+                  className="bg-primary px-5 py-2.5 rounded-2xl flex-row items-center justify-center shadow-lg shadow-primary/30 active:scale-95"
+                >
+                  <Play size={12} color="white" fill="white" />
+                  <Text className="text-white font-bold text-[10px] ml-2">RESUME</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </ImageBackground>
-        </View>
+          </View>
+        )}
 
-        {/* All Course Content - Show all lessons and blocks with clean UI */}
+        {/* Unified Lesson List - Premium Micro-interactions */}
         {lessons.length > 0 && (
-          <View className="px-5 pb-6 bg-white">
+          <View className="px-4 pb-10">
             {lessons
               .filter(lesson => lesson && lesson._id)
               .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((lesson, lessonIndex) => {
-                const contentBlocks = lesson.blocks || [];
-                
-                return (
-                  <View key={lesson._id} className="mb-6">
-                    {/* Lesson Title */}
-                    <Text className="text-lg font-bold text-gray-800 mb-3">
-                      {lesson.title || `Lesson ${lessonIndex + 1}`}
-                    </Text>
-                    
-                    {/* All Content Blocks in this Lesson */}
-                    {contentBlocks
-                      .filter(block => block && block._id)
-                      .sort((a, b) => (a.order || 0) - (b.order || 0))
-                      .map((block, blockIndex) => {
-                        const blockTitle = block.title || block.content?.heading || `${getBlockTypeLabel(block.blockType)} ${blockIndex + 1}`;
-                        
-                        return (
-                          <TouchableOpacity
-                            key={block._id || blockIndex}
-                            onPress={() => {
-                              if (!isEnrolled) {
-                                setShowSubscriptionPopup(true);
-                              } else {
-                                handleContentPress(lesson._id, block._id, block.blockType, block);
-                              }
-                            }}
-                            className="bg-white rounded-lg p-4 mb-3 flex-row items-center justify-between border border-gray-200"
-                            style={{
-                              shadowColor: '#000',
-                              shadowOffset: { width: 0, height: 1 },
-                              shadowOpacity: 0.05,
-                              shadowRadius: 2,
-                              elevation: 1
-                            }}
-                          >
-                            <Text className="text-gray-800 flex-1 text-base" numberOfLines={2}>
-                              {blockTitle}
-                            </Text>
-                            <TouchableOpacity 
-                              className="bg-gray-800 px-4 py-2 rounded-full"
-                              onPress={(e) => {
-                                e.stopPropagation();
-                                if (!isEnrolled) {
-                                  setShowSubscriptionPopup(true);
-                                } else {
-                                  handleContentPress(lesson._id, block._id, block.blockType, block);
-                                }
-                              }}
-                            >
-                              <Text className="text-white text-sm font-semibold">Start</Text>
-                            </TouchableOpacity>
-                          </TouchableOpacity>
-                        );
-                      })}
+              .map((lesson) => (
+                <TouchableOpacity
+                  key={lesson._id}
+                  onPress={() => handleLessonPress(lesson._id)}
+                  activeOpacity={0.7}
+                  className="flex-row items-center px-6 py-4 mb-4 bg-white border border-gray-100 rounded-[32px] shadow-sm active:scale-[0.98]"
+                >
+                  <View className="flex-1 mr-4">
+                    <View className="flex-row items-center mb-1">
+                      {progress?.completedLessonIds?.includes(lesson._id) && (
+                        <View className="bg-green-100 p-1 rounded-full mr-2">
+                          <CheckCircle size={10} color="#22C55E" />
+                        </View>
+                      )}
+                      <Text className="text-gray-800 font-bold text-sm leading-5">
+                        {lesson.title}
+                      </Text>
+                    </View>
+
+                    {/* Lesson Badges */}
+                    <View className="flex-row items-center mt-1">
+                      <View className="flex-row items-center bg-gray-50 px-2 py-0.5 rounded-md mr-3">
+                        {lesson.blocks?.some(b => b.blockType === 'video') ? (
+                          <Video size={10} color="#9CA3AF" />
+                        ) : (
+                          <FileText size={10} color="#9CA3AF" />
+                        )}
+                        <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                          {lesson.blocks?.some(b => b.blockType === 'video') ? 'Video' : 'Course Material'}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center">
+                        <Clock size={10} color="#9CA3AF" />
+                        <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                          {Math.max(5, (lesson.blocks?.length || 0) * 2)}m
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                );
-              })}
+
+                  <View className={`px-5 py-2 rounded-2xl ${progress?.completedLessonIds?.includes(lesson._id) ? 'bg-gray-100 border border-gray-200' : 'bg-primary shadow-md shadow-primary/20'}`}>
+                    <Text className={`font-bold text-[10px] uppercase tracking-wider ${progress?.completedLessonIds?.includes(lesson._id) ? 'text-gray-400' : 'text-white'}`}>
+                      {progress?.completedLessonIds?.includes(lesson._id) ? 'Review' : 'Preview'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Subscription Popup */}
       <SubscriptionPopup

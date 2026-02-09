@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { X } from 'lucide-react-native';
 
 const SubscriptionPopup = ({ visible, onClose, onSubscribe, courseTitle }) => {
   return (
@@ -11,6 +12,13 @@ const SubscriptionPopup = ({ visible, onClose, onSubscribe, courseTitle }) => {
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <X size={20} color="#9CA3AF" />
+          </TouchableOpacity>
           <Text style={styles.title}>Subscribe To Get Full Access</Text>
           <Text style={styles.description}>
             {courseTitle || 'Affirmations from a Therapeutic & Islamic perspective'}
@@ -42,6 +50,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    padding: 8,
+    zIndex: 10,
   },
   title: {
     fontSize: 20,

@@ -151,7 +151,7 @@ const apiRequest = async (url, options = {}) => {
     try {
       const newAccessToken = await refreshAccessToken();
       headers.Authorization = `Bearer ${newAccessToken}`;
-      
+
       response = await fetch(url, {
         ...options,
         headers,
@@ -169,7 +169,7 @@ const apiRequest = async (url, options = {}) => {
     // Add timestamp to force fresh request
     const separator = url.includes('?') ? '&' : '?';
     const cacheBustUrl = `${url}${separator}_t=${Date.now()}`;
-    
+
     // Retry with cache-busting parameter
     response = await fetch(cacheBustUrl, {
       ...options,
@@ -326,6 +326,7 @@ export const api = {
      */
     login: async (credentials) => {
       // Login endpoint doesn't require auth, so make direct request
+      console.log('DEBUG: Attempting login at URL:', endpoints.auth.login);
       const loginResponse = await fetch(endpoints.auth.login, {
         method: 'POST',
         headers: {
@@ -642,6 +643,30 @@ export const api = {
     getUserProgress: async () => {
       return await apiRequest(endpoints.courses.getUserProgress);
     },
+
+    /**
+     * Get course specific progress
+     */
+    getCourseProgress: async (courseId) => {
+      return await apiRequest(endpoints.courses.getCourseProgress(courseId), { cacheBust: true });
+    },
+
+    /**
+     * Update lesson progress (mark as complete)
+     */
+    updateLessonProgress: async (lessonId, status = 'completed') => {
+      return await apiRequest(endpoints.courses.updateLessonProgress(lessonId), {
+        method: 'POST',
+        body: JSON.stringify({ status })
+      });
+    },
+
+    /**
+     * Get last viewed lesson in a course
+     */
+    getLastViewed: async (courseId) => {
+      return await apiRequest(endpoints.courses.getLastViewed(courseId), { cacheBust: true });
+    },
   },
 
   // ==================== QUIZZES ====================
@@ -654,6 +679,18 @@ export const api = {
     getQuiz: async (quizContentId, params = {}) => {
       const url = getEndpointWithQuery(endpoints.quizzes.getQuiz(quizContentId), params);
       return apiRequest(url, { cacheBust: true });
+    },
+
+    /**
+     * Submit full quiz attempt (Multi-Quiz)
+     * @param {string} quizId - Quiz ID
+     * @param {Object} submissionData - { answers, timeTaken }
+     */
+    submitFullQuiz: async (quizId, submissionData) => {
+      return apiRequest(endpoints.quizzes.submitFullQuiz(quizId), {
+        method: 'POST',
+        body: JSON.stringify(submissionData),
+      });
     },
 
     /**

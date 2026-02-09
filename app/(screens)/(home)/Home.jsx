@@ -15,7 +15,7 @@ import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
 export default function Component() {
   const routerInstance = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useGlobalContext();
-  
+
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ export default function Component() {
       routerInstance.replace('/(auth)/userAuthScreen');
       return;
     }
-    
+
     if (isAuthenticated) {
       loadData();
     }
@@ -37,7 +37,7 @@ export default function Component() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Check if user has completed assessments
       const responseHistory = await assessmentService.getResponseHistory();
       const hasResponses = responseHistory.success && responseHistory.data?.length > 0;
@@ -51,23 +51,23 @@ export default function Component() {
           if (insightsResponse.success && insightsResponse.data) {
             setProfileInsights(insightsResponse.data);
           }
-          
+
           // Fetch recommended courses directly from API: GET /api/v1/user/recommendations
           const recommendations = await api.recommendations.getUserRecommendations({ page: 1, limit: 10 });
           console.log('Recommended courses API response:', recommendations);
-          
+
           if (recommendations.success && recommendations.data) {
             // Handle different response structures from /api/v1/user/recommendations
             let recData = [];
-            
+
             // Check if data is an array
             if (Array.isArray(recommendations.data)) {
               recData = recommendations.data;
-            } 
+            }
             // Check for paginated response
             else if (recommendations.data.courses && Array.isArray(recommendations.data.courses)) {
               recData = recommendations.data.courses;
-            } 
+            }
             // Check for items array
             else if (recommendations.data.items && Array.isArray(recommendations.data.items)) {
               recData = recommendations.data.items;
@@ -80,7 +80,7 @@ export default function Component() {
                 recData = recommendations.data.data.courses;
               }
             }
-            
+
             console.log('Processed recommended courses from API:', recData);
             setRecommendedCourses(recData);
           } else {
@@ -96,8 +96,8 @@ export default function Component() {
       const coursesResponse = await api.courses.getAll({ limit: 20, status: 'published' });
       if (coursesResponse.success && coursesResponse.data) {
         // Handle both array and paginated response
-        const coursesData = Array.isArray(coursesResponse.data) 
-          ? coursesResponse.data 
+        const coursesData = Array.isArray(coursesResponse.data)
+          ? coursesResponse.data
           : (coursesResponse.data.courses || coursesResponse.data.items || []);
         setAllCourses(coursesData);
       }
@@ -125,44 +125,44 @@ export default function Component() {
   };
 
   // Filter out recommended courses from all courses
-  const recommendedCourseIds = recommendedCourses.map(rec => 
+  const recommendedCourseIds = recommendedCourses.map(rec =>
     rec.courseId?._id || rec.courseId?.id || rec.course?._id || rec._id
   ).filter(Boolean);
-  
-  const publishedCourses = allCourses.filter(course => 
+
+  const publishedCourses = allCourses.filter(course =>
     !recommendedCourseIds.includes(course._id)
   );
 
   const contentCardData = publishedCourses.length > 0
     ? publishedCourses.slice(0, 8).map((course, index) => {
-        const thumbnailUrl = normalizeMediaUrl(course.thumbnail);
-        const fallbackImage = images[`contentCard${index + 1}`] || images.contentCard1;
-        
-        // Filter out placeholder/example URLs
-        const isPlaceholderUrl = thumbnailUrl && (
-          thumbnailUrl.includes('example.com') ||
-          thumbnailUrl.includes('placeholder') ||
-          course.thumbnail === 'https://example.com/thumbnail.jpg'
-        );
-        
-        // Debug logging for course thumbnails
-        if (__DEV__) {
-          console.log(`📸 Course "${course.title || course.name}":`, {
-            originalThumbnail: course.thumbnail,
-            normalizedUrl: thumbnailUrl,
-            hasThumbnail: !!course.thumbnail,
-            isPlaceholder: isPlaceholderUrl,
-            usingFallback: !thumbnailUrl || isPlaceholderUrl
-          });
-        }
-        
-        return {
-          id: course._id || `${index}`,
-          image: thumbnailUrl && !isPlaceholderUrl ? { uri: thumbnailUrl } : fallbackImage,
-          title: course.title || course.name || 'Course',
-          courseId: course._id,
-        };
-      })
+      const thumbnailUrl = normalizeMediaUrl(course.thumbnail);
+      const fallbackImage = images[`contentCard${index + 1}`] || images.contentCard1;
+
+      // Filter out placeholder/example URLs
+      const isPlaceholderUrl = thumbnailUrl && (
+        thumbnailUrl.includes('example.com') ||
+        thumbnailUrl.includes('placeholder') ||
+        course.thumbnail === 'https://example.com/thumbnail.jpg'
+      );
+
+      // Debug logging for course thumbnails
+      if (__DEV__) {
+        console.log(`📸 Course "${course.title || course.name}":`, {
+          originalThumbnail: course.thumbnail,
+          normalizedUrl: thumbnailUrl,
+          hasThumbnail: !!course.thumbnail,
+          isPlaceholder: isPlaceholderUrl,
+          usingFallback: !thumbnailUrl || isPlaceholderUrl
+        });
+      }
+
+      return {
+        id: course._id || `${index}`,
+        image: thumbnailUrl && !isPlaceholderUrl ? { uri: thumbnailUrl } : fallbackImage,
+        title: course.title || course.name || 'Course',
+        courseId: course._id,
+      };
+    })
     : [];
 
   const renderContentCard = ({ item }) => (
@@ -185,9 +185,9 @@ export default function Component() {
           >
             {/* Header with Menu and Profile - Absolute at top */}
             <View className="absolute top-0 left-0 right-0 flex flex-row w-full justify-between items-center px-6 pt-2 pb-2 z-10">
-              <Pressable 
-                onPress={() => {routerInstance.push('../(profile)/profile')}}
-                style={{ 
+              <Pressable
+                onPress={() => { routerInstance.push('../(profile)/profile') }}
+                style={{
                   padding: 12,
                   width: 44,
                   height: 44,
@@ -196,15 +196,15 @@ export default function Component() {
                 }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Image 
-                  source={icons.menu} 
-                  style={{ width: 20, height: 20, tintColor: '#FFFFFF' }} 
-                  resizeMode="contain" 
+                <Image
+                  source={icons.menu}
+                  style={{ width: 20, height: 20, tintColor: '#FFFFFF' }}
+                  resizeMode="contain"
                 />
               </Pressable>
-              <Pressable 
-                onPress={() => {routerInstance.push('../(profile)/profile')}}
-                style={{ 
+              <Pressable
+                onPress={() => { routerInstance.push('../(profile)/profile') }}
+                style={{
                   padding: 8,
                   width: 44,
                   height: 44,
@@ -213,10 +213,10 @@ export default function Component() {
                 }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Image 
-                  source={icons.profile} 
-                  style={{ width: 28, height: 28, tintColor: '#FFFFFF' }} 
-                  resizeMode="contain" 
+                <Image
+                  source={icons.profile}
+                  style={{ width: 28, height: 28, tintColor: '#FFFFFF' }}
+                  resizeMode="contain"
                 />
               </Pressable>
             </View>
@@ -226,7 +226,7 @@ export default function Component() {
               <Text className="text-white text-xl text-center font-semibold px-4 mb-6 leading-6">
                 Understanding The Power Of Well-Being Tools, Techniques & Strategies In Your Daily Life
               </Text>
-              
+
               {/* Take Assessment Button - Show ONLY if assessment NOT completed */}
               {!hasCompletedAssessment && (
                 <TouchableOpacity
@@ -243,7 +243,7 @@ export default function Component() {
                   <Text className="text-white text-base font-bold text-center">Take Assessment</Text>
                 </TouchableOpacity>
               )}
-              
+
               {/* Full Guide Button - Always show */}
               <TouchableOpacity
                 onPress={() => { routerInstance.push('../(guide)/FullGuide') }}
@@ -256,7 +256,7 @@ export default function Component() {
                   elevation: 5
                 }}
               >
-                <Text className="text-white text-base font-bold text-center">Full Guide</Text>
+                <Text className="text-white text-base font-bold text-center">App Foundations</Text>
               </TouchableOpacity>
             </View>
           </ImageBackground>
@@ -271,7 +271,7 @@ export default function Component() {
                     <Text className="text-white text-xs font-bold">PERSONALIZED</Text>
                   </View>
                 </View>
-                
+
                 {/* Personalized Recommendations Text from Insights */}
                 {profileInsights?.recommendations && profileInsights.recommendations.length > 0 && (
                   <View className="mx-5 mb-4 px-4 py-4 bg-gradient-to-r from-primary/10 to-purple-50 rounded-xl border-l-4 border-primary shadow-sm">
@@ -297,14 +297,14 @@ export default function Component() {
                     </View>
                   </View>
                 )}
-                
+
                 {/* Recommended Courses from API */}
                 {recommendedCourses.length > 0 ? (
                   <FlatList
                     data={recommendedCourses}
                     renderItem={({ item, index }) => {
                       console.log('Rendering recommended course item:', item);
-                      
+
                       // Handle the actual API response structure: item.courseId is an object
                       const courseId = item.courseId?._id || item.courseId?.id || item.course?._id || item._id;
                       const courseTitle = item.courseId?.title || item.courseName || item.course?.title || item.title || item.course?.name || 'Course';
@@ -312,16 +312,16 @@ export default function Component() {
                       const courseDescription = item.courseId?.description || item.description;
                       const matchingTags = item.matchingTags || [];
                       const reason = item.reason || '';
-                      
+
                       if (!courseId) {
                         console.warn('No course ID found for item:', item);
                         return null;
                       }
-                      
+
                       // Use fallback image if no thumbnail - cycle through available images
                       const fallbackImage = images[`contentCard${(index % 4) + 1}`] || images.contentCard1;
                       const normalizedThumbnail = normalizeMediaUrl(courseThumbnail);
-                      
+
                       // Debug logging for recommended courses
                       if (__DEV__) {
                         console.log(`⭐ Recommended Course "${courseTitle}":`, {
@@ -331,20 +331,20 @@ export default function Component() {
                           usingFallback: !normalizedThumbnail || courseThumbnail === 'https://example.com/thumbnail.jpg'
                         });
                       }
-                      
+
                       // Filter out placeholder/example URLs
                       const isPlaceholderUrl = normalizedThumbnail && (
                         normalizedThumbnail.includes('example.com') ||
                         normalizedThumbnail.includes('placeholder') ||
                         courseThumbnail === 'https://example.com/thumbnail.jpg'
                       );
-                      
+
                       const imageSource = normalizedThumbnail && !isPlaceholderUrl
                         ? { uri: normalizedThumbnail }
                         : fallbackImage;
-                      
+
                       return (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           onPress={() => handleCoursePress(courseId)}
                           className="flex-1 mx-5 my-2"
                         >
@@ -353,7 +353,7 @@ export default function Component() {
                             <View className="absolute top-3 right-3 z-10 bg-primary px-3 py-1.5 rounded-full shadow-lg">
                               <Text className="text-white text-xs font-bold">RECOMMENDED</Text>
                             </View>
-                            
+
                             {/* Course Card - Same style as ContentCard */}
                             <ImageBackground
                               source={imageSource}
@@ -370,11 +370,11 @@ export default function Component() {
                               }}
                             >
                               {/* Gradient Overlay */}
-                              <View 
+                              <View
                                 className="absolute inset-0 bg-primary opacity-40 rounded-xl"
                                 style={{ borderRadius: 12 }}
                               />
-                              
+
                               {/* Bottom Section with Title - Same as ContentCard */}
                               <View className="rounded-b-xl absolute bottom-0 left-0 right-0 h-[35%] justify-start items-start">
                                 {/* Background View for blur and opacity */}
@@ -430,7 +430,7 @@ export default function Component() {
                 )}
               </>
             )}
-            
+
             {/* Show message if no recommended courses but insights exist */}
             {hasCompletedAssessment && recommendedCourses.length === 0 && profileInsights && (
               <View className="mx-5 mb-6 p-4 bg-gray-50 rounded-lg">
@@ -441,7 +441,7 @@ export default function Component() {
                 </Text>
               </View>
             )}
-            
+
             {!loading && publishedCourses.length === 0 && recommendedCourses.length === 0 && (
               <View className="py-10 px-5">
                 <Text className="text-center text-gray-600">

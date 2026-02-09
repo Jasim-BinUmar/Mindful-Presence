@@ -9,6 +9,7 @@ export default function CourseViewLayout() {
       <Stack.Screen name="ContentView" />
       <Stack.Screen name="VideoPlayer" />
       <Stack.Screen name="QuizView" />
+      <Stack.Screen name="LessonView" />
     </Stack>
   );
 }

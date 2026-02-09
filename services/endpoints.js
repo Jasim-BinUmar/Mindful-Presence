@@ -4,22 +4,30 @@
  * This file contains all user-facing API endpoints organized by module.
  * Base URL: /api/v1
  * 
+ *
  * Usage:
  * import { endpoints } from '../services/endpoints';
  * const url = endpoints.auth.login;
  */
 // Export BASE_URL so it can be used in other files (like imageUtils.js)
-export const BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ||
-  'http://192.168.1.10:3005/api/v1';
+// Production URL: https://api.dealsai.net/api/v1 (set in .env file)
+// Falls back to local development URL if EXPO_PUBLIC_API_URL is not set
 
-// Get base server URL without /api/v1 suffix (for image/video URLs)
-export const getBaseServerUrl = () => {
-  const baseUrl = BASE_URL;
-  // Remove /api/v1 if present to get the base server URL
-  let url = baseUrl.replace(/\/api\/v1\/?$/, '');
-  return url;
-};
+// export const BASE_URL =
+//   process.env.EXPO_PUBLIC_API_URL ||
+//   'https://api.dealsai.net/api/v1';
+
+// // Get base server URL without /api/v1 suffix (for image/video URLs)
+// export const getBaseServerUrl = () => {
+//   const baseUrl = BASE_URL;
+//   // Remove /api/v1 if present to get the base server URL
+//   let url = baseUrl.replace(/\/api\/v1\/?$/, '');
+//   return url;
+// };
+
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.4:3005/api/v1';
+
+export const getBaseServerUrl = () => BASE_URL;
 
 
 
@@ -43,13 +51,13 @@ export const endpoints = {
     getProfile: `${BASE_URL}/user/profile`,
     updateProfile: `${BASE_URL}/user/profile`,
     changePassword: `${BASE_URL}/user/password`,
-    
+
     // Psychological Profile
     getPsychologicalProfile: `${BASE_URL}/user/psychological-profile`,
     getProfileInsights: `${BASE_URL}/user/profile/insights`,
     regenerateProfile: `${BASE_URL}/user/profile/regenerate`,
     getProfileHistory: `${BASE_URL}/user/profile/history`,
-    
+
     // Dashboard
     getDashboard: `${BASE_URL}/user/dashboard`,
     getDashboardStats: `${BASE_URL}/user/dashboard/stats`,
@@ -68,27 +76,30 @@ export const endpoints = {
     getRecommendedCourses: (id) => `${BASE_URL}/courses/${id}/recommendations`,
     getCourseStats: (id) => `${BASE_URL}/courses/${id}/stats`,
     getCoursePreview: (courseId) => `${BASE_URL}/courses/${courseId}/preview`,
-    
+
     // User Course Routes (Authenticated)
     getUserCourses: `${BASE_URL}/user/courses`,
     searchUserCourses: `${BASE_URL}/user/courses/search`,
     getUserCourse: (courseId) => `${BASE_URL}/user/courses/${courseId}`,
     enrollInCourse: (courseId) => `${BASE_URL}/user/courses/${courseId}/enroll`,
     unenrollFromCourse: (courseId) => `${BASE_URL}/user/courses/${courseId}/unenroll`,
-    
+
     // Lessons
     getLesson: (id) => `${BASE_URL}/lessons/${id}`,
     getLessonsByCourse: (courseId) => `${BASE_URL}/courses/${courseId}/lessons`,
-    
+
     // Content Blocks
     getBlocksByLesson: (lessonId) => `${BASE_URL}/lessons/${lessonId}/blocks`,
     getBlock: (id) => `${BASE_URL}/content/blocks/${id}`,
     renderBlock: (id) => `${BASE_URL}/content/blocks/${id}/render`,
     renderLesson: (lessonId) => `${BASE_URL}/lessons/${lessonId}/render`,
-    
+
     // User Progress
     getUserProgress: `${BASE_URL}/user/progress`,
-    
+    getCourseProgress: (courseId) => `${BASE_URL}/user/courses/${courseId}/progress`,
+    updateLessonProgress: (lessonId) => `${BASE_URL}/user/lessons/${lessonId}/progress`,
+    getLastViewed: (courseId) => `${BASE_URL}/user/courses/${courseId}/last-viewed`,
+
     // Certificates
     getUserCertificates: `${BASE_URL}/user/certificates`,
     generateCertificate: (courseId) => `${BASE_URL}/user/courses/${courseId}/certificate`,
@@ -98,23 +109,24 @@ export const endpoints = {
   quizzes: {
     // Public
     getQuiz: (quizContentId) => `${BASE_URL}/quizzes/${quizContentId}`,
-    
+
     // User Quiz Routes (Authenticated)
+    submitFullQuiz: (quizId) => `${BASE_URL}/quizzes/${quizId}/submit-full`,
     submitQuizAttempt: (quizContentId) => `${BASE_URL}/user/quizzes/${quizContentId}/submit`,
     getUserAttempts: (quizContentId) => `${BASE_URL}/user/quizzes/${quizContentId}/attempts`,
-    getAttempt: (quizContentId, attemptNumber) => 
+    getAttempt: (quizContentId, attemptNumber) =>
       `${BASE_URL}/user/quizzes/${quizContentId}/attempts/${attemptNumber}`,
-    getLatestAttempt: (quizContentId) => 
+    getLatestAttempt: (quizContentId) =>
       `${BASE_URL}/user/quizzes/${quizContentId}/latest-attempt`,
-    getBestScore: (quizContentId) => 
+    getBestScore: (quizContentId) =>
       `${BASE_URL}/user/quizzes/${quizContentId}/best-score`,
-    getAttemptSummary: (quizContentId) => 
+    getAttemptSummary: (quizContentId) =>
       `${BASE_URL}/user/quizzes/${quizContentId}/summary`,
-    canAttemptQuiz: (quizContentId) => 
+    canAttemptQuiz: (quizContentId) =>
       `${BASE_URL}/user/quizzes/${quizContentId}/can-attempt`,
-    getCourseQuizPerformance: (courseId) => 
+    getCourseQuizPerformance: (courseId) =>
       `${BASE_URL}/user/courses/${courseId}/quiz-performance`,
-    getLessonQuizPerformance: (lessonId) => 
+    getLessonQuizPerformance: (lessonId) =>
       `${BASE_URL}/user/lessons/${lessonId}/quiz-performance`,
   },
 
@@ -124,15 +136,15 @@ export const endpoints = {
     getAllTags: `${BASE_URL}/tags`,
     getTag: (id) => `${BASE_URL}/tags/${id}`,
     getTagsByCategory: (category) => `${BASE_URL}/tags/category/${category}`,
-    
+
     // User Assessment Routes (Authenticated)
     getUserAssessments: `${BASE_URL}/user/assessments`,
     getAssessment: (id) => `${BASE_URL}/user/assessments/${id}`,
     submitAssessment: (id) => `${BASE_URL}/user/assessments/${id}/submit`,
     getResponseHistory: `${BASE_URL}/user/assessment-responses`,
-    updateResponse: (assessmentId) => 
+    updateResponse: (assessmentId) =>
       `${BASE_URL}/user/assessments/${assessmentId}/response`,
-    
+
     // User Profile from Assessments
     getUserProfile: `${BASE_URL}/user/profile`,
     getProfileInsights: `${BASE_URL}/user/profile/insights`,
@@ -152,9 +164,9 @@ export const endpoints = {
   // ==================== RECOMMENDATIONS ====================
   recommendations: {
     getUserRecommendations: `${BASE_URL}/user/recommendations`,
-    markAsViewed: (courseId) => 
+    markAsViewed: (courseId) =>
       `${BASE_URL}/user/recommendations/${courseId}/view`,
-    dismissRecommendation: (courseId) => 
+    dismissRecommendation: (courseId) =>
       `${BASE_URL}/user/recommendations/${courseId}/dismiss`,
   },
 
@@ -173,12 +185,12 @@ export const endpoints = {
     getAllDoctors: `${BASE_URL}/user/doctors`,
     getDoctorById: (doctorId) => `${BASE_URL}/user/doctors/${doctorId}`,
     getDoctorWithSchedule: (doctorId) => `${BASE_URL}/user/doctors/${doctorId}/schedule`,
-    
+
     // Available Doctors & Slots
     getAvailableDoctors: `${BASE_URL}/user/appointments/available-doctors`,
     getWeekView: (doctorId) => `${BASE_URL}/user/appointments/week-view/${doctorId}`,
     getTimeSlots: (doctorId) => `${BASE_URL}/user/appointments/time-slots/${doctorId}`,
-    
+
     // Appointments
     bookAppointment: `${BASE_URL}/user/appointments`,
     getUserAppointments: `${BASE_URL}/user/appointments`,
@@ -196,14 +208,14 @@ export const endpoints = {
  */
 export const buildQueryString = (params) => {
   if (!params || Object.keys(params).length === 0) return '';
-  
+
   const queryParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       queryParams.append(key, value.toString());
     }
   });
-  
+
   return `?${queryParams.toString()}`;
 };
 
