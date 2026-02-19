@@ -10,7 +10,7 @@ import CustomButton from '../../../components/CustomButton';
 export default function paymentMethod() {
     const params = useLocalSearchParams();
     const { courseId, courseTitle, coursePrice, paymentType } = params;
-    
+
     // State to keep track of the selected credit method
     const [paymentMethod, setPaymentMethod] = useState(null);
 
@@ -27,11 +27,11 @@ export default function paymentMethod() {
             ...(paymentType && { paymentType }),
         };
         router.push({
-            pathname: '/cardDetails',
+            pathname: '/(payment)/cardDetails',
             params: routeParams
         });
     }
-    
+
     // Function to go back to the previous screen
     const goBack = () => {
         if (paymentType === 'course') {

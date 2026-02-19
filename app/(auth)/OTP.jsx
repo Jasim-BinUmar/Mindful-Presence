@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import StandardHeader from '../../components/StandardHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api } from '../../services/api';
 import { useGlobalContext } from '../../lib/globalContext';
@@ -35,7 +36,7 @@ export default function OTPScreen() {
 
   const handleVerify = async () => {
     const otpString = otp.join('');
-    
+
     if (otpString.length !== 6) {
       Alert.alert('Error', 'Please enter the complete 6-digit OTP');
       return;
@@ -97,7 +98,7 @@ export default function OTPScreen() {
 
     try {
       const response = await api.auth.registerResendOtp({ email });
-      
+
       if (response.success) {
         Alert.alert('Success', 'OTP has been resent to your email');
         // Reset OTP input
@@ -119,91 +120,85 @@ export default function OTPScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white px-4">
-      {/* Header */}
-      <View className="flex-row items-center justify-between pt-12 pb-8">
-        <TouchableOpacity className="p-2" onPress={() => router.back()}>
-          <ChevronLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-xl font-semibold">OTP</Text>
-        <View className="w-10" />
-      </View>
+    <View className="flex-1 bg-white">
+      <StandardHeader title="OTP Verification" centeredTitle={true} />
+      <View className="flex-1 px-4 pt-8">
 
-      {/* Instructions */}
-      <Text className="text-center text-lg mb-8 px-4">
-        Enter 6 digit otp that we just send in your email
-      </Text>
+        {/* Instructions */}
+        <Text className="text-center text-lg mb-8 px-4">
+          Enter 6 digit otp that we just send in your email
+        </Text>
 
-      {/* OTP Input Boxes */}
-      <View className="flex-row justify-center mb-8 px-4" style={{ gap: 12 }}>
-        {otp.map((digit, index) => (
-          <Pressable
-            key={index}
-            onPress={() => setActiveInput(index)}
-            className={`w-14 h-14 items-center justify-center rounded-2xl ${
-              index === activeInput
+        {/* OTP Input Boxes */}
+        <View className="flex-row justify-center mb-8 px-4" style={{ gap: 12 }}>
+          {otp.map((digit, index) => (
+            <Pressable
+              key={index}
+              onPress={() => setActiveInput(index)}
+              className={`w-14 h-14 items-center justify-center rounded-2xl ${index === activeInput
                 ? 'bg-purple-50 border-2 border-primary'
                 : 'bg-gray-50 border border-gray-200'
-            }`}
-          >
-            <Text className="text-2xl font-semibold">{digit}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Verify Button */}
-      <TouchableOpacity
-        onPress={handleVerify}
-        disabled={isVerifying || otp.join('').length !== 6}
-        className={`bg-primary rounded-full py-4 mb-4 ${(isVerifying || otp.join('').length !== 6) ? 'opacity-50' : ''}`}
-      >
-        {isVerifying ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text className="text-white text-center text-lg font-semibold">
-            Verify
-          </Text>
-        )}
-      </TouchableOpacity>
-
-      {/* Resend Code */}
-      <TouchableOpacity 
-        onPress={handleResendCode}
-        disabled={isResending}
-        className={isResending ? 'opacity-50' : ''}
-      >
-        {isResending ? (
-          <View className="flex-row items-center justify-center">
-            <ActivityIndicator size="small" color="#623AD9" />
-            <Text className="text-primary text-center text-base ml-2">
-              Resending...
-            </Text>
-          </View>
-        ) : (
-          <Text className="text-primary text-center text-base">
-            Resend Code
-          </Text>
-        )}
-      </TouchableOpacity>
-
-      {/* Number Pad */}
-      <View className="absolute bottom-8 left-4 right-4">
-        <View className="flex-row flex-wrap justify-between w-full bg-gray-300 pt-3 rounded-lg px-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0].map((num) => (
-            <TouchableOpacity
-              key={num}
-              onPress={() => handleNumberPress(num.toString())}
-              className="w-[30%] h-14 mb-4 items-center justify-center bg-white rounded-xl"
+                }`}
             >
-              <Text className="text-2xl">{num}</Text>
-            </TouchableOpacity>
+              <Text className="text-2xl font-semibold">{digit}</Text>
+            </Pressable>
           ))}
-          <TouchableOpacity
-            onPress={handleBackspace}
-            className="w-[30%] h-14 mb-4 items-center justify-center bg-gray-50 rounded-xl"
-          >
-            <Text className="text-2xl">⌫</Text>
-          </TouchableOpacity>
+        </View>
+
+        {/* Verify Button */}
+        <TouchableOpacity
+          onPress={handleVerify}
+          disabled={isVerifying || otp.join('').length !== 6}
+          className={`bg-primary rounded-full py-4 mb-4 ${(isVerifying || otp.join('').length !== 6) ? 'opacity-50' : ''}`}
+        >
+          {isVerifying ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-white text-center text-lg font-semibold">
+              Verify
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Resend Code */}
+        <TouchableOpacity
+          onPress={handleResendCode}
+          disabled={isResending}
+          className={isResending ? 'opacity-50' : ''}
+        >
+          {isResending ? (
+            <View className="flex-row items-center justify-center">
+              <ActivityIndicator size="small" color="#623AD9" />
+              <Text className="text-primary text-center text-base ml-2">
+                Resending...
+              </Text>
+            </View>
+          ) : (
+            <Text className="text-primary text-center text-base">
+              Resend Code
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Number Pad */}
+        <View className="absolute bottom-8 left-4 right-4">
+          <View className="flex-row flex-wrap justify-between w-full bg-gray-300 pt-3 rounded-lg px-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0].map((num) => (
+              <TouchableOpacity
+                key={num}
+                onPress={() => handleNumberPress(num.toString())}
+                className="w-[30%] h-14 mb-4 items-center justify-center bg-white rounded-xl"
+              >
+                <Text className="text-2xl">{num}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              onPress={handleBackspace}
+              className="w-[30%] h-14 mb-4 items-center justify-center bg-gray-50 rounded-xl"
+            >
+              <Text className="text-2xl">⌫</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import { icons } from '../../../constants';
 import { router } from 'expo-router';
 import { useGlobalContext } from '../../../lib/globalContext';
@@ -19,7 +20,7 @@ export default function Component() {
         if (authLoading) {
             return;
         }
-        
+
         if (isAuthenticated) {
             fetchProfile();
         } else {
@@ -32,10 +33,10 @@ export default function Component() {
             setLoading(true);
             console.log('👤 Fetching profile data...');
             console.log('👤 Current user context:', JSON.stringify(user, null, 2));
-            
+
             const response = await api.user.getProfile();
             console.log('👤 Profile API response:', JSON.stringify(response, null, 2));
-            
+
             if (response.success && response.data) {
                 const apiData = response.data;
                 console.log('👤 Setting profile data from API:', apiData);
@@ -96,6 +97,16 @@ export default function Component() {
             icon: icons.profileicon,
         },
         {
+            title: 'My Courses',
+            link: '/(profile)/myCourses',
+            icon: icons.selfAssessment,
+        },
+        {
+            title: 'Favourites',
+            link: '/Favourite',
+            icon: icons.favourite,
+        },
+        {
             title: 'Self Assesment',
             link: '/(selfAssesment)/AssessmentStart',
             icon: icons.selfAssesmentIcon,
@@ -118,40 +129,38 @@ export default function Component() {
     ];
 
     return (
-        <SafeAreaView className="flex-1 ">
-            <ScrollView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white">
+            <StandardHeader title="Profile" centeredTitle={true} />
+            <ScrollView className="flex-1 bg-white shadow-sm">
                 <View className="p-4">
-                    <TouchableOpacity className="w-10 h-10 justify-center">
-                        <ChevronLeft size={24} color="#000" />
-                    </TouchableOpacity>
 
                     <View className="items-center mt-4">
                         {loading ? (
-                            <ActivityIndicator size="large" color="#6A3DE8" />
+                            <ActivityIndicator size="large" color="#623AD9" />
                         ) : (
                             <>
                                 <Image
-                                    source={{ 
-                                        uri: profileData?.profilePicture || 
-                                             profileData?.avatar || 
-                                             user?.profilePicture || 
-                                             user?.avatar || 
-                                             'https://bootdey.com/img/Content/avatar/avatar6.png' 
+                                    source={{
+                                        uri: profileData?.profilePicture ||
+                                            profileData?.avatar ||
+                                            user?.profilePicture ||
+                                            user?.avatar ||
+                                            'https://bootdey.com/img/Content/avatar/avatar6.png'
                                     }}
                                     className="w-28 h-28 rounded-full bg-purple-600"
                                 />
                                 <Text className="text-2xl font-semibold mt-4">
                                     {profileData?.firstName && profileData?.lastName
                                         ? `${profileData.firstName} ${profileData.lastName}`
-                                        : profileData?.name || 
-                                          (user?.firstName && user?.lastName 
-                                            ? `${user.firstName} ${user.lastName}` 
+                                        : profileData?.name ||
+                                        (user?.firstName && user?.lastName
+                                            ? `${user.firstName} ${user.lastName}`
                                             : user?.name || 'User')}
                                 </Text>
                                 <Text className="text-gray-500 mt-1">
                                     {profileData?.email || user?.email || ''}
                                 </Text>
-                                
+
                                 {/* Phone Number Only */}
                                 {profileData?.phoneNumber && (
                                     <View className="mt-4">
@@ -169,26 +178,26 @@ export default function Component() {
 
                     {/* Profile Tags Section - Clean Display */}
                     {profileInsights && (
-                    <View className="mt-6 mx-4 p-4 bg-gradient-to-br from-primary/10 to-purple-50 rounded-xl border border-primary/20">
-                        <View className="flex-row items-center justify-between mb-3">
+                        <View className="mt-6 mx-4 p-4 bg-gradient-to-br from-primary/10 to-purple-50 rounded-xl border border-primary/20">
+                            <View className="flex-row items-center justify-between mb-3">
                                 <Text className="text-lg font-semibold text-gray-800">Your Profile Tags</Text>
-                            <TouchableOpacity 
-                                onPress={fetchProfileInsights}
-                                disabled={insightsLoading}
-                                className="px-3 py-1 bg-primary rounded-full"
-                            >
-                                {insightsLoading ? (
-                                    <ActivityIndicator size="small" color="#FFFFFF" />
-                                ) : (
-                                    <Text className="text-white text-xs font-semibold">Refresh</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
-                        
+                                <TouchableOpacity
+                                    onPress={fetchProfileInsights}
+                                    disabled={insightsLoading}
+                                    className="px-3 py-1 bg-primary rounded-full"
+                                >
+                                    {insightsLoading ? (
+                                        <ActivityIndicator size="small" color="#FFFFFF" />
+                                    ) : (
+                                        <Text className="text-white text-xs font-semibold">Refresh</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
+
                             {/* Collect all tags from insights */}
                             {(() => {
                                 const allTags = [];
-                                
+
                                 // Get tags from insights
                                 if (profileInsights.insights && Array.isArray(profileInsights.insights)) {
                                     profileInsights.insights.forEach(insight => {
@@ -205,7 +214,7 @@ export default function Component() {
                                         }
                                     });
                                 }
-                                
+
                                 // Get primary concerns as tags
                                 if (profileInsights.summary?.primaryConcerns && Array.isArray(profileInsights.summary.primaryConcerns)) {
                                     profileInsights.summary.primaryConcerns.forEach(concern => {
@@ -214,25 +223,25 @@ export default function Component() {
                                         }
                                     });
                                 }
-                                
+
                                 if (allTags.length === 0) {
                                     return (
-                            <View className="py-4">
-                                <Text className="text-sm text-gray-600 text-center mb-2">
+                                        <View className="py-4">
+                                            <Text className="text-sm text-gray-600 text-center mb-2">
                                                 No tags available yet.
                                             </Text>
                                             <Text className="text-xs text-gray-500 text-center">
                                                 Complete assessments to get personalized tags.
                                             </Text>
-                                                        </View>
+                                        </View>
                                     );
                                 }
-                                
+
                                 return (
                                     <View className="flex-row flex-wrap">
                                         {allTags.map((tag, idx) => (
-                                            <View 
-                                                key={idx} 
+                                            <View
+                                                key={idx}
                                                 className="bg-primary px-3 py-2 rounded-full mr-2 mb-2"
                                                 style={{
                                                     shadowColor: '#623AD9',
@@ -245,10 +254,10 @@ export default function Component() {
                                                 <Text className="text-white text-sm font-semibold">
                                                     {tag.name}
                                                     {tag.score && ` (${tag.score})`}
-                                                            </Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
                                 );
                             })()}
 
@@ -257,12 +266,12 @@ export default function Component() {
                                 <View className="mt-4 pt-4 border-t border-primary/20">
                                     <Text className="text-sm text-gray-700 leading-5">
                                         {profileInsights.recommendations[0]}
-                                            </Text>
+                                    </Text>
                                 </View>
                             )}
                         </View>
-                        )}
-                    
+                    )}
+
                     {!profileInsights && !insightsLoading && (
                         <View className="mt-6 mx-4 p-4 bg-gray-50 rounded-xl">
                             <Text className="text-sm text-gray-600 text-center mb-2">
@@ -271,7 +280,7 @@ export default function Component() {
                             <Text className="text-xs text-gray-500 text-center">
                                 Complete assessments to get personalized insights.
                             </Text>
-                    </View>
+                        </View>
                     )}
 
                     <View className="mt-8 space-y-4 p-4">

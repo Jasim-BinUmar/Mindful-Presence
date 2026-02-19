@@ -47,6 +47,13 @@
             "kotlinVersion": "1.9.25"
           }
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.innerReflections.mindfulPresence",
+          "enableGooglePay": true
+        }
       ]
     ],
     "experiments": {

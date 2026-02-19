@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Calendar } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import { images } from '../../../constants';
 import { api } from '../../../services/api';
 import { router } from 'expo-router';
@@ -202,24 +203,7 @@ export default function Bookings() {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            {/* Header */}
-            <View className="px-4 py-6 flex-row items-center">
-                <TouchableOpacity
-                    className="p-2"
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/(screens)/(home)/Home');
-                        }
-                    }}
-                >
-                    <ChevronLeft size={24} color="#000" />
-                </TouchableOpacity>
-                <Text className="flex-1 text-center text-2xl font-bold mr-8">
-                    Bookings
-                </Text>
-            </View>
+            <StandardHeader title="Bookings" centeredTitle={true} />
 
             {/* Illustration */}
             <View className="items-center justify-center my-3">
@@ -262,7 +246,7 @@ export default function Bookings() {
 
             {loading ? (
                 <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="#6949FF" />
+                    <ActivityIndicator size="large" color="#623AD9" />
                     <Text className="mt-4 text-gray-600">Loading appointments...</Text>
                 </View>
             ) : currentAppointments.length === 0 ? (

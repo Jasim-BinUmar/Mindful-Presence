@@ -55,6 +55,19 @@ const ScreensLayout = () => {
                 }}
             />
             <Tabs.Screen
+                name="(payment)/paymentHistory"
+                options={{
+                    title: 'History',
+                    tabBarIcon: ({ color, size }) => (
+                        <Image
+                            source={icons.paymentIcon}
+                            style={{ width: size, height: size, tintColor: color }}
+                            resizeMode="contain"
+                        />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="(bookSession)"
                 options={{
                     title: 'Book Session',

@@ -8,6 +8,7 @@ export default function HomeLayout() {
       }}
     >
       <Stack.Screen name="Home" />
+      <Stack.Screen name="CourseSearch" />
     </Stack>
   );
 }

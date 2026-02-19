@@ -19,7 +19,7 @@ const checkout = () => {
     // Function to go back to the previous screen
     const goBack = () => {
         router.push({
-            pathname: '/cardDetails',
+            pathname: '/(payment)/cardDetails',
             params: { courseId, courseTitle, coursePrice, paymentType }
         });
     };
@@ -50,7 +50,7 @@ const checkout = () => {
 
                 <View className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-80">
                     <Text className="text-lg font-semibold text-gray-700 mb-4">Payment Summary</Text>
-                    
+
                     {paymentType === 'course' && courseTitle && (
                         <View className="mb-3 pb-3 border-b border-gray-200">
                             <Text className="text-gray-500 text-sm mb-1">Course</Text>

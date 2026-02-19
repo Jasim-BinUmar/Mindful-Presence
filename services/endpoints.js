@@ -25,7 +25,42 @@
 //   return url;
 // };
 
-export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.4:3005/api/v1';
+// Get the correct backend URL
+// Priority: 1. Environment variable, 2. Fallback to configured IP
+const getBackendUrl = () => {
+  // First check for environment variable (highest priority)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    console.log('🌐 Using API URL from environment:', process.env.EXPO_PUBLIC_API_URL);
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // Default fallback - IMPORTANT: Update this based on your setup:
+  // - Android Emulator: Use 'http://10.0.2.2:3005/api/v1' (10.0.2.2 is the emulator's alias for host machine)
+  // - iOS Simulator: Use 'http://localhost:3005/api/v1' or 'http://127.0.0.1:3005/api/v1'
+  // - Physical Device (Expo Go): Use your machine's actual IP on the same WiFi network
+  
+  // For Physical Device using Expo Go (your current setup):
+  // Make sure your phone and computer are on the SAME WiFi network
+  // Updated to match your actual machine IP: 192.168.1.3
+  const defaultUrl = 'http://192.168.1.3:3005/api/v1';
+  
+  // If using Android Emulator, change to:
+  // const defaultUrl = 'http://10.0.2.2:3005/api/v1';
+  
+  // If using iOS Simulator, change to:
+  // const defaultUrl = 'http://localhost:3005/api/v1';
+  
+  console.log('🌐 Using default API URL for Physical Device:', defaultUrl);
+  console.log('💡 Troubleshooting tips:');
+  console.log('   1. Ensure backend is running on port 3005');
+  console.log('   2. Phone and computer must be on SAME WiFi network');
+  console.log('   3. Check Windows Firewall allows port 3005');
+  console.log('   4. Verify backend is accessible: http://192.168.1.4:3005/api/v1');
+  console.log('   5. Set EXPO_PUBLIC_API_URL in .env file to override');
+  return defaultUrl;
+};
+
+export const BASE_URL = getBackendUrl();
 
 export const getBaseServerUrl = () => BASE_URL;
 
@@ -62,6 +97,11 @@ export const endpoints = {
     getDashboard: `${BASE_URL}/user/dashboard`,
     getDashboardStats: `${BASE_URL}/user/dashboard/stats`,
     getDashboardActivity: `${BASE_URL}/user/dashboard/activity`,
+
+    // Favorites
+    getFavorites: `${BASE_URL}/user/favorites`,
+    getFavoriteIds: `${BASE_URL}/user/favorites/ids`,
+    toggleFavorite: (courseId) => `${BASE_URL}/user/favorites/${courseId}`,
   },
 
   // ==================== COURSES ====================
@@ -177,6 +217,13 @@ export const endpoints = {
     getTagsByCategory: (category) => `${BASE_URL}/tags/category/${category}`,
     getCourseTags: (courseId) => `${BASE_URL}/courses/${courseId}/tags`,
     getCoursesByTag: (tagId) => `${BASE_URL}/tags/${tagId}/courses`,
+  },
+
+  // ==================== PAYMENTS ====================
+  payments: {
+    createPaymentIntent: `${BASE_URL}/payments/create-payment-intent`,
+    confirmPayment: `${BASE_URL}/payments/confirm-payment`,
+    getPaymentHistory: `${BASE_URL}/payments/history`,
   },
 
   // ==================== APPOINTMENTS & DOCTORS ====================

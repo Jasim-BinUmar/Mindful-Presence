@@ -31,7 +31,7 @@ const cardDetails = () => {
             ...(paymentType && { paymentType }),
         };
         router.push({
-            pathname: '/checkout',
+            pathname: '/(payment)/checkout',
             params: routeParams
         });
     };

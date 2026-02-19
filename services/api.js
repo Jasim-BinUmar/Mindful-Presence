@@ -482,6 +482,30 @@ export const api = {
     },
 
     /**
+     * Get user's favorite courses
+     */
+    getFavorites: async () => {
+      return await apiRequest(endpoints.user.getFavorites);
+    },
+
+    /**
+     * Get IDs of user's favorite courses
+     */
+    getFavoriteIds: async () => {
+      return await apiRequest(endpoints.user.getFavoriteIds);
+    },
+
+    /**
+     * Toggle a course as favorite/unfavorite
+     * @param {string} courseId - The ID of the course to toggle
+     */
+    toggleFavorite: async (courseId) => {
+      return await apiRequest(endpoints.user.toggleFavorite(courseId), {
+        method: 'POST',
+      });
+    },
+
+    /**
      * Get dashboard activity
      */
     getDashboardActivity: async () => {
@@ -872,6 +896,38 @@ export const api = {
       return await apiRequest(endpoints.recommendations.dismissRecommendation(courseId), {
         method: 'POST',
       });
+    },
+  },
+
+  // ==================== PAYMENTS ====================
+  payments: {
+    /**
+     * Create payment intent for course purchase
+     * @param {Object} paymentData - { courseId }
+     */
+    createPaymentIntent: async (paymentData) => {
+      return await apiRequest(endpoints.payments.createPaymentIntent, {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
+      });
+    },
+
+    /**
+     * Confirm payment after successful Stripe payment
+     * @param {Object} confirmData - { paymentIntentId }
+     */
+    confirmPayment: async (confirmData) => {
+      return await apiRequest(endpoints.payments.confirmPayment, {
+        method: 'POST',
+        body: JSON.stringify(confirmData),
+      });
+    },
+
+    /**
+     * Get payment history for user
+     */
+    getPaymentHistory: async () => {
+      return await apiRequest(endpoints.payments.getPaymentHistory);
     },
   },
 

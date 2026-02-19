@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import { api } from '../../../services/api';
 import { router } from 'expo-router';
 import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
@@ -23,6 +24,7 @@ export default function DoctorsList() {
 
             const queryParams = { isActive: true };
             if (filter !== 'all') {
+                // Ensure filter value matches backend expectations
                 queryParams.designation = filter;
             }
 
@@ -30,7 +32,11 @@ export default function DoctorsList() {
 
             console.log('👨‍⚕️ Doctors response:', JSON.stringify(response, null, 2));
 
-            if (response.success && response.data) {
+            if (response && response.success && response.data) {
+                setDoctors(Array.isArray(response.data) ? response.data : []);
+                console.log(`👨‍⚕️ Loaded ${response.data.length} doctors`);
+            } else if (response && response.data && Array.isArray(response.data)) {
+                // Handle case where response structure might be different
                 setDoctors(response.data);
                 console.log(`👨‍⚕️ Loaded ${response.data.length} doctors`);
             } else {
@@ -39,7 +45,10 @@ export default function DoctorsList() {
             }
         } catch (error) {
             console.error('❌ Error fetching doctors:', error);
-            Alert.alert('Error', error.message || 'Failed to load doctors');
+            // Don't show alert for filter changes, just log the error
+            if (filter === 'all') {
+                Alert.alert('Error', error.message || 'Failed to load doctors');
+            }
             setDoctors([]);
         } finally {
             setLoading(false);
@@ -55,27 +64,10 @@ export default function DoctorsList() {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            {/* Header */}
-            <View className="px-4 py-6 flex-row items-center">
-                <TouchableOpacity
-                    className="p-2"
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/(screens)/(home)/Home');
-                        }
-                    }}
-                >
-                    <ChevronLeft size={24} color="#000" />
-                </TouchableOpacity>
-                <Text className="flex-1 text-center text-2xl font-bold mr-8">
-                    Select Therapist
-                </Text>
-            </View>
+            <StandardHeader title="Select Therapist" centeredTitle={true} />
 
             {/* Filter Tabs */}
-            <View className="px-4 pb-4">
+            <View className="px-4 pt-4 pb-4">
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View className="flex-row gap-2">
                         {[
@@ -109,7 +101,7 @@ export default function DoctorsList() {
 
             {loading ? (
                 <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="#6949FF" />
+                    <ActivityIndicator size="large" color="#623AD9" />
                     <Text className="mt-4 text-gray-600">Loading doctors...</Text>
                 </View>
             ) : doctors.length === 0 ? (
@@ -119,7 +111,7 @@ export default function DoctorsList() {
                     </Text>
                 </View>
             ) : (
-                <ScrollView className="flex-1 px-4">
+                <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingTop: 8 }}>
                     {doctors.map((doctor) => (
                         <TouchableOpacity
                             key={doctor._id}
@@ -166,6 +158,13 @@ export default function DoctorsList() {
                                             {doctor.experience} years experience
                                         </Text>
                                     )}
+                                    <View className="mt-2 flex-row items-center">
+                                        <View className="bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                                            <Text className="text-green-700 text-xs font-black">
+                                                {doctor.sessionPrice > 0 ? `$${doctor.sessionPrice}/session` : 'FREE SESSION'}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
 
                                 <ChevronRight size={24} color="#666" />

@@ -29,6 +29,10 @@ export default function SuccessfulBooking() {
         router.replace('/(screens)/(home)/Home');
     };
 
+    const handleViewBookings = () => {
+        router.replace('/(bookSession)/Bookings');
+    };
+
     return (
         <View className="flex-1 bg-white px-8 py-16 items-center justify-evenly">
             {/* Success Icon */}
@@ -64,12 +68,22 @@ export default function SuccessfulBooking() {
                 registered mail in 24 - 48hrs{'\n'}
             </Text>
 
+            {/* View Bookings Button */}
+            <TouchableOpacity
+                onPress={handleViewBookings}
+                className="w-full bg-primary rounded-full py-4 px-6 mb-4"
+            >
+                <Text className="text-white text-center text-xl font-semibold">
+                    View Bookings
+                </Text>
+            </TouchableOpacity>
+
             {/* Home Button */}
             <TouchableOpacity
                 onPress={handleHome}
-                className="w-full bg-primary rounded-full py-4 px-6"
+                className="w-full bg-gray-200 rounded-full py-4 px-6"
             >
-                <Text className="text-white text-center text-xl font-semibold">
+                <Text className="text-gray-800 text-center text-xl font-semibold">
                     Home
                 </Text>
             </TouchableOpacity>

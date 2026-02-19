@@ -102,6 +102,22 @@ const LessonView = () => {
 
         } catch (err) {
             console.error('❌ Error fetching lesson data:', err);
+
+            // If access denied (403), navigate back and potentially show popup
+            if (err.status === 403 || err.statusCode === 403 || err.message?.includes('Access denied')) {
+                Alert.alert(
+                    "Enrollment Required",
+                    "Please enroll in this course to view the full lesson content.",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.back()
+                        }
+                    ]
+                );
+                return;
+            }
+
             setError(err.message || 'Failed to load lesson content');
         } finally {
             setLoading(false);
@@ -209,7 +225,7 @@ const LessonView = () => {
                 const vUrl = normalizeMediaUrl(content?.videoUrl || content?.url);
                 const yId = getYoutubeId(content?.videoUrl || content?.url);
                 return (
-                    <View key={_id || index} className="mb-8 overflow-hidden rounded-2xl bg-black shadow-lg mx-5">
+                    <View key={_id || index} className="mb-8 overflow-hidden rounded-2xl bg-black mx-5 shadow-lg">
                         {yId ? (
                             <YoutubePlayer height={220} videoId={yId} play={false} />
                         ) : vUrl ? (
@@ -385,7 +401,7 @@ const LessonView = () => {
                         onPress={handleMarkComplete}
                         disabled={isCompleting}
                         activeOpacity={0.8}
-                        className={`${nextLessonId ? 'bg-primary' : 'bg-green-500'} py-4 rounded-2xl items-center shadow-lg shadow-primary/20 flex-row justify-center active:scale-95`}
+                        className={`${nextLessonId ? 'bg-primary' : 'bg-green-500'} py-4 rounded-2xl items-center flex-row justify-center active:scale-95 shadow-lg shadow-black/30`}
                     >
                         {isCompleting ? (
                             <ActivityIndicator color="white" className="mr-2" />

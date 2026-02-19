@@ -4,23 +4,15 @@ import { Stack } from 'expo-router';
 const _layout = () => {
     return (
         <>
-            <Stack>
-                <Stack.Screen name='profile'
-                    options={
-                        {
-                            headerShown: false
-                        }
-                    }
-
-                />
-                <Stack.Screen name='profileSettings'
-                    options={
-                        {
-                            headerShown: false
-                        }
-                    }
-
-                />
+            <Stack
+                screenOptions={{
+                    headerShown: false,
+                }}
+            >
+                <Stack.Screen name='profile' />
+                <Stack.Screen name='profileSettings' />
+                <Stack.Screen name='EditProfile' />
+                <Stack.Screen name='myCourses' />
             </Stack >
 
             {/* <StatusBar style="light"/> */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Pressable, ImageBackground, FlatList, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Search } from 'lucide-react-native';
 import images from '../../../constants/images';
 import { icons } from '../../../constants';
 import CustomButton from '../../../components/CustomButton';
@@ -18,6 +19,8 @@ export default function Component() {
 
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
   const [profileInsights, setProfileInsights] = useState(null);
@@ -42,6 +45,25 @@ export default function Component() {
       const responseHistory = await assessmentService.getResponseHistory();
       const hasResponses = responseHistory.success && responseHistory.data?.length > 0;
       setHasCompletedAssessment(hasResponses);
+
+      // Fetch user enrollments and favorites
+      try {
+        const [enrollResponse, favoriteRes] = await Promise.all([
+          api.courses.getUserCourses({ limit: 1000 }),
+          api.user.getFavoriteIds()
+        ]);
+
+        if (enrollResponse.success) {
+          const courses = enrollResponse.data || enrollResponse.courses || [];
+          setEnrolledCourseIds(courses.map(c => c._id));
+        }
+
+        if (favoriteRes.success) {
+          setFavoriteIds(favoriteRes.data || []);
+        }
+      } catch (err) {
+        console.warn('Error fetching user context on Home:', err);
+      }
 
       // Fetch recommended courses and insights if assessment completed
       if (hasResponses) {
@@ -112,6 +134,25 @@ export default function Component() {
     routerInstance.push('/(selfAssesment)/AssessmentStart');
   };
 
+  const toggleFavorite = async (courseId) => {
+    try {
+      const isFav = favoriteIds.includes(courseId);
+      if (isFav) {
+        setFavoriteIds(favoriteIds.filter(id => id !== courseId));
+      } else {
+        setFavoriteIds([...favoriteIds, courseId]);
+      }
+
+      const response = await api.user.toggleFavorite(courseId);
+      if (!response.success) {
+        if (isFav) setFavoriteIds([...favoriteIds, courseId]);
+        else setFavoriteIds(favoriteIds.filter(id => id !== courseId));
+      }
+    } catch (error) {
+      console.error('Toggle favorite error:', error);
+    }
+  };
+
   const handleCoursePress = (courseId) => {
     if (!courseId) {
       console.error('handleCoursePress: No courseId provided');
@@ -161,6 +202,8 @@ export default function Component() {
         image: thumbnailUrl && !isPlaceholderUrl ? { uri: thumbnailUrl } : fallbackImage,
         title: course.title || course.name || 'Course',
         courseId: course._id,
+        price: enrolledCourseIds.includes(course._id) ? 'ENROLLED' : (course.price || 0),
+        isFavorite: favoriteIds.includes(course._id),
       };
     })
     : [];
@@ -171,6 +214,9 @@ export default function Component() {
       customStyles=""
       title={item.title}
       badge={item.badge}
+      price={item.price}
+      isFavorite={item.isFavorite}
+      onFavoritePress={() => item.courseId && toggleFavorite(item.courseId)}
       onPress={() => item.courseId && handleCoursePress(item.courseId)}
     />
   );
@@ -183,25 +229,19 @@ export default function Component() {
             source={images.mainBg}
             className="min-h-[320px] items-center justify-center pb-5"
           >
-            {/* Header with Menu and Profile - Absolute at top */}
+            {/* Header with Search and Profile - Absolute at top */}
             <View className="absolute top-0 left-0 right-0 flex flex-row w-full justify-between items-center px-6 pt-2 pb-2 z-10">
-              <Pressable
-                onPress={() => { routerInstance.push('../(profile)/profile') }}
-                style={{
-                  padding: 12,
-                  width: 44,
-                  height: 44,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              <TouchableOpacity
+                onPress={() => { routerInstance.push('/(home)/CourseSearch') }}
+                activeOpacity={0.8}
+                className="flex-1 mr-3"
               >
-                <Image
-                  source={icons.menu}
-                  style={{ width: 20, height: 20, tintColor: '#FFFFFF' }}
-                  resizeMode="contain"
-                />
-              </Pressable>
+                <View className="flex-row items-center bg-white/20 backdrop-blur-md rounded-xl px-3 py-2 border border-white/30">
+                  <Search size={16} color="#FFFFFF" />
+                  <Text className="text-white/70 ml-2 text-sm font-medium">Search courses...</Text>
+                </View>
+              </TouchableOpacity>
+
               <Pressable
                 onPress={() => { routerInstance.push('../(profile)/profile') }}
                 style={{
@@ -313,80 +353,29 @@ export default function Component() {
                       const matchingTags = item.matchingTags || [];
                       const reason = item.reason || '';
 
-                      if (!courseId) {
-                        console.warn('No course ID found for item:', item);
-                        return null;
-                      }
-
-                      // Use fallback image if no thumbnail - cycle through available images
+                      // Use fallback image if no thumbnail
                       const fallbackImage = images[`contentCard${(index % 4) + 1}`] || images.contentCard1;
                       const normalizedThumbnail = normalizeMediaUrl(courseThumbnail);
-
-                      // Debug logging for recommended courses
-                      if (__DEV__) {
-                        console.log(`⭐ Recommended Course "${courseTitle}":`, {
-                          originalThumbnail: courseThumbnail,
-                          normalizedUrl: normalizedThumbnail,
-                          hasThumbnail: !!courseThumbnail,
-                          usingFallback: !normalizedThumbnail || courseThumbnail === 'https://example.com/thumbnail.jpg'
-                        });
-                      }
-
-                      // Filter out placeholder/example URLs
                       const isPlaceholderUrl = normalizedThumbnail && (
                         normalizedThumbnail.includes('example.com') ||
-                        normalizedThumbnail.includes('placeholder') ||
-                        courseThumbnail === 'https://example.com/thumbnail.jpg'
+                        normalizedThumbnail.includes('placeholder')
                       );
+                      const imageSource = normalizedThumbnail && !isPlaceholderUrl ? { uri: normalizedThumbnail } : fallbackImage;
 
-                      const imageSource = normalizedThumbnail && !isPlaceholderUrl
-                        ? { uri: normalizedThumbnail }
-                        : fallbackImage;
+                      const isFavorite = favoriteIds.includes(courseId);
+                      const isEnrolled = enrolledCourseIds.includes(courseId);
+                      const price = isEnrolled ? 'ENROLLED' : (item.courseId?.price || item.price || 0);
 
                       return (
-                        <TouchableOpacity
+                        <ContentCard
+                          title={courseTitle}
+                          image={imageSource}
+                          badge="RECOMMENDED"
+                          price={price}
+                          isFavorite={isFavorite}
+                          onFavoritePress={() => toggleFavorite(courseId)}
                           onPress={() => handleCoursePress(courseId)}
-                          className="flex-1 mx-5 my-2"
-                        >
-                          <View className="relative">
-                            {/* Recommended Badge - Top Right */}
-                            <View className="absolute top-3 right-3 z-10 bg-primary px-3 py-1.5 rounded-full shadow-lg">
-                              <Text className="text-white text-xs font-bold">RECOMMENDED</Text>
-                            </View>
-
-                            {/* Course Card - Same style as ContentCard */}
-                            <ImageBackground
-                              source={imageSource}
-                              className="min-w-[250px] min-h-[250px] flex-grow"
-                              imageStyle={{ borderRadius: 12 }}
-                              onError={(error) => {
-                                if (__DEV__) {
-                                  console.error('❌ Recommended course image load error:', {
-                                    courseTitle,
-                                    imageSource,
-                                    error: error.nativeEvent?.error || error
-                                  });
-                                }
-                              }}
-                            >
-                              {/* Gradient Overlay */}
-                              <View
-                                className="absolute inset-0 bg-primary opacity-40 rounded-xl"
-                                style={{ borderRadius: 12 }}
-                              />
-
-                              {/* Bottom Section with Title - Same as ContentCard */}
-                              <View className="rounded-b-xl absolute bottom-0 left-0 right-0 h-[35%] justify-start items-start">
-                                {/* Background View for blur and opacity */}
-                                <View className="bg-primary h-[100%] absolute bottom-0 left-0 right-0 opacity-55 rounded-b-xl"></View>
-                                {/* Text Content */}
-                                <Text className="text-secondary-100 font-bold text-lg mx-5 my-2" numberOfLines={2}>
-                                  {courseTitle}
-                                </Text>
-                              </View>
-                            </ImageBackground>
-                          </View>
-                        </TouchableOpacity>
+                        />
                       );
                     }}
                     keyExtractor={(item, index) => {
@@ -451,7 +440,7 @@ export default function Component() {
             )}
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </ScrollView >
+    </SafeAreaView >
   );
 }

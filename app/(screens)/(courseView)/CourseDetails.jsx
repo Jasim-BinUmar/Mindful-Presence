@@ -4,11 +4,12 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronLeft, Play, Lock, Info, Star, Clock, Users, Globe, CheckCircle, MoreVertical, Layers, ChevronRight, Bookmark, HelpCircle, FileText, Video } from 'lucide-react-native';
+import { ChevronLeft, Play, Lock, Info, Star, Clock, Users, Globe, CheckCircle, MoreVertical, Layers, ChevronRight, Bookmark, HelpCircle, FileText, Video, Heart } from 'lucide-react-native';
 import api from '../../../services/api';
 import images from '../../../constants/images';
 import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
 import SubscriptionPopup from '../../../components/SubscriptionPopup';
+import StandardHeader from '../../../components/StandardHeader';
 
 const Skeleton = ({ className }) => (
   <View className={`bg-gray-200 animate-pulse rounded ${className}`} />
@@ -29,6 +30,7 @@ const CourseDetails = () => {
   const [progress, setProgress] = useState(null);
   const [lastViewedLessonId, setLastViewedLessonId] = useState(null);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -93,13 +95,51 @@ const CourseDetails = () => {
 
       setCourse(courseData);
 
+      // Check enrollment first BEFORE fetching lessons/blocks (which might be protected)
+      console.log('🔐 Checking enrollment status...');
+      let isUserEnrolled = false;
+      try {
+        const enrollmentResponse = await api.courses.getCourseWithEnrollment(courseId);
+        const enrollmentData = enrollmentResponse.success
+          ? enrollmentResponse.data
+          : (enrollmentResponse.data || enrollmentResponse);
+
+        // More robust enrollment check - look for active status or a valid enrollment ID
+        isUserEnrolled = !!(
+          enrollmentData?.isEnrolled === true ||
+          enrollmentData?.enrollment?.status === 'active' ||
+          (enrollmentData?.enrollment && enrollmentData.enrollment._id)
+        );
+        // Check if course is in favorites
+        try {
+          const favoriteRes = await api.user.getFavoriteIds();
+          if (favoriteRes.success && Array.isArray(favoriteRes.data)) {
+            setIsFavorite(favoriteRes.data.includes(courseId));
+          }
+        } catch (err) {
+          console.warn('Error checking favorite status:', err);
+        }
+
+        setIsEnrolled(isUserEnrolled);
+        console.log('✅ Enrollment status:', isUserEnrolled);
+      } catch (enrollError) {
+        console.log('⚠️ Enrollment check error:', enrollError.status);
+        if (enrollError.status === 409) {
+          isUserEnrolled = true;
+          setIsEnrolled(true);
+        } else {
+          isUserEnrolled = false;
+          setIsEnrolled(false);
+        }
+      }
+
       // Check if course already has lessons populated (from includeDetails)
       let lessonsData = [];
-      if (courseData.lessons && Array.isArray(courseData.lessons) && courseData.lessons.length > 0) {
+      if (courseData.lessons && Array.isArray(courseData.lessons)) {
         console.log('✅ Using lessons from course data:', courseData.lessons.length);
         lessonsData = courseData.lessons;
-      } else {
-        // Fetch lessons separately if not included
+      } else if (isUserEnrolled) {
+        // Only fetch lessons separately if they are not included AND user is enrolled
         console.log('⚠️ Course data does not include lessons, fetching separately...');
         const lessonsResponse = await api.courses.getLessonsByCourse(courseId, { includeBlocks: 'true' });
         console.log('Lessons response structure:', {
@@ -155,7 +195,12 @@ const CourseDetails = () => {
             return { ...lesson, blocks: validBlocks };
           }
 
-          // Otherwise, fetch blocks for this lesson
+          // Otherwise, fetch blocks for this lesson IF user is enrolled
+          if (!isUserEnrolled) {
+            console.log(`ℹ️ User not enrolled, skipping block fetch for lesson "${lesson.title}"`);
+            return { ...lesson, blocks: [] };
+          }
+
           try {
             console.log(`📦 Fetching blocks for lesson "${lesson.title}" (${lesson._id})...`);
             const blocksResponse = await api.courses.getBlocksByLesson(lesson._id);
@@ -203,36 +248,21 @@ const CourseDetails = () => {
 
       setLessons(Array.isArray(lessonsWithBlocks) ? lessonsWithBlocks : []);
 
-      // Check enrollment and progress
-      try {
-        const enrollmentResponse = await api.courses.getCourseWithEnrollment(courseId);
-        const enrollmentData = enrollmentResponse.success
-          ? enrollmentResponse.data
-          : (enrollmentResponse.data || enrollmentResponse);
+      // Update progress if enrolled
+      if (isUserEnrolled) {
+        // Fetch progress data
+        try {
+          const progressRes = await api.courses.getCourseProgress(courseId);
+          setProgress(progressRes?.data || progressRes);
 
-        const isUserEnrolled = !!(
-          enrollmentData?.enrollment?.status === 'active' ||
-          enrollmentData?.isEnrolled === true ||
-          (enrollmentData?.enrollment && enrollmentData.enrollment !== null)
-        );
-
-        setIsEnrolled(isUserEnrolled);
-
-        if (isUserEnrolled) {
-          // Fetch progress data
-          try {
-            const progressRes = await api.courses.getCourseProgress(courseId);
-            setProgress(progressRes?.data || progressRes);
-
-            const lastViewedRes = await api.courses.getLastViewed(courseId);
-            setLastViewedLessonId(lastViewedRes?.data?.lessonId || lastViewedRes?.lessonId);
-          } catch (pErr) {
-            console.warn('Progress fetch error:', pErr);
-          }
+          const lastViewedRes = await api.courses.getLastViewed(courseId);
+          setLastViewedLessonId(lastViewedRes?.data?.lessonId || lastViewedRes?.lessonId);
+        } catch (pErr) {
+          console.warn('Progress fetch error:', pErr);
         }
-      } catch (enrollError) {
-        if (enrollError.status === 409) setIsEnrolled(true);
-        else setIsEnrolled(false);
+      } else {
+        // Don't show popup immediately, let user see lessons first
+        console.log('User not enrolled, lessons will be visible but locked');
       }
     } catch (err) {
       setError(err.message || 'Failed to load course details');
@@ -257,29 +287,71 @@ const CourseDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]); // fetchCourseDetails is stable due to useCallback with courseId dependency
 
+  const toggleFavorite = async () => {
+    try {
+      const newStatus = !isFavorite;
+      setIsFavorite(newStatus);
+      const response = await api.user.toggleFavorite(courseId);
+      if (!response.success) {
+        setIsFavorite(!newStatus);
+      }
+    } catch (error) {
+      console.error('Toggle favorite error:', error);
+      setIsFavorite(!isFavorite);
+    }
+  };
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchCourseDetails();
   }, [fetchCourseDetails]);
 
-  const handleEnroll = () => {
-    // Redirect to payment screen with course details
-    const coursePrice = course?.price || course?.cost || 0;
-    router.push({
-      pathname: '/(payment)/coursePayment',
-      params: {
-        courseId: courseId,
-        courseTitle: course?.title || course?.name || 'Course',
-        coursePrice: coursePrice.toString(),
+  const handleEnroll = async () => {
+    // If user is already enrolled, do nothing
+    if (isEnrolled) return;
+
+    const coursePrice = course?.price || 0;
+
+    if (coursePrice === 0) {
+      try {
+        setLoading(true);
+        console.log('🚀 Enrolling in free course:', courseId);
+        const response = await api.courses.enrollInCourse(courseId);
+        if (response.success) {
+          setIsEnrolled(true);
+          // Refresh course details to get full access
+          await fetchCourseDetails();
+        }
+      } catch (err) {
+        console.error('Enrollment error:', err);
+        setError(err.message || 'Failed to enroll in free course');
+      } finally {
+        setLoading(false);
       }
-    });
+    } else {
+      // Redirect to payment screen with course details
+      router.push({
+        pathname: '/(payment)/coursePayment',
+        params: {
+          courseId: courseId,
+          courseTitle: course?.title || course?.name || 'Course',
+          coursePrice: coursePrice.toString(),
+        }
+      });
+    }
   };
 
   const handleLessonPress = (lessonId) => {
+    console.log('👆 Lesson pressed:', lessonId, '| Enrolled:', isEnrolled);
+    // If not enrolled, show subscription popup instead of navigating to protected lesson view
     if (!isEnrolled) {
+      console.log('🚫 Access blocked: User not enrolled');
       setShowSubscriptionPopup(true);
       return;
     }
+
+    console.log('✅ Access allowed: Navigating to lesson');
+
     router.push({
       pathname: '/(courseView)/LessonView',
       params: { lessonId, courseId }
@@ -287,6 +359,11 @@ const CourseDetails = () => {
   };
 
   const handleResume = () => {
+    // If not enrolled, show subscription popup
+    if (!isEnrolled) {
+      setShowSubscriptionPopup(true);
+      return;
+    }
     const targetId = lastViewedLessonId || (lessons[0]?._id);
     if (targetId) handleLessonPress(targetId);
   };
@@ -299,7 +376,9 @@ const CourseDetails = () => {
   };
 
   const handleContentPress = async (lessonId, blockId, blockType, block = null) => {
+    // If not enrolled, show subscription popup
     if (!isEnrolled) {
+      console.log('User not enrolled, showing subscription popup on content access');
       setShowSubscriptionPopup(true);
       return;
     }
@@ -423,49 +502,46 @@ const CourseDetails = () => {
       });
     }
 
-    const isLocked = !isEnrolled;
+    // Content is always accessible (preview mode)
+    const isLocked = false;
 
     return (
       <TouchableOpacity
         key={block._id}
         onPress={() => handleContentPress(lessonId, block._id, block.blockType, block)}
-        className={`rounded-lg p-4 mb-3 border ${isLocked ? 'bg-gray-100 border-gray-300 opacity-75' : 'bg-white border-gray-200'}`}
+        className={`rounded-lg p-4 mb-3 border bg-white border-gray-200`}
         style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 }}
-        disabled={isLocked}
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-3">{getBlockIcon(block.blockType)}</Text>
             <View className="flex-1">
               <View className="flex-row items-center">
-                <Text className={`text-base font-semibold ${isLocked ? 'text-gray-500' : 'text-gray-800'}`} numberOfLines={2}>
+                <Text className="text-base font-semibold text-gray-800" numberOfLines={2}>
                   {block.title || block.content?.heading || `${getBlockTypeLabel(block.blockType)} Content`}
                 </Text>
-                {isLocked && (
-                  <Text className="ml-2 text-lg">🔒</Text>
-                )}
               </View>
               {block.content?.description && (
-                <Text className={`text-sm mt-1 ${isLocked ? 'text-gray-400' : 'text-gray-600'}`} numberOfLines={2}>
+                <Text className="text-sm mt-1 text-gray-600" numberOfLines={2}>
                   {block.content.description}
                 </Text>
               )}
               {block.blockType === 'quiz' && block.content?.questions && (
-                <Text className={`text-xs mt-1 ${isLocked ? 'text-gray-400' : 'text-primary'}`}>
+                <Text className="text-xs mt-1 text-primary">
                   {block.content.questions.length} Questions
                   {block.content.timeLimit && ` • ${block.content.timeLimit} mins`}
                 </Text>
               )}
               {block.blockType === 'video' && block.content?.duration && (
-                <Text className={`text-xs mt-1 ${isLocked ? 'text-gray-400' : 'text-gray-500'}`}>
+                <Text className="text-xs mt-1 text-gray-500">
                   Duration: {Math.floor(block.content.duration / 60)}:{String(block.content.duration % 60).padStart(2, '0')}
                 </Text>
               )}
             </View>
           </View>
-          <View className={`px-3 py-1 rounded-full ${isLocked ? 'bg-gray-200' : 'bg-primary/10'}`}>
-            <Text className={`text-xs font-semibold ${isLocked ? 'text-gray-500' : 'text-primary'}`}>
-              {isLocked ? 'Locked' : getBlockTypeLabel(block.blockType)}
+          <View className="px-3 py-1 rounded-full bg-primary/10">
+            <Text className="text-xs font-semibold text-primary">
+              {getBlockTypeLabel(block.blockType)}
             </Text>
           </View>
         </View>
@@ -627,15 +703,7 @@ const CourseDetails = () => {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar backgroundColor="#161622" style="dark" />
 
-      {/* Fixed Sticky Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white z-50">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <ChevronLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-lg font-bold flex-1" numberOfLines={1}>
-          {course?.title || course?.name}
-        </Text>
-      </View>
+      <StandardHeader title={course?.title || course?.name || 'Course Details'} />
 
       <Animated.ScrollView
         className="flex-1 bg-gray-50/30"
@@ -649,18 +717,7 @@ const CourseDetails = () => {
         }
       >
         {/* Parallax Image / Course Banner */}
-        <Animated.View
-          className="px-5 mt-4"
-          style={{
-            transform: [{
-              translateY: scrollY.interpolate({
-                inputRange: [-300, 0, 300],
-                outputRange: [-150, 0, 100],
-                extrapolate: 'clamp'
-              })
-            }]
-          }}
-        >
+        <View className="px-5 mt-4">
           <View className="rounded-[32px] overflow-hidden shadow-2xl shadow-black/30 border-2 border-white">
             <ImageBackground
               source={getImageSource(course.thumbnail, images.fullGuide)}
@@ -671,8 +728,15 @@ const CourseDetails = () => {
                 style={{ position: 'absolute', inset: 0 }}
               />
 
-              <TouchableOpacity className="absolute top-6 right-6 bg-white/20 p-2 rounded-xl border border-white/30">
-                <Bookmark size={20} color="white" />
+              <TouchableOpacity
+                onPress={toggleFavorite}
+                className="absolute top-6 right-6 bg-white/20 p-3 rounded-2xl border border-white/30 backdrop-blur-md"
+              >
+                <Heart
+                  size={20}
+                  color={isFavorite ? "#FF4B4B" : "white"}
+                  fill={isFavorite ? "#FF4B4B" : "transparent"}
+                />
               </TouchableOpacity>
 
               <View className="p-8">
@@ -689,10 +753,23 @@ const CourseDetails = () => {
                     {lessons.length} Modules • Lifetime Access
                   </Text>
                 </View>
+
+                <View className="flex-row items-center mt-3">
+                  <View className={`px-3 py-1 rounded-full border border-white/30 mr-3 ${isEnrolled ? 'bg-green-500/80' : 'bg-white/20'}`}>
+                    <Text className="text-white font-bold text-lg">
+                      {isEnrolled ? 'ENROLLED' : (course.price > 0 ? `$${course.price}` : 'FREE')}
+                    </Text>
+                  </View>
+                  {course.originalPrice > course.price && (
+                    <Text className="text-white/50 text-sm line-through">
+                      ${course.originalPrice}
+                    </Text>
+                  )}
+                </View>
               </View>
             </ImageBackground>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Progress Section - Refined & Slimmer */}
         {isEnrolled && progress && (
@@ -785,6 +862,28 @@ const CourseDetails = () => {
           </View>
         )}
       </Animated.ScrollView>
+
+      {/* Bottom Sticky Action Bar */}
+      {!isEnrolled && (
+        <View className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100 shadow-2xl z-50">
+          <TouchableOpacity
+            onPress={handleEnroll}
+            className="w-full bg-primary h-16 rounded-[24px] flex-row items-center justify-center shadow-xl shadow-primary/40 active:scale-95"
+          >
+            <View className="flex-row items-center px-6 justify-between w-full">
+              <View>
+                <Text className="text-white/70 text-[10px] uppercase font-black tracking-widest">Get Full Access</Text>
+                <Text className="text-white text-lg font-black mt-0.5">
+                  {course.price > 0 ? `BUY FOR $${course.price}` : 'JOIN FOR FREE'}
+                </Text>
+              </View>
+              <View className="bg-white/20 p-2 rounded-xl">
+                <ChevronRight size={20} color="white" />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Subscription Popup */}
       <SubscriptionPopup

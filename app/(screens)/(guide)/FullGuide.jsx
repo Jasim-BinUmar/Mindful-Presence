@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useMemo } from 'react'
 import { router } from 'expo-router'
 import { BookOpen, Heart, Shield, Star, Zap, Info } from 'lucide-react-native'
+import StandardHeader from '../../../components/StandardHeader'
 
 const { width } = Dimensions.get('window');
 
@@ -39,12 +40,12 @@ const FullGuide = () => {
     return (
         <SafeAreaView className='h-full bg-white'>
             <StatusBar backgroundColor="#161622" style="light" />
+            <StandardHeader title="Full Guide" centeredTitle={true} />
             <ScrollView className="flex-1 h-full" showsVerticalScrollIndicator={false}>
                 <View className="flex-1 pb-10">
-                    {/* Header Section */}
-                    <View className="mt-8 mb-6 px-6">
-                        <Text className='font-bold text-3xl text-gray-900'>Full Guide</Text>
-                        <Text className="text-gray-500 mt-2 text-lg">Your companion for inner peace and presence.</Text>
+                    {/* Wisdom Section Subtitle */}
+                    <View className="mt-4 mb-4 px-6">
+                        <Text className="text-gray-500 text-base">Your companion for inner peace and presence.</Text>
                     </View>
 
                     {/* Daily Wisdom Card - Automated Daily Change */}

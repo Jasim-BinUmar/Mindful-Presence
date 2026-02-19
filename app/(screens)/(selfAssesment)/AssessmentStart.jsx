@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomButton from '../../../components/CustomButton';
 import { images } from '../../../constants';
 import { ChevronLeft } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import { router } from 'expo-router';
 import { assessmentService } from '../../../services/assessmentService';
 import { useGlobalContext } from '../../../lib/globalContext';
@@ -22,7 +23,7 @@ export default function AssessmentStart() {
         try {
             setLoading(true);
             const response = await assessmentService.getAssessments();
-            
+
             if (response.success && response.data) {
                 setAssessments(response.data);
             } else {
@@ -40,7 +41,7 @@ export default function AssessmentStart() {
         try {
             // Check if there's existing progress
             const progress = await assessmentService.getProgress(assessmentId);
-            
+
             if (progress && progress.currentQuestion < progress.totalQuestions) {
                 Alert.alert(
                     'Resume Assessment',
@@ -89,7 +90,7 @@ export default function AssessmentStart() {
         return (
             <SafeAreaView className="flex-1 bg-white">
                 <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size="large" color="#623AD9" />
                     <Text className="mt-4 text-gray-600">Loading assessments...</Text>
                 </View>
             </SafeAreaView>
@@ -120,17 +121,9 @@ export default function AssessmentStart() {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
+            <StandardHeader title="Assessment" centeredTitle={true} />
             <ScrollView className="flex-1">
-                <View className="px-8 py-8">
-                    {/* Header */}
-                    <View className="flex-row items-center mb-6">
-                        <TouchableOpacity onPress={goBack} className="pr-2">
-                            <ChevronLeft size={24} color="#000" />
-                        </TouchableOpacity>
-                        <Text className="text-black text-2xl font-semibold ml-4">
-                            Self Assessment
-                        </Text>
-                    </View>
+                <View className="px-8 py-4">
 
                     {/* Welcome Message */}
                     <View className="items-center justify-center mb-8">

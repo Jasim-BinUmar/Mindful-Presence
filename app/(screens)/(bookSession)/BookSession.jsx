@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import CustomButton from '../../../components/CustomButton';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api } from '../../../services/api';
@@ -297,16 +298,37 @@ export default function BookSession() {
       const response = await api.appointments.bookAppointment(appointmentData);
 
       if (response.success) {
-        // Navigate to success screen with booking details
-        router.push({
-          pathname: '/(bookSession)/SuccessfulBooking',
-          params: {
-            appointmentId: response.data._id,
-            date: selectedDate,
-            time: selectedTime,
-            doctorName: selectedDoctor.name
-          }
-        });
+        // Get price and ensure it's a number
+        const price = parseFloat(selectedDoctor.sessionPrice) || 0;
+        console.log('💰 Session price:', price, 'Type:', typeof price);
+
+        // For free sessions (price is 0 or null/undefined), skip payment and go directly to success
+        if (price > 0) {
+          // Paid session - Navigate to payment screen
+          console.log('💰 Paid session, navigating to payment');
+          router.push({
+            pathname: '/(payment)/appointmentPayment',
+            params: {
+              appointmentId: response.data._id,
+              doctorName: selectedDoctor.name,
+              price: price.toString(),
+              date: selectedDate,
+              time: selectedTime
+            }
+          });
+        } else {
+          // Free session - Skip payment flow entirely and go directly to success
+          console.log('✅ Free session, skipping payment, going to success');
+          router.push({
+            pathname: '/(bookSession)/SuccessfulBooking',
+            params: {
+              appointmentId: response.data._id,
+              date: selectedDate,
+              time: selectedTime,
+              doctorName: selectedDoctor.name
+            }
+          });
+        }
       } else {
         Alert.alert('Error', response.message || 'Failed to book appointment');
       }
@@ -325,7 +347,7 @@ export default function BookSession() {
   if (loading && !selectedDoctor) {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#6949FF" />
+        <ActivityIndicator size="large" color="#623AD9" />
         <Text className="mt-4 text-gray-600">Loading therapists...</Text>
       </SafeAreaView>
     );
@@ -333,26 +355,9 @@ export default function BookSession() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <StandardHeader title="Book a Session" centeredTitle={true} />
       <ScrollView className="flex-1">
-        <View className="px-4 py-6">
-          {/* Header */}
-          <View className="flex-row items-center mb-6">
-            <TouchableOpacity
-              className="p-2"
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                } else {
-                  router.replace('/(screens)/(home)/Home');
-                }
-              }}
-            >
-              <ChevronLeft size={24} color="#000" />
-            </TouchableOpacity>
-            <Text className="flex-1 text-center text-xl font-semibold mr-8">
-              Book 1 To 1 Session With{'\n'}An Expert Therapist
-            </Text>
-          </View>
+        <View className="px-4 py-4">
 
           {/* Doctor Info */}
           {selectedDoctor && selectedDoctor._id && (
@@ -361,11 +366,18 @@ export default function BookSession() {
               <Text className="text-lg font-semibold text-gray-800">
                 {selectedDoctor.name || 'Unknown Therapist'}
               </Text>
-              {selectedDoctor.specialization && (
-                <Text className="text-sm text-gray-600 mt-1">
-                  {String(selectedDoctor.specialization)}
-                </Text>
-              )}
+              <View className="flex-row items-center justify-between mt-1">
+                {selectedDoctor.specialization && (
+                  <Text className="text-sm text-gray-600">
+                    {String(selectedDoctor.specialization)}
+                  </Text>
+                )}
+                <View className="bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                  <Text className="text-green-700 text-xs font-black">
+                    {selectedDoctor.sessionPrice > 0 ? `$${selectedDoctor.sessionPrice}/session` : 'FREE SESSION'}
+                  </Text>
+                </View>
+              </View>
             </View>
           )}
 
@@ -449,7 +461,7 @@ export default function BookSession() {
               <Text className="text-lg font-medium mb-4">Time</Text>
               {loadingTimeSlots ? (
                 <View className="py-8 items-center">
-                  <ActivityIndicator size="small" color="#6949FF" />
+                  <ActivityIndicator size="small" color="#623AD9" />
                   <Text className="mt-2 text-gray-600">Loading time slots...</Text>
                 </View>
               ) : availableTimeSlots.length > 0 ? (

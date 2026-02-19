@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
+import StandardHeader from '../../components/StandardHeader';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { useGlobalContext } from '../../lib/globalContext';
@@ -33,7 +34,7 @@ const Login = () => {
         try {
             console.log("Attempting login with email:", trimmedEmail);
             const response = await login({ email: trimmedEmail, password });
-            
+
             if (response.success) {
                 Alert.alert('Success', 'Logged in successfully');
                 router.replace('/(screens)/(home)/Home');
@@ -51,17 +52,11 @@ const Login = () => {
     return (
         <SafeAreaView className="flex-1 bg-white h-full">
             <StatusBar style="dark" />
-            <ScrollView>
-                {/* Header with back button */}
-                <View className='flex-row items-center pt-4 px-4'>
-                    <TouchableOpacity onPress={() => router.back()} className="p-2">
-                        <Text className="text-2xl">←</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Title */}
-                <View className='flex-1 mt-8 items-center'>
-                    <Text className='font-bold text-2xl'>Login</Text>
+            <StandardHeader title="Login" centeredTitle={true} />
+            <ScrollView className="flex-1">
+                <View className="flex-1 mt-8 items-center px-6">
+                    <Text className='font-black text-3xl text-black-200 mb-2'>Welcome Back!</Text>
+                    <Text className="text-gray-500 text-center text-base">Please enter your credentials to continue your journey.</Text>
                 </View>
 
                 <View className="w-full justify-start min-h-[75vh] px-4 mb-6 mt-8">
@@ -92,9 +87,8 @@ const Login = () => {
                             onPress={() => setRememberMe(!rememberMe)}
                             className="flex-row items-center"
                         >
-                            <View className={`w-5 h-5 border-2 rounded items-center justify-center mr-2 ${
-                                rememberMe ? 'bg-primary border-primary' : 'border-gray-400'
-                            }`}>
+                            <View className={`w-5 h-5 border-2 rounded items-center justify-center mr-2 ${rememberMe ? 'bg-primary border-primary' : 'border-gray-400'
+                                }`}>
                                 {rememberMe && (
                                     <Text className="text-white text-xs">✓</Text>
                                 )}
@@ -106,19 +100,16 @@ const Login = () => {
                     {/* Login Button */}
                     <View className='mt-8'>
                         <CustomButton
-                            title={isSubmitting ? 'Logging in...' : 'login'}
+                            title="Login"
                             handlePress={handleLogin}
-                            containerStyles="bg-primary rounded-full w-full py-4"
+                            isLoading={isSubmitting}
+                            containerStyles="bg-primary rounded-full w-full py-4 mt-4"
                             textStyles="text-lg font-bold text-white"
-                            disabled={isSubmitting}
                         />
-                        {isSubmitting && (
-                            <ActivityIndicator size="small" color="#623AD9" style={{ marginTop: 10 }} />
-                        )}
                     </View>
 
                     {/* Forgot Password Link */}
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         onPress={() => {
                             // Navigate to forgot password screen
                             Alert.alert('Forgot Password', 'Forgot password functionality coming soon');

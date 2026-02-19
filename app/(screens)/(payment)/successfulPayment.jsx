@@ -52,8 +52,14 @@ export default function successfulPayment() {
             });
         } else {
             // Default navigation for other payment types
-            router.push('/(home)/Home');
+            router.push('/(screens)/(home)/Home');
         }
+    };
+
+    const handleViewPaymentHistory = () => {
+        router.replace({
+            pathname: '/(payment)/Payment',
+        });
     };
 
     return (
@@ -96,13 +102,24 @@ export default function successfulPayment() {
                 </View>
             )}
 
-            {/* Continue Button */}
+            {/* View Payment History Button */}
             <TouchableOpacity
-                onPress={handleContinue}
-                className="w-full bg-primary rounded-full py-4 px-6 mb-6"
+                onPress={handleViewPaymentHistory}
+                className="w-full bg-primary rounded-full py-4 px-6 mb-4"
                 disabled={enrolling}
             >
                 <Text className="text-white text-center text-xl font-semibold">
+                    View Payment History
+                </Text>
+            </TouchableOpacity>
+
+            {/* Continue Button */}
+            <TouchableOpacity
+                onPress={handleContinue}
+                className="w-full bg-gray-200 rounded-full py-4 px-6"
+                disabled={enrolling}
+            >
+                <Text className="text-gray-800 text-center text-xl font-semibold">
                     {paymentType === 'course' ? 'Go to Course' : 'Continue'}
                 </Text>
             </TouchableOpacity>
