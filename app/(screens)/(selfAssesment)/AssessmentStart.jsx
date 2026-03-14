@@ -5,11 +5,12 @@ import CustomButton from '../../../components/CustomButton';
 import { images } from '../../../constants';
 import { ChevronLeft } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { assessmentService } from '../../../services/assessmentService';
 import { useGlobalContext } from '../../../lib/globalContext';
 
 export default function AssessmentStart() {
+    const { fromProfile } = useLocalSearchParams();
     const [assessments, setAssessments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -83,12 +84,16 @@ export default function AssessmentStart() {
     };
 
     const goBack = () => {
-        router.back();
+        if (fromProfile === 'true') {
+            router.replace('/(profile)/profile');
+        } else {
+            router.back();
+        }
     };
 
     if (loading) {
         return (
-            <SafeAreaView className="flex-1 bg-white">
+            <SafeAreaView className="flex-1 bg-white" edges={['top']}>
                 <View className="flex-1 justify-center items-center">
                     <ActivityIndicator size="large" color="#623AD9" />
                     <Text className="mt-4 text-gray-600">Loading assessments...</Text>
@@ -99,7 +104,7 @@ export default function AssessmentStart() {
 
     if (error) {
         return (
-            <SafeAreaView className="flex-1 bg-white">
+            <SafeAreaView className="flex-1 bg-white" edges={['top']}>
                 <View className="flex-1 justify-center items-center px-8">
                     <Text className="text-red-500 text-lg text-center mb-4">{error}</Text>
                     <CustomButton
@@ -120,8 +125,12 @@ export default function AssessmentStart() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StandardHeader title="Assessment" centeredTitle={true} />
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+            <StandardHeader
+                title="Assessment"
+                centeredTitle={true}
+                onBackPress={fromProfile === 'true' ? () => router.replace('/(profile)/profile') : undefined}
+            />
             <ScrollView className="flex-1">
                 <View className="px-8 py-4">
 

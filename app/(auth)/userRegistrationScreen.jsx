@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ImageBackground, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { ChevronLeft } from 'lucide-react-native';
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
 import { router } from 'expo-router';
@@ -8,14 +9,21 @@ import { router } from 'expo-router';
 export default function userRegistrationScreen() {
   return (
     <View className="flex-1">
-      <StatusBar style="light" />
+      <StatusBar style="light" translucent />
       <ImageBackground
         source={images.userRegisterScreen}
         className="flex-1 "
       >
         
           <SafeAreaView className="flex-1 justify-between p-5">
-            <View className="flex items-center justify-center mt-20 px-16">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="p-2 self-start"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <ChevronLeft size={28} color="#FFFFFF" strokeWidth={2.5} />
+            </TouchableOpacity>
+            <View className="flex items-center justify-center mt-10 px-16">
               <Text className="text-6xl font-bold text-white text-center mb-5">
               Your Journey Starts Here
               </Text>

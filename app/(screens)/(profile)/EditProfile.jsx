@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { User } from 'lucide-react-native';
+import StandardHeader from '../../../components/StandardHeader';
 import { useGlobalContext } from '../../../lib/globalContext';
 import { api } from '../../../services/api';
-import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
-import images from '../../../constants/images';
+import { getImageSource } from '../../../utils/imageUtils';
 
 export default function EditProfile() {
     const { user } = useGlobalContext();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [profileData, setProfileData] = useState({
         firstName: '',
         lastName: '',
@@ -96,6 +98,11 @@ export default function EditProfile() {
         }
     };
 
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchProfile().finally(() => setRefreshing(false));
+    }, []);
+
     const handleSave = async () => {
         try {
             setSaving(true);
@@ -131,34 +138,44 @@ export default function EditProfile() {
 
     if (loading) {
         return (
-            <SafeAreaView className="flex-1 bg-white justify-center items-center">
+            <SafeAreaView className="flex-1 bg-white justify-center items-center" edges={['top']}>
                 <ActivityIndicator size="large" color="#6A3DE8" />
                 <Text className="mt-4 text-gray-600">Loading profile...</Text>
             </SafeAreaView>
         );
     }
 
-    return (
-        <SafeAreaView className="flex-1 bg-white">
-            <ScrollView className="flex-1">
-                <View className="p-4">
-                    {/* Header with back button */}
-                    <TouchableOpacity 
-                        className="w-10 h-10 justify-center"
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={24} color="#000" />
-                    </TouchableOpacity>
+    const profileImageSource = getImageSource(profileData.profilePicture, null);
+    const initials = [profileData.firstName?.trim()[0], profileData.lastName?.trim()[0]]
+        .filter(Boolean)
+        .join('')
+        .toUpperCase();
 
+    return (
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+            <StandardHeader title="Edit Profile" />
+            <ScrollView
+                className="flex-1"
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+            >
+                <View className="p-4">
                     {/* Profile Section */}
                     <View className="items-center mt-4">
-                        <Image
-                            source={getImageSource(
-                                profileData.profilePicture,
-                                images.fullGuide
-                            )}
-                            className="w-28 h-28 rounded-full bg-purple-600"
-                        />
+                        {profileImageSource ? (
+                            <Image
+                                source={profileImageSource}
+                                className="w-28 h-28 rounded-full bg-gray-200"
+                                resizeMode="cover"
+                            />
+                        ) : (
+                            <View className="w-28 h-28 rounded-full bg-primary items-center justify-center">
+                                {initials ? (
+                                    <Text className="text-white text-3xl font-bold">{initials}</Text>
+                                ) : (
+                                    <User size={48} color="#FFFFFF" strokeWidth={2} />
+                                )}
+                            </View>
+                        )}
                     </View>
 
                     <View className="bg-white p-2 mt-8 space-y-4">

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert, ActivityIndicator, TouchableOpacity, Checkbox } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import FormField from '../../components/FormField';
@@ -50,22 +50,22 @@ const Login = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white h-full">
-            <StatusBar style="dark" />
-            <StandardHeader title="Login" centeredTitle={true} />
-            <ScrollView className="flex-1">
-                <View className="flex-1 mt-8 items-center px-6">
-                    <Text className='font-black text-3xl text-black-200 mb-2'>Welcome Back!</Text>
+        <SafeAreaView className="flex-1 bg-gray-50 h-full">
+            <StatusBar style="dark" translucent />
+            <StandardHeader title="Login" centeredTitle={true} backgroundColor="#F9FAFB" />
+            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+                <View className="items-center px-6 pt-8 pb-4">
+                    <Text className="font-black text-3xl text-black-200 mb-2">Welcome Back!</Text>
                     <Text className="text-gray-500 text-center text-base">Please enter your credentials to continue your journey.</Text>
                 </View>
 
-                <View className="w-full justify-start min-h-[75vh] px-4 mb-6 mt-8">
+                <View className="mx-4 mt-6 bg-white rounded-t-3xl px-5 py-6 shadow-sm border border-gray-100">
                     <FormField
                         title="Your Email"
                         handleChangeText={(value) => setEmail(value.trim())}
-                        otherStyles="mt-6"
-                        labelStyles="text-gray-500 font-semibold mb-3"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
+                        otherStyles="mt-4"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
                         placeholder="Enter your email"
                         keyboardType="email-address"
                         value={email}
@@ -73,50 +73,45 @@ const Login = () => {
                     <FormField
                         title="Password"
                         handleChangeText={setPassword}
-                        otherStyles="mt-6"
-                        labelStyles="text-gray-500 font-semibold mb-3"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
-                        placeholder="Insert your password here"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
+                        placeholder="Enter your password"
                         secureTextEntry
                         value={password}
                     />
 
-                    {/* Remember Me Checkbox */}
-                    <View className="flex-row items-center mt-6">
+                    <View className="flex-row items-center mt-5">
                         <TouchableOpacity
                             onPress={() => setRememberMe(!rememberMe)}
                             className="flex-row items-center"
                         >
-                            <View className={`w-5 h-5 border-2 rounded items-center justify-center mr-2 ${rememberMe ? 'bg-primary border-primary' : 'border-gray-400'
-                                }`}>
+                            <View className={`w-5 h-5 border-2 rounded items-center justify-center mr-2 ${rememberMe ? 'bg-primary border-primary' : 'border-gray-400'}`}>
                                 {rememberMe && (
-                                    <Text className="text-white text-xs">✓</Text>
+                                    <Text className="text-white text-xs font-bold">✓</Text>
                                 )}
                             </View>
                             <Text className="text-gray-700">Remember me</Text>
                         </TouchableOpacity>
                     </View>
 
-                    {/* Login Button */}
-                    <View className='mt-8'>
+                    <View className="mt-8">
                         <CustomButton
                             title="Login"
                             handlePress={handleLogin}
                             isLoading={isSubmitting}
-                            containerStyles="bg-primary rounded-full w-full py-4 mt-4"
+                            containerStyles="bg-primary rounded-full w-full py-4"
                             textStyles="text-lg font-bold text-white"
                         />
                     </View>
 
-                    {/* Forgot Password Link */}
                     <TouchableOpacity
                         onPress={() => {
-                            // Navigate to forgot password screen
                             Alert.alert('Forgot Password', 'Forgot password functionality coming soon');
                         }}
-                        className="mt-6"
+                        className="mt-5"
                     >
-                        <Text className="text-primary text-center text-base">
+                        <Text className="text-primary text-center text-base font-semibold">
                             Forgot Password?
                         </Text>
                     </TouchableOpacity>

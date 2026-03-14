@@ -8,10 +8,12 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { ArrowLeft, CheckCircle, ChevronRight, X, Play, Clock, Award, ChevronLeft, FileText, ArrowRight, HelpCircle, List } from 'lucide-react-native';
 
 const Skeleton = ({ className }) => (
-    <View className={`bg-gray-200 animate-pulse rounded ${className}`} />
+    <View className={`bg-gray-200 rounded ${className}`} />
 );
 import api from '../../../services/api';
 import { normalizeMediaUrl, getYoutubeId } from '../../../utils/imageUtils';
+import { getAllLessonsInDisplayOrder } from '../../../utils/courseStructure';
+import MarkdownText from '../../../components/MarkdownText';
 
 const { width } = Dimensions.get('window');
 
@@ -75,19 +77,36 @@ const LessonView = () => {
 
             setQuizStatuses(statuses);
 
-            // 4. Find Next Lesson
+            // 4. Find Next Lesson (use course structure for ordered list)
             if (courseId) {
                 try {
-                    const courseResponse = await api.courses.getCourse(courseId, { includeDetails: 'true' });
-                    const courseData = courseResponse.success ? courseResponse.data : (courseResponse.data || courseResponse);
-                    if (courseData?.lessons) {
-                        const sortedLessons = courseData.lessons.sort((a, b) => (a.order || 0) - (b.order || 0));
+                    const structureResponse = await api.courses.getCourseStructure(courseId, { includeBlocks: 'false' });
+                    const raw = structureResponse?.success ? structureResponse.data : (structureResponse?.data || structureResponse);
+                    if (raw && typeof raw === 'object') {
+                        const structureData = {
+                            sections: Array.isArray(raw.sections) ? raw.sections : [],
+                            standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
+                        };
+                        const sortedLessons = getAllLessonsInDisplayOrder(structureData);
                         setCourseLessons(sortedLessons);
                         const currentIndex = sortedLessons.findIndex(l => l._id === lessonId);
                         if (currentIndex !== -1 && currentIndex < sortedLessons.length - 1) {
                             setNextLessonId(sortedLessons[currentIndex + 1]._id);
                         } else {
                             setNextLessonId(null);
+                        }
+                    } else {
+                        const courseResponse = await api.courses.getCourse(courseId, { includeDetails: 'true' });
+                        const courseData = courseResponse?.success ? courseResponse.data : (courseResponse?.data || courseResponse);
+                        if (courseData?.lessons && Array.isArray(courseData.lessons)) {
+                            const sortedLessons = [...courseData.lessons].sort((a, b) => (a.order || 0) - (b.order || 0));
+                            setCourseLessons(sortedLessons);
+                            const currentIndex = sortedLessons.findIndex(l => l._id === lessonId);
+                            if (currentIndex !== -1 && currentIndex < sortedLessons.length - 1) {
+                                setNextLessonId(sortedLessons[currentIndex + 1]._id);
+                            } else {
+                                setNextLessonId(null);
+                            }
                         }
                     }
                 } catch (e) {
@@ -192,9 +211,7 @@ const LessonView = () => {
             case 'text':
                 return (
                     <View key={_id || index} className="mb-6 px-5">
-                        <Text className="text-gray-700 text-base leading-7 text-justify">
-                            {content?.text || content?.body || content?.description}
-                        </Text>
+                        <MarkdownText content={content?.text || content?.body || content?.description} />
                     </View>
                 );
 
@@ -341,7 +358,7 @@ const LessonView = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-            <StatusBar style="dark" />
+            <StatusBar style="dark" translucent />
 
             {/* Dynamic Header */}
             <View className="flex-row items-center px-4 py-3 border-b border-gray-100 bg-white shadow-sm">

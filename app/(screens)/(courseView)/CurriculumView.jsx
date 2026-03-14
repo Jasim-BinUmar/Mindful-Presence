@@ -1,9 +1,11 @@
-import { View, Text, ImageBackground, StatusBar, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, ImageBackground, RefreshControl, ActivityIndicator } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useCallback, useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import images from '../../../constants/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CourseContent from '../../../components/CourseContent';
+import StandardHeader from '../../../components/StandardHeader';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { api } from '../../../services/api';
 import { normalizeMediaUrl } from '../../../utils/imageUtils';
@@ -14,6 +16,7 @@ const CurriculumView = () => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [course, setCourse] = useState(null);
+  const [structure, setStructure] = useState({ sections: [], standaloneLessons: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,6 +28,19 @@ const CurriculumView = () => {
       const response = await api.courses.getCourse(courseId, { includeDetails: 'true' });
       const courseData = response.success ? response.data : (response.data || response);
       setCourse(courseData);
+      try {
+        const structureResponse = await api.courses.getCourseStructure(courseId, { includeBlocks: 'true' });
+        const raw = structureResponse?.success ? structureResponse.data : (structureResponse?.data || structureResponse);
+        if (raw && typeof raw === 'object') {
+          setStructure({
+            sections: Array.isArray(raw.sections) ? raw.sections : [],
+            standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
+          });
+        }
+      } catch (e) {
+        console.warn('CurriculumView: getCourseStructure failed, using course.lessons if present', e);
+        setStructure({ sections: [], standaloneLessons: [] });
+      }
     } catch (err) {
       console.error('❌ Error fetching course details:', err);
       setError('Failed to load curriculum content');
@@ -95,6 +111,53 @@ const CurriculumView = () => {
   };
 
   const renderCurriculum = () => {
+    if (courseId && (structure.sections?.length > 0 || structure.standaloneLessons?.length > 0)) {
+      const nodes = [];
+      [...(structure.sections || [])]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .forEach((section) => {
+          nodes.push(
+            <View key={`section-${section._id}`} className="mb-4">
+              <Text className="text-lg font-bold text-gray-900 px-1 mb-2">{section.title}</Text>
+              {(section.lessons || [])
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                .map((lesson) => (
+                  <CourseContent
+                    key={lesson._id}
+                    title={lesson.title}
+                    guideCards={(lesson.blocks || []).map((block) => ({
+                      title: block.title || 'Content Block',
+                      buttonTitle: 'Start',
+                      handlePress: () => handleBlockPress(block._id)
+                    }))}
+                  />
+                ))}
+            </View>
+          );
+        });
+      if (Array.isArray(structure.standaloneLessons) && structure.standaloneLessons.length > 0) {
+        nodes.push(
+          <View key="standalone" className="mb-4">
+            <Text className="text-lg font-bold text-gray-900 px-1 mb-2">Other</Text>
+            {structure.standaloneLessons
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((lesson) => (
+                <CourseContent
+                  key={lesson._id}
+                  title={lesson.title}
+                  guideCards={(lesson.blocks || []).map((block) => ({
+                    title: block.title || 'Content Block',
+                    buttonTitle: 'Start',
+                    handlePress: () => handleBlockPress(block._id)
+                  }))}
+                />
+              ))}
+          </View>
+        );
+      }
+      return nodes;
+    }
+
     if (courseId && course?.lessons) {
       return course.lessons.map((lesson, index) => (
         <CourseContent
@@ -135,7 +198,8 @@ const CurriculumView = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar style="dark" translucent />
+      <StandardHeader title={course?.title || 'Curriculum'} />
       <ScrollView
         className="flex-1"
         refreshControl={

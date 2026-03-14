@@ -29,13 +29,13 @@ const ContentCard = ({ image, customStyles, title, onPress, badge, price, isFavo
         onError={handleImageError}
       >
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0.85)']}
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
             bottom: 0,
-            height: '60%',
+            height: '100%',
             borderRadius: 24,
           }}
         />
@@ -57,17 +57,18 @@ const ContentCard = ({ image, customStyles, title, onPress, badge, price, isFavo
 
         {/* Badge for recommended courses */}
         {badge && (
-          <View className="absolute top-4 left-4 bg-primary/90 px-3 py-1 rounded-full shadow-sm">
+          <View className="absolute top-4 left-4 bg-primary/90 px-3 py-1 rounded-full shadow-sm z-10">
             <Text className="text-white text-[10px] font-black uppercase tracking-widest">{badge}</Text>
           </View>
         )}
 
-        {/* Price Tag */}
-        <View className={`absolute bottom-16 right-4 px-3 py-1 rounded-full border border-white/20 ${price === 'ENROLLED' ? 'bg-green-500/80' : 'bg-black/60'}`}>
-          <Text className="text-white text-[10px] font-black uppercase tracking-wider">
-            {price === 'ENROLLED' ? 'ENROLLED' : (typeof price === 'string' ? price : (price > 0 ? `$${price}` : 'FREE'))}
-          </Text>
-        </View>
+        {/* Enrolled badge at top-left */}
+        {price === 'ENROLLED' && (
+          <View className={`absolute ${badge ? 'top-12' : 'top-4'} left-4 bg-green-500/90 px-3 py-1 rounded-full shadow-sm z-10`}>
+            <Text className="text-white text-[10px] font-black uppercase tracking-widest">Enrolled</Text>
+          </View>
+        )}
+
 
         <View className="absolute bottom-0 left-0 right-0 p-5">
           <Text className="text-white font-black text-xl mb-1 shadow-sm" numberOfLines={2}>

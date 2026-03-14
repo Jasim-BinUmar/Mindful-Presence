@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Image, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Calendar } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
 import { images } from '../../../constants';
 import { api } from '../../../services/api';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 export default function Bookings() {
+    const { fromProfile } = useLocalSearchParams();
     const [upcomingAppointments, setUpcomingAppointments] = useState([]);
     const [historyAppointments, setHistoryAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' or 'history'
     const [cancelling, setCancelling] = useState({});
 
@@ -61,8 +63,14 @@ export default function Bookings() {
             setHistoryAppointments([]);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchAppointments();
+    }, []);
 
     const handleCancel = async (appointmentId) => {
         Alert.alert(
@@ -202,8 +210,12 @@ export default function Bookings() {
     const currentAppointments = activeTab === 'upcoming' ? upcomingAppointments : historyAppointments;
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StandardHeader title="Bookings" centeredTitle={true} />
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+            <StandardHeader
+                title="Bookings"
+                centeredTitle={true}
+                onBackPress={fromProfile === 'true' ? () => router.replace('/(profile)/profile') : undefined}
+            />
 
             {/* Illustration */}
             <View className="items-center justify-center my-3">
@@ -266,7 +278,10 @@ export default function Bookings() {
                     )}
                 </View>
             ) : (
-                <ScrollView className="flex-1 px-4">
+                <ScrollView
+                    className="flex-1 px-4"
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+                >
                     {currentAppointments.map(renderAppointmentCard)}
                 </ScrollView>
             )}

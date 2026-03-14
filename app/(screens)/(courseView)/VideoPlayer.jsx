@@ -1,4 +1,5 @@
-import { View, Text, StatusBar, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -62,7 +63,7 @@ const VideoPlayer = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <StatusBar backgroundColor="#000000" style="light" />
+        <StatusBar style="light" translucent />
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#623AD9" />
           <Text className="text-white mt-4">Loading video...</Text>
@@ -74,7 +75,7 @@ const VideoPlayer = () => {
   if (error || !block) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <StatusBar backgroundColor="#000000" style="light" />
+        <StatusBar style="light" translucent />
         <View className="flex-1 justify-center items-center px-6">
           <Text className="text-red-500 text-lg font-semibold mb-2">Error</Text>
           <Text className="text-white text-center mb-4">{error || 'Video not found'}</Text>
@@ -118,7 +119,7 @@ const VideoPlayer = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#000000" barStyle="light-content" />
+      <StatusBar style="dark" translucent />
 
       <ScrollView className="flex-1 bg-white">
         {/* Video Player Section */}

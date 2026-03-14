@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Image } from 'react-native';
 import { Tabs } from 'expo-router';
-import { icons } from '../../constants';
+import { Home, Wallet, CalendarCheck, Heart } from 'lucide-react-native';
 
 const ScreensLayout = () => {
     return (
@@ -9,20 +8,21 @@ const ScreensLayout = () => {
             screenOptions={{
                 headerShown: false,
                 tabBarStyle: {
-                    height: 70,
+                    height: 85,
                     borderTopWidth: 0,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: -5 },
                     shadowOpacity: 0.25,
                     shadowRadius: 10,
-                    paddingBottom: 10,
+                    paddingBottom: 15,
+                    paddingTop: 8,
                     elevation: 5,
                     backgroundColor: '#FFFFFF',
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
                     fontWeight: 'bold',
-                    marginTop: 5,
+                    marginTop: 3,
                 },
                 tabBarActiveTintColor: '#623AD9',
                 tabBarInactiveTintColor: 'gray',
@@ -33,11 +33,7 @@ const ScreensLayout = () => {
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color, size }) => (
-                        <Image
-                            source={icons.home}
-                            style={{ width: size, height: size, tintColor: color }}
-                            resizeMode="contain"
-                        />
+                        <Home color={color} size={size} />
                     ),
                 }}
             />
@@ -46,24 +42,7 @@ const ScreensLayout = () => {
                 options={{
                     title: 'Payment',
                     tabBarIcon: ({ color, size }) => (
-                        <Image
-                            source={icons.pricing}
-                            style={{ width: size, height: size, tintColor: color }}
-                            resizeMode="contain"
-                        />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="(payment)/paymentHistory"
-                options={{
-                    title: 'History',
-                    tabBarIcon: ({ color, size }) => (
-                        <Image
-                            source={icons.paymentIcon}
-                            style={{ width: size, height: size, tintColor: color }}
-                            resizeMode="contain"
-                        />
+                        <Wallet color={color} size={size} />
                     ),
                 }}
             />
@@ -72,11 +51,7 @@ const ScreensLayout = () => {
                 options={{
                     title: 'Book Session',
                     tabBarIcon: ({ color, size }) => (
-                        <Image
-                            source={icons.bookSession}
-                            style={{ width: size, height: size, tintColor: color }}
-                            resizeMode="contain"
-                        />
+                        <CalendarCheck color={color} size={size} />
                     ),
                 }}
             />
@@ -85,11 +60,7 @@ const ScreensLayout = () => {
                 options={{
                     title: 'Favourites',
                     tabBarIcon: ({ color, size }) => (
-                        <Image
-                            source={icons.favourite}
-                            style={{ width: size, height: size, tintColor: color }}
-                            resizeMode="contain"
-                        />
+                        <Heart color={color} size={size} />
                     ),
                 }}
             />

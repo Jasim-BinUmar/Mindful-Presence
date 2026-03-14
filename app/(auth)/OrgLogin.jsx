@@ -3,19 +3,15 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import React from 'react'
 import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
+import StandardHeader from '../../components/StandardHeader'
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 const OrgLogin = () => {
     return (
-        // <SafeAreaView style={{ flex: 1, backgroundColor: '#6A3DE8' }}>
-        //   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}></View>
         <SafeAreaView className="flex-1 bg-secondary-100 h-full">
-            <StatusBar style="dark" />
+            <StatusBar style="dark" translucent />
+            <StandardHeader title="Log In" centeredTitle={true} backgroundColor="#F5F5F5" />
             <ScrollView >
-
-                <View className='flex-1 mt-12 items-center  '>
-                    <Text className='font-bold text-2xl'>Log In</Text>
-                </View>
                 <View className=" w-full justify-start min-h-[75vh] px-4 mb-6 ">
 
                     <FormField

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
@@ -141,8 +141,14 @@ export default function BookSession() {
       router.replace('/(bookSession)/DoctorsList');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchDoctors();
+  }, []);
 
   const fetchTimeSlotsForDate = async (date) => {
     if (!selectedDoctor || !selectedDoctor._id) {
@@ -356,7 +362,10 @@ export default function BookSession() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StandardHeader title="Book a Session" centeredTitle={true} />
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+      >
         <View className="px-4 py-4">
 
           {/* Doctor Info */}

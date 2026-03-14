@@ -1,9 +1,11 @@
-import { View, Text, StatusBar, ActivityIndicator, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../../../services/api';
 import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
+import MarkdownText from '../../../components/MarkdownText';
 
 const ContentView = () => {
   const router = useRouter();
@@ -67,9 +69,7 @@ const ContentView = () => {
                 {block.title}
               </Text>
             )}
-            <Text className="text-gray-700 text-base leading-7">
-              {content?.text || content?.body || content?.description}
-            </Text>
+            <MarkdownText content={content?.text || content?.body || content?.description} />
           </View>
         );
 
@@ -117,16 +117,12 @@ const ContentView = () => {
                 {block.title}
               </Text>
             )}
-            {content?.text && (
-              <Text className="text-gray-700 text-base leading-7">
-                {content.text}
-              </Text>
-            )}
-            {content?.description && (
-              <Text className="text-gray-700 text-base leading-7">
-                {content.description}
-              </Text>
-            )}
+            {content?.text ? (
+              <MarkdownText content={content.text} />
+            ) : null}
+            {content?.description ? (
+              <MarkdownText content={content.description} />
+            ) : null}
           </View>
         );
     }
@@ -135,7 +131,7 @@ const ContentView = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#623AD9" />
           <Text className="text-gray-600 mt-4">Loading content...</Text>
@@ -147,7 +143,7 @@ const ContentView = () => {
   if (error || !block) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <View className="flex-1 justify-center items-center px-6">
           <Text className="text-red-500 text-lg font-semibold mb-2">Error</Text>
           <Text className="text-gray-600 text-center mb-4">{error || 'Content not found'}</Text>
@@ -164,8 +160,8 @@ const ContentView = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#161622" style="light" />
-      
+      <StatusBar style="dark" translucent />
+
       {/* Header */}
       <View className="bg-primary p-5">
         <TouchableOpacity onPress={() => router.back()}>

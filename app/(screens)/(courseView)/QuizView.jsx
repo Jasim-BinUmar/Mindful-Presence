@@ -322,7 +322,7 @@ const QuizView = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#623AD9" />
           <Text className="text-gray-600 mt-4">Loading quiz...</Text>
@@ -334,7 +334,7 @@ const QuizView = () => {
   if (error || !quiz) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <View className="flex-1 justify-center items-center px-6">
           <Text className="text-red-500 text-lg font-semibold mb-2">Error</Text>
           <Text className="text-gray-600 text-center mb-4">{error || 'Quiz not found'}</Text>
@@ -411,7 +411,7 @@ const QuizView = () => {
 
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <ScrollView className="flex-1 px-5 py-6">
           {/* Result Card - Slim & Professional */}
           <View className="bg-gray-50 p-6 rounded-[32px] border border-gray-100 mb-8 items-center shadow-sm">
@@ -476,7 +476,7 @@ const QuizView = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar style="dark" translucent />
 
       {/* Header */}
       <View className="bg-white border-b border-gray-100 flex-row items-center px-4 py-3">

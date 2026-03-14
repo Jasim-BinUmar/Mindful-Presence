@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Image, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
@@ -11,6 +11,7 @@ import images from '../../../constants/images';
 export default function DoctorsList() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [filter, setFilter] = useState('all'); // all, expert_therapist, doctor, therapist, counselor
 
     useEffect(() => {
@@ -111,7 +112,11 @@ export default function DoctorsList() {
                     </Text>
                 </View>
             ) : (
-                <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingTop: 8 }}>
+                <ScrollView
+                    className="flex-1 px-4"
+                    contentContainerStyle={{ paddingTop: 8 }}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+                >
                     {doctors.map((doctor) => (
                         <TouchableOpacity
                             key={doctor._id}

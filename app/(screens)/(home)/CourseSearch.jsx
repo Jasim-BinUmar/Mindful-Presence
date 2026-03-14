@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator, ImageBackground, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Search, X } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
@@ -19,6 +19,7 @@ export default function CourseSearch() {
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Fetch user context on focus (enrollments and favorites)
     useFocusEffect(
@@ -84,8 +85,14 @@ export default function CourseSearch() {
             console.error('Search error:', error);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     }, [searchQuery]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchCourses();
+    }, [fetchCourses]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -145,6 +152,7 @@ export default function CourseSearch() {
                 <FlatList
                     data={courses}
                     keyExtractor={(item) => item._id}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
                     renderItem={({ item, index }) => {
                         const thumbnailUrl = normalizeMediaUrl(item.thumbnail);
                         const fallbackImage = images[`contentCard${(index % 4) + 1}`] || images.contentCard1;

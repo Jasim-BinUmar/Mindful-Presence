@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Pressable, ImageBackground, FlatList, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, Image, Pressable, ImageBackground, FlatList, ScrollView, RefreshControl, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Search } from 'lucide-react-native';
@@ -22,6 +22,7 @@ export default function Component() {
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
   const [profileInsights, setProfileInsights] = useState(null);
 
@@ -127,8 +128,14 @@ export default function Component() {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadData();
+  }, []);
 
   const handleTakeAssessment = () => {
     routerInstance.push('/(selfAssesment)/AssessmentStart');
@@ -223,7 +230,11 @@ export default function Component() {
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+      >
         <View className="flex-1">
           <ImageBackground
             source={images.mainBg}
@@ -271,7 +282,7 @@ export default function Component() {
               {!hasCompletedAssessment && (
                 <TouchableOpacity
                   onPress={handleTakeAssessment}
-                  className="bg-yellow-500 rounded-full px-8 py-3 mb-3 w-[90%] max-w-[350px]"
+                  className="bg-primary/70 rounded-full px-8 py-3 mb-3 w-[90%] max-w-[350px]"
                   style={{
                     shadowColor: '#F59E0B',
                     shadowOffset: { width: 0, height: 4 },

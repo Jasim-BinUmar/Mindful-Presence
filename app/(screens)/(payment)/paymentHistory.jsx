@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl } from 'react-native';
-import { CreditCard, Calendar, BookOpen, ChevronRight, IndianRupee, Clock } from 'lucide-react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CreditCard, Calendar, BookOpen } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
 import { api } from '../../../services/api';
 import { useGlobalContext } from '../../../lib/globalContext';
 import { format } from 'date-fns';
+import { router, useLocalSearchParams } from 'expo-router';
 
 const PaymentHistory = () => {
   const { user } = useGlobalContext();
+  const { fromProfile } = useLocalSearchParams();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -17,7 +20,6 @@ const PaymentHistory = () => {
       setLoading(true);
       const response = await api.payments.getPaymentHistory();
       if (response.success) {
-        // Map from the new centralized Payment model
         const formattedPayments = response.data.map(item => ({
           id: item._id,
           title: item.type === 'course' ? (item.courseId?.title || 'Course Purchase') : 'Expert Session',
@@ -81,8 +83,12 @@ const PaymentHistory = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <StandardHeader title="Payment History" centeredTitle={true} />
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      <StandardHeader
+        title="Payment History"
+        centeredTitle={true}
+        onBackPress={fromProfile === 'true' ? () => router.replace('/(profile)/profile') : undefined}
+      />
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">

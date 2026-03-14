@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
-import { CheckCircle } from 'lucide-react-native';
+import { View, Text, Animated, Easing, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { CheckCircle, ChevronLeft } from 'lucide-react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { router } from 'expo-router';
 
@@ -59,7 +59,15 @@ export default function questionnaire10() {
     // });
 
     return (
-        <View className="flex-1 bg-white px-6 pt-32">
+        <SafeAreaView className="flex-1 bg-white">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-4 self-start"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <ChevronLeft size={24} color="#1E1E2D" strokeWidth={2.5} />
+          </TouchableOpacity>
+          <View className="flex-1 px-6 pt-8">
             {/* Header */}
             <Text className="text-4xl font-bold text-center mb-4">
                 Thank You For Sharing
@@ -111,7 +119,8 @@ export default function questionnaire10() {
                 </View>
                
             </View>
-        </View>
+          </View>
+        </SafeAreaView>
     );
 }
 

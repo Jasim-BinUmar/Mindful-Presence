@@ -2,6 +2,7 @@ import { View, Text, SafeAreaView, ScrollView, Alert, ActivityIndicator } from '
 import React, { useState } from 'react';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
+import StandardHeader from '../../components/StandardHeader';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 
@@ -123,14 +124,12 @@ const SignUpSubscriber = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-secondary-100 h-full">
-            <StatusBar style="dark" />
+            <StatusBar style="dark" translucent />
+            <StandardHeader title="Create An Account" centeredTitle={true} backgroundColor="#F5F5F5" />
             <ScrollView 
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
                 keyboardShouldPersistTaps="handled"
             >
-                <View className="flex-1 mt-6 items-center">
-                    <Text className="font-extrabold text-lg">Create An Account</Text>
-                </View>
                 <View className="w-full justify-center px-4 mb-6 mt-4">
                     <FormField
                         title="First Name"

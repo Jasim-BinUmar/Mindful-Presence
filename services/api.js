@@ -569,6 +569,16 @@ export const api = {
     },
 
     /**
+     * Get course structure (sections + standalone lessons)
+     * @param {string} courseId - Course ID
+     * @param {Object} params - Query parameters (includeBlocks)
+     */
+    getCourseStructure: async (courseId, params = {}) => {
+      const url = getEndpointWithQuery(endpoints.courses.getCourseStructure(courseId), params);
+      return await apiRequest(url, { cacheBust: true });
+    },
+
+    /**
      * Get lessons by course
      * @param {string} courseId - Course ID
      * @param {Object} params - Query parameters (includeBlocks)

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import StandardHeader from '../../components/StandardHeader';
 import { api } from '../../services/api';
 import ContentCard from '../../components/ContentCard';
@@ -10,6 +10,7 @@ import images from '../../constants/images';
 import { Heart, Search } from 'lucide-react-native';
 
 const Favourite = () => {
+  const { fromProfile } = useLocalSearchParams() || {};
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,8 +61,12 @@ const Favourite = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StandardHeader title="Favourites" centeredTitle={true} />
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <StandardHeader
+        title="Favourites"
+        centeredTitle={true}
+        onBackPress={fromProfile === 'true' ? () => router.replace('/(profile)/profile') : undefined}
+      />
 
       {loading && courses.length === 0 ? (
         <View className="flex-1 justify-center items-center">

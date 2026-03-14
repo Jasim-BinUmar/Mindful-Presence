@@ -1,11 +1,11 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 import "../global.css";
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { GlobalProvider } from '../lib/globalContext';
 import { StripeProvider } from '@stripe/stripe-react-native';
 
@@ -13,7 +13,6 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -24,14 +23,8 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  // Get Stripe publishable key from environment
   const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
-  
-  // Log for debugging (remove in production)
+
   useEffect(() => {
     if (stripePublishableKey) {
       console.log('✅ Stripe publishable key loaded');
@@ -39,6 +32,10 @@ export default function RootLayout() {
       console.warn('⚠️ Stripe publishable key not found. Check EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY in .env');
     }
   }, [stripePublishableKey]);
+
+  if (!loaded) {
+    return null;
+  }
 
   if (!stripePublishableKey) {
     console.error('❌ Stripe publishable key is missing! Payment will not work.');
@@ -51,13 +48,16 @@ export default function RootLayout() {
       urlScheme="mindfulpresence"
     >
       <GlobalProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-        </Stack>
+        <View className="flex-1 font-sans">
+          <StatusBar style="dark" translucent />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+          </Stack>
+        </View>
       </GlobalProvider>
     </StripeProvider>
   );

@@ -1,21 +1,23 @@
 import React from 'react'
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
-import { ChevronLeft, ChevronRight, CreditCard, Calendar, HeadphonesIcon } from 'lucide-react-native'
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { ChevronRight, CreditCard, Calendar, HeadphonesIcon } from 'lucide-react-native'
 import { icons, images } from '../../../constants'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import StandardHeader from '../../../components/StandardHeader'
 
 export default function Support() {
-
+    const { fromProfile } = useLocalSearchParams()
 
     return (
-        <SafeAreaView className="flex-1 ">
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+            <StandardHeader
+                title="Support"
+                centeredTitle={true}
+                onBackPress={fromProfile === 'true' ? () => router.replace('/(profile)/profile') : undefined}
+            />
             <ScrollView className="flex-1 bg-white">
                 <View className="px-4 mt-4">
-                    {/* Header with back button */}
-                    <TouchableOpacity className="w-10 h-10 justify-center">
-                        <ChevronLeft size={24} color="#000" />
-                    </TouchableOpacity>
-
                     {/* Profile Section */}
                     <View className="items-center mt-4">
                         <Text className="text-black text-2xl font-semibold pb-3">

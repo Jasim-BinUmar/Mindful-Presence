@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronRight, User } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
 import { icons } from '../../../constants';
 import { router } from 'expo-router';
 import { useGlobalContext } from '../../../lib/globalContext';
 import { api } from '../../../services/api';
-import { assessmentService } from '../../../services/assessmentService';
+import { getImageSource } from '../../../utils/imageUtils';
 
 export default function Component() {
     const { user, logout: logoutFromContext, isAuthenticated, isLoading: authLoading } = useGlobalContext();
@@ -14,6 +15,7 @@ export default function Component() {
     const [loading, setLoading] = useState(true);
     const [profileInsights, setProfileInsights] = useState(null);
     const [insightsLoading, setInsightsLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         // Wait for auth check to complete
@@ -80,6 +82,12 @@ export default function Component() {
         }
     }, [isAuthenticated, authLoading]);
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([fetchProfile(), fetchProfileInsights()]);
+        setRefreshing(false);
+    }, []);
+
     const handleLogout = async () => {
         try {
             await logoutFromContext();
@@ -93,7 +101,7 @@ export default function Component() {
     const menuItems = [
         {
             title: 'Profile',
-            link: '/EditProfile',
+            link: '/(profile)/EditProfile',
             icon: icons.profileicon,
         },
         {
@@ -129,9 +137,12 @@ export default function Component() {
     ];
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
             <StandardHeader title="Profile" centeredTitle={true} />
-            <ScrollView className="flex-1 bg-white shadow-sm">
+            <ScrollView
+                className="flex-1 bg-white shadow-sm"
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+            >
                 <View className="p-4">
 
                     <View className="items-center mt-4">
@@ -139,16 +150,35 @@ export default function Component() {
                             <ActivityIndicator size="large" color="#623AD9" />
                         ) : (
                             <>
-                                <Image
-                                    source={{
-                                        uri: profileData?.profilePicture ||
-                                            profileData?.avatar ||
-                                            user?.profilePicture ||
-                                            user?.avatar ||
-                                            'https://bootdey.com/img/Content/avatar/avatar6.png'
-                                    }}
-                                    className="w-28 h-28 rounded-full bg-purple-600"
-                                />
+                                {(() => {
+                                    const avatarUrl = profileData?.profilePicture || profileData?.avatar || user?.profilePicture || user?.avatar;
+                                    const profileImageSource = getImageSource(avatarUrl, null);
+                                    const firstName = profileData?.firstName || user?.firstName;
+                                    const lastName = profileData?.lastName || user?.lastName;
+                                    const nameStr = profileData?.name || user?.name || '';
+                                    const nameParts = nameStr.trim().split(/\s+/);
+                                    const first = firstName || nameParts[0] || '';
+                                    const last = lastName || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '');
+                                    const initials = [first?.trim()[0], last?.trim()[0]].filter(Boolean).join('').toUpperCase();
+                                    if (profileImageSource) {
+                                        return (
+                                            <Image
+                                                source={profileImageSource}
+                                                className="w-28 h-28 rounded-full bg-gray-200"
+                                                resizeMode="cover"
+                                            />
+                                        );
+                                    }
+                                    return (
+                                        <View className="w-28 h-28 rounded-full bg-primary items-center justify-center">
+                                            {initials ? (
+                                                <Text className="text-white text-3xl font-bold">{initials}</Text>
+                                            ) : (
+                                                <User size={48} color="#FFFFFF" strokeWidth={2} />
+                                            )}
+                                        </View>
+                                    );
+                                })()}
                                 <Text className="text-2xl font-semibold mt-4">
                                     {profileData?.firstName && profileData?.lastName
                                         ? `${profileData.firstName} ${profileData.lastName}`
@@ -289,7 +319,7 @@ export default function Component() {
                                 key={index}
                                 activeOpacity={0.5}
                                 className="flex-row items-center justify-between px-4 py-5 m-2 bg-gray-50 rounded-full border border-gray-100"
-                                onPress={() => { router.push(`${item.link}`); }}
+                                onPress={() => { router.push({ pathname: item.link, params: { fromProfile: 'true' } }); }}
                             >
                                 <View className="flex-row items-center space-x-3 ">
                                     <Image source={item.icon} className="mr-4" />

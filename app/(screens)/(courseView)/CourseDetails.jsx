@@ -8,11 +8,12 @@ import { ChevronLeft, Play, Lock, Info, Star, Clock, Users, Globe, CheckCircle, 
 import api from '../../../services/api';
 import images from '../../../constants/images';
 import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
+import { getAllLessonsInDisplayOrder } from '../../../utils/courseStructure';
 import SubscriptionPopup from '../../../components/SubscriptionPopup';
 import StandardHeader from '../../../components/StandardHeader';
 
 const Skeleton = ({ className }) => (
-  <View className={`bg-gray-200 animate-pulse rounded ${className}`} />
+  <View className={`bg-gray-200 rounded ${className}`} />
 );
 
 const CourseDetails = () => {
@@ -24,7 +25,7 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [course, setCourse] = useState(null);
-  const [lessons, setLessons] = useState([]);
+  const [structure, setStructure] = useState({ sections: [], standaloneLessons: [] });
   const [expandedLessons, setExpandedLessons] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [progress, setProgress] = useState(null);
@@ -133,120 +134,32 @@ const CourseDetails = () => {
         }
       }
 
-      // Check if course already has lessons populated (from includeDetails)
-      let lessonsData = [];
-      if (courseData.lessons && Array.isArray(courseData.lessons)) {
-        console.log('✅ Using lessons from course data:', courseData.lessons.length);
-        lessonsData = courseData.lessons;
-      } else if (isUserEnrolled) {
-        // Only fetch lessons separately if they are not included AND user is enrolled
-        console.log('⚠️ Course data does not include lessons, fetching separately...');
-        const lessonsResponse = await api.courses.getLessonsByCourse(courseId, { includeBlocks: 'true' });
-        console.log('Lessons response structure:', {
-          hasSuccess: !!lessonsResponse.success,
-          hasData: !!lessonsResponse.data,
-          isArray: Array.isArray(lessonsResponse.data),
-          isArrayDirect: Array.isArray(lessonsResponse),
-          responseKeys: Object.keys(lessonsResponse || {})
-        });
-        console.log('Full lessons response:', JSON.stringify(lessonsResponse, null, 2));
-
-        // Backend returns: { success: true, data: lessons }
-        if (lessonsResponse.success) {
-          lessonsData = Array.isArray(lessonsResponse.data) ? lessonsResponse.data : [];
-        } else if (Array.isArray(lessonsResponse.data)) {
-          lessonsData = lessonsResponse.data;
-        } else if (Array.isArray(lessonsResponse)) {
-          lessonsData = lessonsResponse;
-        } else {
-          lessonsData = [];
+      let structureData = { sections: [], standaloneLessons: [] };
+      try {
+        const structureResponse = await api.courses.getCourseStructure(courseId, { includeBlocks: 'false' });
+        const raw = structureResponse?.success ? structureResponse.data : (structureResponse?.data || structureResponse);
+        if (raw && typeof raw === 'object') {
+          structureData = {
+            sections: Array.isArray(raw.sections) ? raw.sections : [],
+            standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
+          };
+          console.log('✅ Course structure loaded:', structureData.sections.length, 'sections,', structureData.standaloneLessons.length, 'standalone lessons');
+        }
+      } catch (structureErr) {
+        console.warn('⚠️ getCourseStructure failed, falling back to getLessonsByCourse:', structureErr);
+        if (isUserEnrolled) {
+          try {
+            const lessonsResponse = await api.courses.getLessonsByCourse(courseId, { includeBlocks: 'false' });
+            const flat = lessonsResponse?.success ? lessonsResponse.data : (lessonsResponse?.data || lessonsResponse);
+            const list = Array.isArray(flat) ? flat : [];
+            structureData = { sections: [], standaloneLessons: list };
+            console.log('✅ Fallback: flat lessons loaded', list.length);
+          } catch (e) {
+            console.warn('Fallback getLessonsByCourse failed:', e);
+          }
         }
       }
-
-      console.log('✅ Final lessons data:', lessonsData.length, 'lessons');
-      if (lessonsData.length > 0) {
-        console.log('First lesson sample:', {
-          id: lessonsData[0]._id,
-          title: lessonsData[0].title,
-          hasBlocks: !!lessonsData[0].blocks,
-          blocksCount: lessonsData[0].blocks?.length || 0
-        });
-      }
-
-      // If blocks are not included in lessons, fetch them for each lesson
-      const lessonsWithBlocks = await Promise.all(
-        lessonsData.map(async (lesson) => {
-          // Check if lesson already has valid blocks
-          const hasValidBlocks = lesson.blocks &&
-            Array.isArray(lesson.blocks) &&
-            lesson.blocks.length > 0 &&
-            lesson.blocks.some(block => block && block._id);
-
-          if (hasValidBlocks) {
-            console.log(`✅ Lesson "${lesson.title}" (${lesson._id}) already has ${lesson.blocks.length} blocks`);
-            // Filter out any null/undefined blocks and ensure they have required fields
-            const validBlocks = lesson.blocks
-              .filter(block => block && block._id)
-              .map(block => ({
-                ...block,
-                blockType: block.blockType || 'text',
-                title: block.title || block.content?.heading || 'Untitled',
-              }));
-            return { ...lesson, blocks: validBlocks };
-          }
-
-          // Otherwise, fetch blocks for this lesson IF user is enrolled
-          if (!isUserEnrolled) {
-            console.log(`ℹ️ User not enrolled, skipping block fetch for lesson "${lesson.title}"`);
-            return { ...lesson, blocks: [] };
-          }
-
-          try {
-            console.log(`📦 Fetching blocks for lesson "${lesson.title}" (${lesson._id})...`);
-            const blocksResponse = await api.courses.getBlocksByLesson(lesson._id);
-            console.log(`📦 Blocks response for lesson ${lesson._id}:`, {
-              hasSuccess: !!blocksResponse?.success,
-              hasData: !!blocksResponse?.data,
-              isArray: Array.isArray(blocksResponse?.data),
-              responseType: typeof blocksResponse
-            });
-
-            let blocks = [];
-            if (blocksResponse?.success && blocksResponse?.data) {
-              blocks = Array.isArray(blocksResponse.data) ? blocksResponse.data : [];
-            } else if (Array.isArray(blocksResponse?.data)) {
-              blocks = blocksResponse.data;
-            } else if (Array.isArray(blocksResponse)) {
-              blocks = blocksResponse;
-            }
-
-            // Filter and validate blocks
-            const validBlocks = blocks
-              .filter(block => block && block._id)
-              .map(block => ({
-                ...block,
-                blockType: block.blockType || 'text',
-                title: block.title || block.content?.heading || block.content?.title || 'Untitled',
-              }));
-
-            console.log(`✅ Fetched ${validBlocks.length} valid blocks for lesson "${lesson.title}"`);
-            if (validBlocks.length > 0) {
-              console.log(`   Block types: ${validBlocks.map(b => b.blockType).join(', ')}`);
-            }
-            return { ...lesson, blocks: validBlocks };
-          } catch (blockError) {
-            console.warn(`⚠️ Error fetching blocks for lesson "${lesson.title}" (${lesson._id}):`, blockError);
-            return { ...lesson, blocks: [] };
-          }
-        })
-      );
-
-      console.log('✅ Final lessons with blocks:', lessonsWithBlocks.length);
-      lessonsWithBlocks.forEach((lesson, index) => {
-        console.log(`Lesson ${index + 1}: ${lesson.blocks?.length || 0} blocks`);
-      });
-
-      setLessons(Array.isArray(lessonsWithBlocks) ? lessonsWithBlocks : []);
+      setStructure(structureData);
 
       // Update progress if enrolled
       if (isUserEnrolled) {
@@ -358,13 +271,14 @@ const CourseDetails = () => {
     });
   };
 
+  const lessonsInOrder = React.useMemo(() => getAllLessonsInDisplayOrder(structure), [structure]);
+
   const handleResume = () => {
-    // If not enrolled, show subscription popup
     if (!isEnrolled) {
       setShowSubscriptionPopup(true);
       return;
     }
-    const targetId = lastViewedLessonId || (lessons[0]?._id);
+    const targetId = lastViewedLessonId || (lessonsInOrder[0]?._id);
     if (targetId) handleLessonPress(targetId);
   };
 
@@ -620,7 +534,7 @@ const CourseDetails = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar barStyle="dark-content" />
+        <StatusBar style="dark" translucent />
         <View className="px-5 pt-8">
           <Skeleton className="w-full h-56 mb-6" />
           <Skeleton className="w-3/4 h-8 mb-4" />
@@ -639,7 +553,7 @@ const CourseDetails = () => {
   if (error && !loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <ScrollView className="flex-1">
           <View className="flex-1 justify-center items-center px-6 py-10">
             <Text className="text-red-500 text-xl font-semibold mb-2">Error Loading Course</Text>
@@ -671,7 +585,7 @@ const CourseDetails = () => {
   if (!course && !loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <StatusBar backgroundColor="#161622" style="light" />
+        <StatusBar style="dark" translucent />
         <View className="flex-1 justify-center items-center px-6">
           <Text className="text-gray-600 text-lg mb-2">Course not found</Text>
           <Text className="text-gray-400 text-sm text-center mb-4">
@@ -701,7 +615,7 @@ const CourseDetails = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar backgroundColor="#161622" style="dark" />
+      <StatusBar style="dark" translucent />
 
       <StandardHeader title={course?.title || course?.name || 'Course Details'} />
 
@@ -750,7 +664,7 @@ const CourseDetails = () => {
                     </Text>
                   </View>
                   <Text className="text-white/60 text-xs font-medium">
-                    {lessons.length} Modules • Lifetime Access
+                    {lessonsInOrder.length} Modules • Lifetime Access
                   </Text>
                 </View>
 
@@ -792,7 +706,7 @@ const CourseDetails = () => {
 
               <View className="flex-row justify-between items-center">
                 <Text className="text-gray-400 text-[10px] font-medium">
-                  {progress.completedLessons || 0}/{progress.totalLessons || lessons.length} COMPLETED
+                  {progress.completedLessons || 0}/{progress.totalLessons ?? lessonsInOrder.length} COMPLETED
                 </Text>
                 <TouchableOpacity
                   onPress={handleResume}
@@ -806,59 +720,126 @@ const CourseDetails = () => {
           </View>
         )}
 
-        {/* Unified Lesson List - Premium Micro-interactions */}
-        {lessons.length > 0 && (
+        {/* Curriculum: sections + standalone lessons */}
+        {lessonsInOrder.length > 0 && (
           <View className="px-4 pb-10">
-            {lessons
-              .filter(lesson => lesson && lesson._id)
-              .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((lesson) => (
-                <TouchableOpacity
-                  key={lesson._id}
-                  onPress={() => handleLessonPress(lesson._id)}
-                  activeOpacity={0.7}
-                  className="flex-row items-center px-6 py-4 mb-4 bg-white border border-gray-100 rounded-[32px] shadow-sm active:scale-[0.98]"
-                >
-                  <View className="flex-1 mr-4">
-                    <View className="flex-row items-center mb-1">
-                      {progress?.completedLessonIds?.includes(lesson._id) && (
-                        <View className="bg-green-100 p-1 rounded-full mr-2">
-                          <CheckCircle size={10} color="#22C55E" />
-                        </View>
-                      )}
-                      <Text className="text-gray-800 font-bold text-sm leading-5">
-                        {lesson.title}
-                      </Text>
-                    </View>
-
-                    {/* Lesson Badges */}
-                    <View className="flex-row items-center mt-1">
-                      <View className="flex-row items-center bg-gray-50 px-2 py-0.5 rounded-md mr-3">
-                        {lesson.blocks?.some(b => b.blockType === 'video') ? (
-                          <Video size={10} color="#9CA3AF" />
-                        ) : (
-                          <FileText size={10} color="#9CA3AF" />
-                        )}
-                        <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
-                          {lesson.blocks?.some(b => b.blockType === 'video') ? 'Video' : 'Course Material'}
-                        </Text>
-                      </View>
-                      <View className="flex-row items-center">
-                        <Clock size={10} color="#9CA3AF" />
-                        <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
-                          {Math.max(5, (lesson.blocks?.length || 0) * 2)}m
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View className={`px-5 py-2 rounded-2xl ${progress?.completedLessonIds?.includes(lesson._id) ? 'bg-gray-100 border border-gray-200' : 'bg-primary shadow-md shadow-primary/20'}`}>
-                    <Text className={`font-bold text-[10px] uppercase tracking-wider ${progress?.completedLessonIds?.includes(lesson._id) ? 'text-gray-400' : 'text-white'}`}>
-                      {progress?.completedLessonIds?.includes(lesson._id) ? 'Review' : 'Preview'}
+            {[...(structure.sections || [])]
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((section) => (
+                <View key={section._id} className="mb-6">
+                  <View className="mb-3 px-2">
+                    <Text className="text-gray-900 font-bold text-base">
+                      {section.title}
                     </Text>
+                    {section.description ? (
+                      <Text className="text-gray-500 text-sm mt-0.5" numberOfLines={2}>
+                        {section.description}
+                      </Text>
+                    ) : null}
                   </View>
-                </TouchableOpacity>
+                  {[...(section.lessons || [])]
+                    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                    .filter(lesson => lesson && lesson._id)
+                    .map((lesson) => (
+                      <TouchableOpacity
+                        key={lesson._id}
+                        onPress={() => handleLessonPress(lesson._id)}
+                        activeOpacity={0.7}
+                        className="flex-row items-center px-6 py-4 mb-4 bg-white border border-gray-100 rounded-[32px] shadow-sm active:scale-[0.98]"
+                      >
+                        <View className="flex-1 mr-4">
+                          <View className="flex-row items-center mb-1">
+                            {progress?.completedLessonIds?.includes(lesson._id) && (
+                              <View className="bg-green-100 p-1 rounded-full mr-2">
+                                <CheckCircle size={10} color="#22C55E" />
+                              </View>
+                            )}
+                            <Text className="text-gray-800 font-bold text-sm leading-5">
+                              {lesson.title}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center mt-1">
+                            <View className="flex-row items-center bg-gray-50 px-2 py-0.5 rounded-md mr-3">
+                              {lesson.blocks?.some(b => b.blockType === 'video') ? (
+                                <Video size={10} color="#9CA3AF" />
+                              ) : (
+                                <FileText size={10} color="#9CA3AF" />
+                              )}
+                              <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                                {lesson.blocks?.some(b => b.blockType === 'video') ? 'Video' : 'Course Material'}
+                              </Text>
+                            </View>
+                            <View className="flex-row items-center">
+                              <Clock size={10} color="#9CA3AF" />
+                              <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                                {Math.max(5, (lesson.blocks?.length || 0) * 2)}m
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <View className={`px-5 py-2 rounded-2xl ${progress?.completedLessonIds?.includes(lesson._id) ? 'bg-gray-100 border border-gray-200' : 'bg-primary shadow-md shadow-primary/20'}`}>
+                          <Text className={`font-bold text-[10px] uppercase tracking-wider ${progress?.completedLessonIds?.includes(lesson._id) ? 'text-gray-400' : 'text-white'}`}>
+                            {progress?.completedLessonIds?.includes(lesson._id) ? 'Review' : 'Preview'}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                </View>
               ))}
+            {Array.isArray(structure.standaloneLessons) && structure.standaloneLessons.length > 0 && (
+              <View className="mb-6">
+                <View className="mb-3 px-2">
+                  <Text className="text-gray-900 font-bold text-base">Other</Text>
+                </View>
+                {[...structure.standaloneLessons]
+                  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                  .filter(lesson => lesson && lesson._id)
+                  .map((lesson) => (
+                    <TouchableOpacity
+                      key={lesson._id}
+                      onPress={() => handleLessonPress(lesson._id)}
+                      activeOpacity={0.7}
+                      className="flex-row items-center px-6 py-4 mb-4 bg-white border border-gray-100 rounded-[32px] shadow-sm active:scale-[0.98]"
+                    >
+                      <View className="flex-1 mr-4">
+                        <View className="flex-row items-center mb-1">
+                          {progress?.completedLessonIds?.includes(lesson._id) && (
+                            <View className="bg-green-100 p-1 rounded-full mr-2">
+                              <CheckCircle size={10} color="#22C55E" />
+                            </View>
+                          )}
+                          <Text className="text-gray-800 font-bold text-sm leading-5">
+                            {lesson.title}
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center mt-1">
+                          <View className="flex-row items-center bg-gray-50 px-2 py-0.5 rounded-md mr-3">
+                            {lesson.blocks?.some(b => b.blockType === 'video') ? (
+                              <Video size={10} color="#9CA3AF" />
+                            ) : (
+                              <FileText size={10} color="#9CA3AF" />
+                            )}
+                            <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                              {lesson.blocks?.some(b => b.blockType === 'video') ? 'Video' : 'Course Material'}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center">
+                            <Clock size={10} color="#9CA3AF" />
+                            <Text className="text-gray-400 text-[9px] font-bold ml-1 uppercase">
+                              {Math.max(5, (lesson.blocks?.length || 0) * 2)}m
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      <View className={`px-5 py-2 rounded-2xl ${progress?.completedLessonIds?.includes(lesson._id) ? 'bg-gray-100 border border-gray-200' : 'bg-primary shadow-md shadow-primary/20'}`}>
+                        <Text className={`font-bold text-[10px] uppercase tracking-wider ${progress?.completedLessonIds?.includes(lesson._id) ? 'text-gray-400' : 'text-white'}`}>
+                          {progress?.completedLessonIds?.includes(lesson._id) ? 'Review' : 'Preview'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+              </View>
+            )}
           </View>
         )}
       </Animated.ScrollView>

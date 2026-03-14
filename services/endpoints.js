@@ -111,6 +111,7 @@ export const endpoints = {
     searchCourses: `${BASE_URL}/courses/search`,
     getFeaturedCourses: `${BASE_URL}/courses/featured`,
     getCourse: (id) => `${BASE_URL}/courses/${id}`,
+    getCourseStructure: (courseId) => `${BASE_URL}/courses/${courseId}/structure`,
     getCoursesByCategory: (category) => `${BASE_URL}/courses/category/${category}`,
     getCourseWithEnrollment: (id) => `${BASE_URL}/courses/${id}/enrollment`,
     getRecommendedCourses: (id) => `${BASE_URL}/courses/${id}/recommendations`,

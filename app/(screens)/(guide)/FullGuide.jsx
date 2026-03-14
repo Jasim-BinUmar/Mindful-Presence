@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, StatusBar, TouchableOpacity, Dimensions } from 'react-native'
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { router } from 'expo-router'
 import { BookOpen, Heart, Shield, Star, Zap, Info } from 'lucide-react-native'
 import StandardHeader from '../../../components/StandardHeader'
@@ -28,6 +29,12 @@ const FullGuide = () => {
         return wisdoms[dayOfYear % wisdoms.length];
     }, [wisdoms]);
 
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 800);
+    }, []);
+
     const toolkitItems = [
         { id: 'dhikr', title: 'Daily Dhikr', icon: <Heart size={24} color="#623AD9" />, color: 'bg-pink-50', description: 'Spiritual remembrance and tranquility.' },
         { id: 'breath', title: 'Breath Work', icon: <Zap size={24} color="#623AD9" />, color: 'bg-blue-50', description: 'Physiological calm and focus.' },
@@ -39,9 +46,13 @@ const FullGuide = () => {
 
     return (
         <SafeAreaView className='h-full bg-white'>
-            <StatusBar backgroundColor="#161622" style="light" />
+            <StatusBar style="dark" translucent />
             <StandardHeader title="Full Guide" centeredTitle={true} />
-            <ScrollView className="flex-1 h-full" showsVerticalScrollIndicator={false}>
+            <ScrollView
+                className="flex-1 h-full"
+                showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#623AD9']} />}
+            >
                 <View className="flex-1 pb-10">
                     {/* Wisdom Section Subtitle */}
                     <View className="mt-4 mb-4 px-6">

@@ -50,7 +50,7 @@ export default function MyCourses() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white" edges={['top']}>
             <StandardHeader title="My Courses" centeredTitle={true} />
 
             {loading && courses.length === 0 ? (

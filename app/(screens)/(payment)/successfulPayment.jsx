@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Check, ChevronLeft } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../../../constants';
 import { router, useLocalSearchParams } from 'expo-router';
 import api from '../../../services/api';
@@ -63,7 +64,15 @@ export default function successfulPayment() {
     };
 
     return (
-        <View className="flex-1 bg-white px-8 py-16  items-center justify-center ">
+        <SafeAreaView className="flex-1 bg-white">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-4 self-start"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <ChevronLeft size={24} color="#1E1E2D" strokeWidth={2.5} />
+          </TouchableOpacity>
+          <View className="flex-1 px-8 items-center justify-center">
             {/* Success Icon */}
             <View className="items-center justify-center ">
                 <Image
@@ -123,6 +132,7 @@ export default function successfulPayment() {
                     {paymentType === 'course' ? 'Go to Course' : 'Continue'}
                 </Text>
             </TouchableOpacity>
-        </View>
+          </View>
+        </SafeAreaView>
     );
 }

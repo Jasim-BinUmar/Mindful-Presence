@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { images } from '../../../constants';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -34,7 +36,15 @@ export default function SuccessfulBooking() {
     };
 
     return (
-        <View className="flex-1 bg-white px-8 py-16 items-center justify-evenly">
+        <SafeAreaView className="flex-1 bg-white">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-4 self-start"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <ChevronLeft size={24} color="#1E1E2D" strokeWidth={2.5} />
+          </TouchableOpacity>
+          <View className="flex-1 px-8 items-center justify-evenly">
             {/* Success Icon */}
             <View className="items-center justify-center">
                 <Image
@@ -87,6 +97,7 @@ export default function SuccessfulBooking() {
                     Home
                 </Text>
             </TouchableOpacity>
-        </View>
+          </View>
+        </SafeAreaView>
     );
 }
