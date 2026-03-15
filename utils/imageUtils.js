@@ -101,16 +101,6 @@ export const normalizeMediaUrl = (url) => {
   // Construct full URL
   const normalizedUrl = `${baseUrl}/${path}`;
 
-  // Debug logging (can be removed in production)
-  if (__DEV__) {
-    console.log('🖼️ Image URL normalization:', {
-      original: url,
-      normalized: normalizedUrl,
-      baseUrl: baseUrl,
-      path: path
-    });
-  }
-
   return normalizedUrl;
 };
 

@@ -21,9 +21,7 @@ export default function SuccessfulReg() {
     }, [autoLogin, isAuthenticated]);
 
     const handleSelfAssessment = () => {
-        // Handle navigation to self assessment
-        router.push('/(screens)/(selfAssesment)/questionnaire1')
-        console.log('Navigating to self assessment...');
+        router.push('/(screens)/(selfAssesment)/questionnaire1');
     };
 
     return (

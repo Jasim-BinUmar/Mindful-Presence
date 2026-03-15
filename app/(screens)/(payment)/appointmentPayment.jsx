@@ -16,7 +16,6 @@ const AppointmentPayment = () => {
     // Check if this is a free session - if so, redirect to success immediately
     useEffect(() => {
         if (appointmentPrice <= 0) {
-            console.log('💰 Free session detected, redirecting to success');
             router.replace({
                 pathname: '/(bookSession)/SuccessfulBooking',
                 params: {
@@ -40,7 +39,6 @@ const AppointmentPayment = () => {
             setLoading(true);
 
             // Create payment intent on backend
-            console.log('Creating payment intent for appointment:', appointmentId);
             const response = await api.payments.createPaymentIntent({
                 appointmentId,
             });
@@ -51,7 +49,6 @@ const AppointmentPayment = () => {
 
             // Handle already paid session
             if (response.data?.isPaid) {
-                console.log('✅ Session already paid, navigating to success');
                 router.replace({
                     pathname: '/(bookSession)/SuccessfulBooking',
                     params: {
@@ -69,9 +66,6 @@ const AppointmentPayment = () => {
             }
 
             const { clientSecret, paymentIntentId, customerEphemeralKeySecret, customerId } = response.data;
-
-            console.log('✅ Payment intent created successfully');
-            console.log('📋 Initializing payment sheet...');
 
             // Initialize payment sheet
             const { error: initError } = await initPaymentSheet({
@@ -93,9 +87,6 @@ const AppointmentPayment = () => {
                 return;
             }
 
-            console.log('✅ Payment sheet initialized successfully');
-            console.log('📱 Presenting payment sheet...');
-
             // Small delay to ensure sheet is ready
             await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -113,7 +104,6 @@ const AppointmentPayment = () => {
                 
                 if (isCanceled) {
                     // User canceled - silently handle, no error shown
-                    console.log('ℹ️ User canceled the payment');
                     setLoading(false);
                     return;
                 }
@@ -128,8 +118,6 @@ const AppointmentPayment = () => {
                 return;
             }
 
-            // Payment successful - confirm on backend
-            console.log('Payment successful, confirming...');
             const confirmResponse = await api.payments.confirmPayment({
                 paymentIntentId,
             });
@@ -163,7 +151,6 @@ const AppointmentPayment = () => {
             
             if (isCancelError) {
                 // User canceled - silently handle
-                console.log('ℹ️ Payment was canceled');
             } else {
                 // Real error - show alert
                 console.error('❌ Payment error:', error);

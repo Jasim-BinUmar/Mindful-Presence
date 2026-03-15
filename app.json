@@ -2,7 +2,7 @@
   "expo": {
     "name": "mindful-presence",
     "slug": "mindful-presence",
-    "owner": "hifzaa",
+    "owner": "jasimumar",
     "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/appLogo.png",
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/appLogo.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#00000000"
       },
       "package": "com.innerReflections.mindfulPresence",
       "versionCode": 3
@@ -44,7 +44,7 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.25"
+            "kotlinVersion": "2.0.21"
           }
         }
       ],
@@ -64,7 +64,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "7c2fab8c-ccbd-414f-8bbe-6cb53000698a"
+        "projectId": "d4d75aa2-5cff-4a68-a253-4d29f9dc0e74"
       }
     }
   }

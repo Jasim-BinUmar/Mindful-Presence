@@ -52,12 +52,9 @@ export default function AssessmentComplete() {
         // Regenerate profile in background
         const regenerateProfile = async () => {
             try {
-                console.log('🔄 Regenerating profile...');
                 const regenerateResponse = await assessmentService.regenerateProfile();
                 
-                if (regenerateResponse.success) {
-                    console.log('✅ Profile regenerated successfully');
-                } else {
+                if (!regenerateResponse.success) {
                     console.warn('⚠️ Profile regeneration returned:', regenerateResponse);
                 }
             } catch (error) {

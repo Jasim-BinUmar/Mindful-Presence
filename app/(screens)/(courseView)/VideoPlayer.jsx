@@ -24,7 +24,6 @@ const VideoPlayer = () => {
       setError(null);
 
       const response = await api.courses.getBlock(blockId);
-      console.log('Video block data response:', response);
 
       // Handle different response structures
       let blockData = null;
@@ -35,11 +34,6 @@ const VideoPlayer = () => {
       } else if (response && typeof response === 'object' && !response.success) {
         blockData = response;
       }
-
-      console.log('Extracted block data:', blockData);
-      console.log('Block type:', blockData?.blockType);
-      console.log('Block content:', blockData?.content);
-      console.log('Video URL:', blockData?.content?.videoUrl || blockData?.content?.url);
 
       if (!blockData) {
         throw new Error('Block data not found in response');
@@ -108,14 +102,6 @@ const VideoPlayer = () => {
 
   const videoDescription = block.content?.description || block.description;
   const transcript = block.content?.transcript;
-
-  console.log('Video Player - Final extracted data:', {
-    videoUrl,
-    videoTitle,
-    hasDescription: !!videoDescription,
-    hasTranscript: !!transcript,
-    blockType: block.blockType
-  });
 
   return (
     <SafeAreaView className="flex-1 bg-white">

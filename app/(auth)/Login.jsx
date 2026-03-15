@@ -32,7 +32,6 @@ const Login = () => {
         setIsSubmitting(true);
 
         try {
-            console.log("Attempting login with email:", trimmedEmail);
             const response = await login({ email: trimmedEmail, password });
 
             if (response.success) {

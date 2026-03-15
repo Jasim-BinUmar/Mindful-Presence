@@ -21,7 +21,6 @@ export default function DoctorsList() {
     const fetchDoctors = async () => {
         try {
             setLoading(true);
-            console.log('👨‍⚕️ Fetching doctors with filter:', filter);
 
             const queryParams = { isActive: true };
             if (filter !== 'all') {
@@ -31,17 +30,12 @@ export default function DoctorsList() {
 
             const response = await api.appointments.getAllDoctors(queryParams);
 
-            console.log('👨‍⚕️ Doctors response:', JSON.stringify(response, null, 2));
-
             if (response && response.success && response.data) {
                 setDoctors(Array.isArray(response.data) ? response.data : []);
-                console.log(`👨‍⚕️ Loaded ${response.data.length} doctors`);
             } else if (response && response.data && Array.isArray(response.data)) {
                 // Handle case where response structure might be different
                 setDoctors(response.data);
-                console.log(`👨‍⚕️ Loaded ${response.data.length} doctors`);
             } else {
-                console.log('👨‍⚕️ No doctors found');
                 setDoctors([]);
             }
         } catch (error) {
@@ -53,8 +47,14 @@ export default function DoctorsList() {
             setDoctors([]);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchDoctors();
+    }, [filter]);
 
     const handleDoctorSelect = (doctor) => {
         router.push({

@@ -19,6 +19,7 @@ export default function BookSession() {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [monthDays, setMonthDays] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Format date to YYYY-MM-DD
   const formatDate = (date) => {
@@ -119,14 +120,12 @@ export default function BookSession() {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      console.log('👨‍⚕️ Fetching doctor with ID:', doctorId);
 
       // If doctorId provided, fetch that specific doctor
       if (doctorId) {
         const response = await api.appointments.getDoctorById(doctorId);
         if (response.success && response.data) {
           setSelectedDoctor(response.data);
-          console.log('👨‍⚕️ Doctor loaded:', response.data.name);
         } else {
           Alert.alert('Error', 'Doctor not found');
         }
@@ -152,19 +151,15 @@ export default function BookSession() {
 
   const fetchTimeSlotsForDate = async (date) => {
     if (!selectedDoctor || !selectedDoctor._id) {
-      console.log('⏰ No doctor selected, skipping time slots fetch');
       return;
     }
 
     try {
       setLoadingTimeSlots(true);
       const doctorId = String(selectedDoctor._id);
-      console.log('⏰ Fetching time slots for date:', date, 'doctor:', doctorId);
 
       // Use new time-slots endpoint
       const response = await api.appointments.getTimeSlots(doctorId, date);
-
-      console.log('⏰ Time slots response:', JSON.stringify(response, null, 2));
 
       if (response.success && response.data && response.data.timeSlots) {
         // Use time slots directly from response (already formatted with timeSlot field)
@@ -176,11 +171,9 @@ export default function BookSession() {
           duration: slot.duration || '1 hour',
         }));
 
-        console.log('⏰ Formatted time slots:', formattedSlots.length);
         setAvailableTimeSlots(formattedSlots);
       } else {
         // Fallback to week view
-        console.log('⏰ No time slots from endpoint, trying week view...');
         await fetchTimeSlotsFromWeekView(date);
       }
     } catch (error) {
@@ -194,7 +187,6 @@ export default function BookSession() {
 
   const fetchTimeSlotsFromWeekView = async (date) => {
     if (!selectedDoctor || !selectedDoctor._id) {
-      console.log('⏰ No doctor selected, skipping week view fetch');
       return;
     }
 
@@ -306,12 +298,10 @@ export default function BookSession() {
       if (response.success) {
         // Get price and ensure it's a number
         const price = parseFloat(selectedDoctor.sessionPrice) || 0;
-        console.log('💰 Session price:', price, 'Type:', typeof price);
 
         // For free sessions (price is 0 or null/undefined), skip payment and go directly to success
         if (price > 0) {
           // Paid session - Navigate to payment screen
-          console.log('💰 Paid session, navigating to payment');
           router.push({
             pathname: '/(payment)/appointmentPayment',
             params: {
@@ -324,7 +314,6 @@ export default function BookSession() {
           });
         } else {
           // Free session - Skip payment flow entirely and go directly to success
-          console.log('✅ Free session, skipping payment, going to success');
           router.push({
             pathname: '/(bookSession)/SuccessfulBooking',
             params: {

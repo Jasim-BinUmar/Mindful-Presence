@@ -26,7 +26,6 @@ export default function successfulPayment() {
             setEnrolling(true);
             await api.courses.enrollInCourse(courseId);
             setEnrolled(true);
-            console.log('Successfully enrolled in course after payment');
         } catch (err) {
             console.error('Error enrolling in course:', err);
             // If user is already enrolled (409 Conflict), that's fine

@@ -30,7 +30,6 @@
 const getBackendUrl = () => {
   // First check for environment variable (highest priority)
   if (process.env.EXPO_PUBLIC_API_URL) {
-    console.log('🌐 Using API URL from environment:', process.env.EXPO_PUBLIC_API_URL);
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
@@ -49,14 +48,7 @@ const getBackendUrl = () => {
   
   // If using iOS Simulator, change to:
   // const defaultUrl = 'http://localhost:3005/api/v1';
-  
-  console.log('🌐 Using default API URL for Physical Device:', defaultUrl);
-  console.log('💡 Troubleshooting tips:');
-  console.log('   1. Ensure backend is running on port 3005');
-  console.log('   2. Phone and computer must be on SAME WiFi network');
-  console.log('   3. Check Windows Firewall allows port 3005');
-  console.log('   4. Verify backend is accessible: http://192.168.1.4:3005/api/v1');
-  console.log('   5. Set EXPO_PUBLIC_API_URL in .env file to override');
+
   return defaultUrl;
 };
 
@@ -112,6 +104,7 @@ export const endpoints = {
     getFeaturedCourses: `${BASE_URL}/courses/featured`,
     getCourse: (id) => `${BASE_URL}/courses/${id}`,
     getCourseStructure: (courseId) => `${BASE_URL}/courses/${courseId}/structure`,
+    getCourseStructurePreview: (courseId) => `${BASE_URL}/courses/${courseId}/structure/preview`,
     getCoursesByCategory: (category) => `${BASE_URL}/courses/category/${category}`,
     getCourseWithEnrollment: (id) => `${BASE_URL}/courses/${id}/enrollment`,
     getRecommendedCourses: (id) => `${BASE_URL}/courses/${id}/recommendations`,

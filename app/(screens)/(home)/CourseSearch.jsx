@@ -26,7 +26,6 @@ export default function CourseSearch() {
         useCallback(() => {
             const fetchUserContext = async () => {
                 try {
-                    console.log('🔄 Fetching user context (enrollments & favorites)...');
                     const [enrollmentRes, favoriteRes] = await Promise.all([
                         api.courses.getUserCourses({ limit: 1000 }),
                         api.user.getFavoriteIds()

@@ -1,4 +1,5 @@
-import { View, Text, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
@@ -62,8 +63,6 @@ const SignUpSubscriber = () => {
         setIsSubmitting(true);
         
         try {
-            console.log("Sending OTP to email:", trimmedEmail);
-
             // Combine firstName and lastName into name, and format phone number
             const registrationData = {
                 name: `${firstName.trim()} ${lastName.trim()}`.trim(),
@@ -82,8 +81,6 @@ const SignUpSubscriber = () => {
                 formattedPhone = '+' + formattedPhone.substring(1).replace(/\D/g, '');
             }
             registrationData.phoneNumber = formattedPhone;
-
-            console.log("Registration data:", registrationData);
 
             // Send OTP to email (using register endpoint - backward compatible)
             const { api } = await import('../../services/api');
@@ -123,79 +120,90 @@ const SignUpSubscriber = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-secondary-100 h-full">
+        <SafeAreaView className="flex-1 bg-gray-50 h-full">
             <StatusBar style="dark" translucent />
-            <StandardHeader title="Create An Account" centeredTitle={true} backgroundColor="#F5F5F5" />
-            <ScrollView 
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+            <StandardHeader title="Create An Account" centeredTitle={true} backgroundColor="#F9FAFB" />
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: 32 }}
+                showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <View className="w-full justify-center px-4 mb-6 mt-4">
+                <View className="items-center px-6 pt-8 pb-4">
+                    <Text className="font-black text-3xl text-black-200 mb-2">Create Your Account</Text>
+                    <Text className="text-gray-500 text-center text-base">Join us and start your journey.</Text>
+                </View>
+
+                <View className="mx-4 mt-6 bg-white rounded-t-3xl px-5 py-6 shadow-sm border border-gray-100">
                     <FormField
                         title="First Name"
                         handleChangeText={setFirstName}
-                        otherStyles=""
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
+                        otherStyles="mt-4"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
                         placeholder="Enter First Name"
+                        value={firstName}
                     />
                     <FormField
                         title="Last Name"
                         handleChangeText={setLastName}
-                        otherStyles="mt-4"
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
                         placeholder="Enter Last Name"
+                        value={lastName}
                     />
                     <FormField
-                        title="Email"
+                        title="Your Email"
                         handleChangeText={(value) => setEmail(value.trim())}
-                        otherStyles="mt-4"
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
-                        placeholder="Enter Email"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
+                        placeholder="Enter your email"
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        value={email}
                     />
                     <FormField
                         title="Phone Number"
                         handleChangeText={setPhoneNumber}
-                        otherStyles="mt-4"
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
                         placeholder="+1234567890"
                         keyboardType="phone-pad"
+                        value={phoneNumber}
                     />
                     <FormField
                         title="Password"
                         handleChangeText={setPassword}
-                        otherStyles="mt-4"
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
-                        placeholder="Enter Password"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
+                        placeholder="Enter your password"
                         secureTextEntry
+                        value={password}
                     />
                     <FormField
                         title="Confirm Password"
                         handleChangeText={setConfirmPassword}
-                        otherStyles="mt-4"
-                        labelStyles="text-gray-500 font-semibold mb-2 text-sm"
-                        outerInput="border-gray-300 focus:border-primary focus:bg-primary"
-                        placeholder="Confirm Password"
+                        otherStyles="mt-5"
+                        labelStyles="text-gray-600 font-semibold mb-2"
+                        outerInput="border-gray-200 rounded-button focus:border-primary"
+                        placeholder="Confirm your password"
                         secureTextEntry
+                        value={confirmPassword}
                     />
-                </View>
-                <View>
-                    <CustomButton
-                        title={isSubmitting ? "Creating Account..." : "Sign Up"}
-                        handlePress={handleSignUp}
-                        containerStyles="bg-primary py-4 mb-4 rounded-full mx-3"
-                        textStyles="text-lg font-bold text-secondary"
-                        disabled={isSubmitting}
-                    />
-                    {isSubmitting && (
-                        <ActivityIndicator size="small" color="#0000ff" style={{ marginTop: 10, marginBottom: 20 }} />
-                    )}
+
+                    <View className="mt-8">
+                        <CustomButton
+                            title={isSubmitting ? "Creating Account..." : "Sign Up"}
+                            handlePress={handleSignUp}
+                            isLoading={isSubmitting}
+                            containerStyles="bg-primary rounded-full w-full py-4"
+                            textStyles="text-lg font-bold text-white"
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>

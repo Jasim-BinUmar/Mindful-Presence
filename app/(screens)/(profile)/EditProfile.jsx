@@ -29,15 +29,12 @@ export default function EditProfile() {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            console.log('👤 EditProfile: Fetching profile data...');
-            
+
             const response = await api.user.getProfile();
-            console.log('👤 EditProfile: Profile API response:', JSON.stringify(response, null, 2));
-            
+
             if (response.success && response.data) {
                 const data = response.data;
-                console.log('👤 EditProfile: Setting profile data:', data);
-                
+
                 // Extract name into firstName and lastName if needed
                 let firstName = data.firstName || '';
                 let lastName = data.lastName || '';
@@ -118,8 +115,6 @@ export default function EditProfile() {
                 bio: profileData.bio || undefined,
             };
 
-            console.log('👤 EditProfile: Updating profile with data:', updateData);
-            
             const response = await api.user.updateProfile(updateData);
             
             if (response.success) {

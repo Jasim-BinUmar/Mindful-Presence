@@ -143,12 +143,6 @@ export default function AssessmentQuestion() {
             // Single selection for radio, button, dropdown, text
             setSelectedAnswer(actualValue);
         }
-        console.log('Answer selected:', {
-            inputValue: answerValue,
-            actualValue,
-            answerObj,
-            type: assessment?.answerFieldType
-        });
     };
 
     const handleNext = async () => {
@@ -238,12 +232,7 @@ export default function AssessmentQuestion() {
                         answerLabel: String(answerLabel)
                     };
                 });
-                
-                console.log('Checkbox submission:', {
-                    selectedAnswers,
-                    answerObjects
-                });
-                
+
                 formattedResponse = {
                     answers: answerObjects
                 };
@@ -263,33 +252,16 @@ export default function AssessmentQuestion() {
                 // Use the value field from the answer object (required by backend)
                 const answerValue = selectedAnswerObj?.value || valueToUse;
                 const answerLabel = selectedAnswerObj?.label || selectedAnswerObj?.text || answerValue;
-                
-                console.log('Single-select submission:', {
-                    selectedAnswer,
-                    answerValue,
-                    answerLabel,
-                    answerObj: selectedAnswerObj
-                });
-                
+
                 formattedResponse = {
                     answerValue: String(answerValue),
                     answerLabel: String(answerLabel)
                 };
             }
-            
-            console.log('Submitting assessment:', {
-                assessmentId,
-                answerFieldType: assessment?.answerFieldType,
-                formattedResponse
-            });
 
             const response = await assessmentService.submitAssessment(assessmentId, formattedResponse);
 
-            console.log('Submission response:', response);
-
             if (response && response.success) {
-                console.log('✅ Assessment submitted successfully:', assessmentId);
-                
                 // Clear local progress for this assessment
                 await assessmentService.clearProgress(assessmentId);
                 
@@ -306,17 +278,14 @@ export default function AssessmentQuestion() {
                             a._id === assessmentId || 
                             String(a._id) === String(assessmentId)
                         );
-                        
-                        console.log(`📊 Progress: Question ${currentIndex + 1} of ${allAssessments.length} submitted`);
-                        
+
                         const hasMoreQuestions = currentIndex >= 0 && 
                                                currentIndex < allAssessments.length - 1;
                         
                         if (hasMoreQuestions) {
                             // Move to next question
                             const nextAssessment = allAssessments[currentIndex + 1];
-                            console.log('➡️ Moving to next assessment:', nextAssessment._id);
-                            
+
                             // Small delay to ensure submission is complete before navigation
                             setTimeout(() => {
                                 router.replace({
@@ -329,8 +298,6 @@ export default function AssessmentQuestion() {
                             }, 500);
                         } else {
                             // All questions completed
-                            console.log(`🎉 All ${allAssessments.length} assessments completed!`);
-                            
                             // Navigate to "Thank You For Sharing" screen first
                             router.replace({
                                 pathname: '/(screens)/(selfAssesment)/AssessmentComplete',

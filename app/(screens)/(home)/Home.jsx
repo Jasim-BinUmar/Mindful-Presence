@@ -77,7 +77,6 @@ export default function Component() {
 
           // Fetch recommended courses directly from API: GET /api/v1/user/recommendations
           const recommendations = await api.recommendations.getUserRecommendations({ page: 1, limit: 10 });
-          console.log('Recommended courses API response:', recommendations);
 
           if (recommendations.success && recommendations.data) {
             // Handle different response structures from /api/v1/user/recommendations
@@ -104,7 +103,6 @@ export default function Component() {
               }
             }
 
-            console.log('Processed recommended courses from API:', recData);
             setRecommendedCourses(recData);
           } else {
             console.warn('No recommended courses data in response:', recommendations);
@@ -165,7 +163,6 @@ export default function Component() {
       console.error('handleCoursePress: No courseId provided');
       return;
     }
-    console.log('Navigating to CourseDetails with courseId:', courseId);
     routerInstance.push({
       pathname: '/(courseView)/CourseDetails',
       params: { courseId: String(courseId) }
@@ -192,17 +189,6 @@ export default function Component() {
         thumbnailUrl.includes('placeholder') ||
         course.thumbnail === 'https://example.com/thumbnail.jpg'
       );
-
-      // Debug logging for course thumbnails
-      if (__DEV__) {
-        console.log(`📸 Course "${course.title || course.name}":`, {
-          originalThumbnail: course.thumbnail,
-          normalizedUrl: thumbnailUrl,
-          hasThumbnail: !!course.thumbnail,
-          isPlaceholder: isPlaceholderUrl,
-          usingFallback: !thumbnailUrl || isPlaceholderUrl
-        });
-      }
 
       return {
         id: course._id || `${index}`,
@@ -354,8 +340,6 @@ export default function Component() {
                   <FlatList
                     data={recommendedCourses}
                     renderItem={({ item, index }) => {
-                      console.log('Rendering recommended course item:', item);
-
                       // Handle the actual API response structure: item.courseId is an object
                       const courseId = item.courseId?._id || item.courseId?.id || item.course?._id || item._id;
                       const courseTitle = item.courseId?.title || item.courseName || item.course?.title || item.title || item.course?.name || 'Course';

@@ -53,10 +53,8 @@ const storeTokens = async (accessToken, refreshToken) => {
       return;
     }
     await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    console.log('Access token stored successfully');
     if (refreshToken) {
       await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-      console.log('Refresh token stored successfully');
     }
     // Verify token was stored
     const storedToken = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
@@ -136,7 +134,6 @@ const apiRequest = async (url, options = {}) => {
 
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
-    console.log('API Request with token:', url);
   } else {
     console.warn('API Request without token:', url);
   }
@@ -165,7 +162,6 @@ const apiRequest = async (url, options = {}) => {
 
   // Handle 304 Not Modified - retry with cache-busting
   if (response.status === 304) {
-    console.log('Response 304 (Not Modified) for:', url, '- Retrying with cache-busting');
     // Add timestamp to force fresh request
     const separator = url.includes('?') ? '&' : '?';
     const cacheBustUrl = `${url}${separator}_t=${Date.now()}`;
@@ -279,13 +275,11 @@ export const api = {
 
       // Store tokens if present in response
       if (data.success && data.accessToken) {
-        console.log('Storing access token after OTP verification');
         await storeTokens(data.accessToken, data.refreshToken);
         if (data.data) {
           await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.data));
         }
       } else if (data.accessToken) {
-        console.log('Storing access token (alternative structure)');
         await storeTokens(data.accessToken, data.refreshToken);
         if (data.user || data.data) {
           await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.user || data.data));
@@ -326,7 +320,6 @@ export const api = {
      */
     login: async (credentials) => {
       // Login endpoint doesn't require auth, so make direct request
-      console.log('DEBUG: Attempting login at URL:', endpoints.auth.login);
       const loginResponse = await fetch(endpoints.auth.login, {
         method: 'POST',
         headers: {
@@ -346,14 +339,12 @@ export const api = {
 
       // Store tokens if present in response
       if (data.success && data.accessToken) {
-        console.log('Storing access token after login');
         await storeTokens(data.accessToken, data.refreshToken);
         if (data.data) {
           await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.data));
         }
       } else if (data.accessToken) {
         // Handle case where response structure might be different
-        console.log('Storing access token (alternative structure)');
         await storeTokens(data.accessToken, data.refreshToken);
         if (data.user || data.data) {
           await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.user || data.data));
@@ -576,6 +567,14 @@ export const api = {
     getCourseStructure: async (courseId, params = {}) => {
       const url = getEndpointWithQuery(endpoints.courses.getCourseStructure(courseId), params);
       return await apiRequest(url, { cacheBust: true });
+    },
+
+    /**
+     * Get course structure preview (for non-enrolled users; outline only)
+     * @param {string} courseId - Course ID
+     */
+    getCourseStructurePreview: async (courseId) => {
+      return await apiRequest(endpoints.courses.getCourseStructurePreview(courseId), { cacheBust: true });
     },
 
     /**
@@ -812,12 +811,10 @@ export const api = {
      * @param {Object} responses - Assessment responses
      */
     submit: async (assessmentId, responses) => {
-      console.log('API: Submitting assessment:', assessmentId, 'with response:', responses);
       const result = await apiRequest(endpoints.assessments.submitAssessment(assessmentId), {
         method: 'POST',
         body: JSON.stringify(responses),
       });
-      console.log('API: Assessment submission result:', result);
       return result;
     },
 

@@ -26,9 +26,7 @@ export default function RootLayout() {
   const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
   useEffect(() => {
-    if (stripePublishableKey) {
-      console.log('✅ Stripe publishable key loaded');
-    } else {
+    if (!stripePublishableKey) {
       console.warn('⚠️ Stripe publishable key not found. Check EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY in .env');
     }
   }, [stripePublishableKey]);

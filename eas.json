@@ -8,19 +8,32 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Qcnz4FY6SRQfghhRf9T9Yj9mUMOOHNDLLrUQgrduh9dVX8QuQKM0Vml81HRjxeNkfY9D2gXs0R4y6wb1IQzLeUf00Zoxeedwm"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Qcnz4FY6SRQfghhRf9T9Yj9mUMOOHNDLLrUQgrduh9dVX8QuQKM0Vml81HRjxeNkfY9D2gXs0R4y6wb1IQzLeUf00Zoxeedwm"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Qcnz4FY6SRQfghhRf9T9Yj9mUMOOHNDLLrUQgrduh9dVX8QuQKM0Vml81HRjxeNkfY9D2gXs0R4y6wb1IQzLeUf00Zoxeedwm"
+      }
+    },
+    "production-apk": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.dealsai.net/api/v1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Qcnz4FY6SRQfghhRf9T9Yj9mUMOOHNDLLrUQgrduh9dVX8QuQKM0Vml81HRjxeNkfY9D2gXs0R4y6wb1IQzLeUf00Zoxeedwm"
       }
     }
   },

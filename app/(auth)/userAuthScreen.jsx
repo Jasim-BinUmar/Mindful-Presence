@@ -33,7 +33,7 @@ export default function userAuthScreen() {
             />
             <CustomButton
               title="Sign up"
-              handlePress={() => router.push('/(auth)/userRegistrationScreen')}
+              handlePress={() => router.push('/(auth)/signUpSubscriber')}
               containerStyles="bg-transparent py-4 border-2 border-white"
               textStyles="text-lg font-bold text-white"
             />

@@ -20,8 +20,6 @@ const CourseDetails = () => {
   const router = useRouter();
   const { courseId } = useLocalSearchParams();
 
-  console.log('🎯 CourseDetails component rendered with courseId:', courseId);
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [course, setCourse] = useState(null);
@@ -64,19 +62,8 @@ const CourseDetails = () => {
       setError(null);
       setLoading(true);
 
-      console.log('Fetching course details for courseId:', courseId);
-
       // Fetch course with details (includes lessons and blocks)
-      console.log('📡 Making API call to:', `courses/${courseId}?includeDetails=true`);
       const courseResponse = await api.courses.getCourse(courseId, { includeDetails: 'true' });
-      console.log('📥 Course API response received');
-      console.log('Course response structure:', {
-        hasSuccess: !!courseResponse?.success,
-        hasData: !!courseResponse?.data,
-        isDirectData: !courseResponse?.success && !courseResponse?.data,
-        keys: Object.keys(courseResponse || {})
-      });
-      console.log('Course response:', JSON.stringify(courseResponse, null, 2));
 
       if (!courseResponse) {
         throw new Error('No course data received');
@@ -88,16 +75,9 @@ const CourseDetails = () => {
         throw new Error('Invalid course data structure');
       }
 
-      console.log('Extracted course data:', courseData);
-      console.log('Course has lessons?', !!courseData.lessons, 'Type:', typeof courseData.lessons);
-      if (courseData.lessons) {
-        console.log('Lessons in course:', Array.isArray(courseData.lessons), 'Length:', courseData.lessons.length);
-      }
-
       setCourse(courseData);
 
       // Check enrollment first BEFORE fetching lessons/blocks (which might be protected)
-      console.log('🔐 Checking enrollment status...');
       let isUserEnrolled = false;
       try {
         const enrollmentResponse = await api.courses.getCourseWithEnrollment(courseId);
@@ -122,9 +102,7 @@ const CourseDetails = () => {
         }
 
         setIsEnrolled(isUserEnrolled);
-        console.log('✅ Enrollment status:', isUserEnrolled);
       } catch (enrollError) {
-        console.log('⚠️ Enrollment check error:', enrollError.status);
         if (enrollError.status === 409) {
           isUserEnrolled = true;
           setIsEnrolled(true);
@@ -135,28 +113,39 @@ const CourseDetails = () => {
       }
 
       let structureData = { sections: [], standaloneLessons: [] };
-      try {
-        const structureResponse = await api.courses.getCourseStructure(courseId, { includeBlocks: 'false' });
-        const raw = structureResponse?.success ? structureResponse.data : (structureResponse?.data || structureResponse);
-        if (raw && typeof raw === 'object') {
-          structureData = {
-            sections: Array.isArray(raw.sections) ? raw.sections : [],
-            standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
-          };
-          console.log('✅ Course structure loaded:', structureData.sections.length, 'sections,', structureData.standaloneLessons.length, 'standalone lessons');
-        }
-      } catch (structureErr) {
-        console.warn('⚠️ getCourseStructure failed, falling back to getLessonsByCourse:', structureErr);
-        if (isUserEnrolled) {
+      if (isUserEnrolled) {
+        try {
+          const structureResponse = await api.courses.getCourseStructure(courseId, { includeBlocks: 'false' });
+          const raw = structureResponse?.success ? structureResponse.data : (structureResponse?.data || structureResponse);
+          if (raw && typeof raw === 'object') {
+            structureData = {
+              sections: Array.isArray(raw.sections) ? raw.sections : [],
+              standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
+            };
+          }
+        } catch (structureErr) {
+          console.warn('⚠️ getCourseStructure failed, falling back to getLessonsByCourse:', structureErr);
           try {
             const lessonsResponse = await api.courses.getLessonsByCourse(courseId, { includeBlocks: 'false' });
             const flat = lessonsResponse?.success ? lessonsResponse.data : (lessonsResponse?.data || lessonsResponse);
             const list = Array.isArray(flat) ? flat : [];
             structureData = { sections: [], standaloneLessons: list };
-            console.log('✅ Fallback: flat lessons loaded', list.length);
           } catch (e) {
             console.warn('Fallback getLessonsByCourse failed:', e);
           }
+        }
+      } else {
+        try {
+          const previewResponse = await api.courses.getCourseStructurePreview(courseId);
+          const raw = previewResponse?.success ? previewResponse.data : (previewResponse?.data || previewResponse);
+          if (raw && typeof raw === 'object') {
+            structureData = {
+              sections: Array.isArray(raw.sections) ? raw.sections : [],
+              standaloneLessons: Array.isArray(raw.standaloneLessons) ? raw.standaloneLessons : [],
+            };
+          }
+        } catch (previewErr) {
+          console.warn('⚠️ getCourseStructurePreview failed:', previewErr);
         }
       }
       setStructure(structureData);
@@ -173,9 +162,6 @@ const CourseDetails = () => {
         } catch (pErr) {
           console.warn('Progress fetch error:', pErr);
         }
-      } else {
-        // Don't show popup immediately, let user see lessons first
-        console.log('User not enrolled, lessons will be visible but locked');
       }
     } catch (err) {
       setError(err.message || 'Failed to load course details');
@@ -186,8 +172,6 @@ const CourseDetails = () => {
   }, [courseId]);
 
   useEffect(() => {
-    console.log('CourseDetails useEffect triggered, courseId:', courseId);
-
     if (!courseId) {
       console.error('CourseDetails: No courseId provided');
       setError('Course ID is missing');
@@ -195,7 +179,6 @@ const CourseDetails = () => {
       return;
     }
 
-    console.log('CourseDetails: Starting to fetch course details for:', courseId);
     fetchCourseDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]); // fetchCourseDetails is stable due to useCallback with courseId dependency
@@ -228,7 +211,6 @@ const CourseDetails = () => {
     if (coursePrice === 0) {
       try {
         setLoading(true);
-        console.log('🚀 Enrolling in free course:', courseId);
         const response = await api.courses.enrollInCourse(courseId);
         if (response.success) {
           setIsEnrolled(true);
@@ -255,15 +237,11 @@ const CourseDetails = () => {
   };
 
   const handleLessonPress = (lessonId) => {
-    console.log('👆 Lesson pressed:', lessonId, '| Enrolled:', isEnrolled);
     // If not enrolled, show subscription popup instead of navigating to protected lesson view
     if (!isEnrolled) {
-      console.log('🚫 Access blocked: User not enrolled');
       setShowSubscriptionPopup(true);
       return;
     }
-
-    console.log('✅ Access allowed: Navigating to lesson');
 
     router.push({
       pathname: '/(courseView)/LessonView',
@@ -292,7 +270,6 @@ const CourseDetails = () => {
   const handleContentPress = async (lessonId, blockId, blockType, block = null) => {
     // If not enrolled, show subscription popup
     if (!isEnrolled) {
-      console.log('User not enrolled, showing subscription popup on content access');
       setShowSubscriptionPopup(true);
       return;
     }
@@ -305,52 +282,32 @@ const CourseDetails = () => {
       });
     } else if (blockType === 'quiz') {
       // For quiz blocks, quizContentId is stored at block level (block.quizContentId)
-      // It references the QuizContent model _id
-      console.log('🔍 Quiz block structure:', {
-        blockId,
-        blockKeys: block ? Object.keys(block) : 'no block',
-        contentKeys: block?.content ? Object.keys(block.content) : 'no content',
-        blockQuizContentId: block?.quizContentId,  // This is the key field!
-        fullBlock: JSON.stringify(block, null, 2)
-      });
-
-      // First, try to get quizContentId from the block object
-      let quizContentId = block?.quizContentId;  // Primary location: block.quizContentId
+      let quizContentId = block?.quizContentId;
 
       // If not found in block, fetch the block individually to get full data
       if (!quizContentId) {
         try {
-          console.log('📦 Fetching block individually to get quizContentId...');
           const blockResponse = await api.courses.getBlock(blockId);
           const fullBlockData = blockResponse.success
             ? blockResponse.data
             : (blockResponse.data || blockResponse);
-
-          console.log('📦 Full block data:', {
-            quizContentId: fullBlockData?.quizContentId,
-            allKeys: fullBlockData ? Object.keys(fullBlockData) : 'no data',
-            fullData: JSON.stringify(fullBlockData, null, 2)
-          });
 
           quizContentId = fullBlockData?.quizContentId;
 
           // If still not found, try getting from lesson blocks
           if (!quizContentId && lessonId) {
             try {
-              console.log('🔍 quizContentId not in block response, trying to get from lesson blocks...');
               const lessonBlocksResponse = await api.courses.getBlocksByLesson(lessonId);
               const lessonBlocks = lessonBlocksResponse.success
                 ? lessonBlocksResponse.data
                 : (Array.isArray(lessonBlocksResponse.data) ? lessonBlocksResponse.data : []);
 
-              // Find the block in the lesson blocks array
               const foundBlock = Array.isArray(lessonBlocks)
                 ? lessonBlocks.find(b => b._id === blockId || b._id?.toString() === blockId?.toString())
                 : null;
 
               if (foundBlock?.quizContentId) {
                 quizContentId = foundBlock.quizContentId;
-                console.log('✅ Found quizContentId from lesson blocks:', quizContentId);
               }
             } catch (lessonError) {
               console.warn('⚠️ Could not get quizContentId from lesson blocks:', lessonError);
@@ -361,14 +318,11 @@ const CourseDetails = () => {
         }
       }
 
-      // Final check - if still not found, show error
       if (!quizContentId) {
         console.error('❌ quizContentId not found. Backend should include quizContentId in block response.');
         alert('Error: Quiz content ID not found. Please contact support.');
         return;
       }
-
-      console.log('✅ Using quizContentId:', quizContentId);
 
       router.push({
         pathname: '/(courseView)/QuizView',
@@ -405,17 +359,6 @@ const CourseDetails = () => {
   };
 
   const renderContentBlock = (block, lessonId) => {
-    // Log block details for debugging
-    if (block.blockType === 'video') {
-      console.log('🎥 Rendering video block:', {
-        blockId: block._id,
-        title: block.title,
-        hasContent: !!block.content,
-        videoUrl: block.content?.videoUrl || block.content?.url,
-        blockType: block.blockType
-      });
-    }
-
     // Content is always accessible (preview mode)
     const isLocked = false;
 

@@ -21,7 +21,6 @@ const ContentView = () => {
       setError(null);
       
       const response = await api.courses.getBlock(blockId);
-      console.log('Content block data:', response);
       setBlock(response.data || response);
     } catch (err) {
       console.error('Error fetching content:', err);

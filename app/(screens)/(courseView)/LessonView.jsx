@@ -38,8 +38,6 @@ const LessonView = () => {
             setLoading(true);
             setError(null);
 
-            console.log('📡 Fetching lesson details and blocks for:', lessonId);
-
             // 1. Fetch Lesson Core Data
             const lessonResponse = await api.courses.getLesson(lessonId);
             const lessonData = lessonResponse.success ? lessonResponse.data : (lessonResponse.data || lessonResponse);
@@ -116,7 +114,7 @@ const LessonView = () => {
 
             // Mark this lesson as 'in_progress' when opened
             if (lessonId) {
-                api.courses.updateLessonProgress(lessonId, 'in_progress').catch(err => console.log('Silent progress error'));
+                api.courses.updateLessonProgress(lessonId, 'in_progress').catch(() => {});
             }
 
         } catch (err) {

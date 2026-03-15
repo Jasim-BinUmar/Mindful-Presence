@@ -23,11 +23,9 @@ export default function Bookings() {
     const fetchAppointments = async () => {
         try {
             setLoading(true);
-            console.log('📅 Fetching appointments...');
 
             // Fetch upcoming appointments
             const upcomingResponse = await api.appointments.getUpcomingAppointments();
-            console.log('📅 Upcoming appointments:', JSON.stringify(upcomingResponse, null, 2));
 
             if (upcomingResponse.success && upcomingResponse.data) {
                 const scheduled = upcomingResponse.data.filter(apt => apt.status === 'scheduled');
@@ -43,7 +41,6 @@ export default function Bookings() {
 
             // Fetch appointment history
             const historyResponse = await api.appointments.getAppointmentHistory();
-            console.log('📅 Appointment history:', JSON.stringify(historyResponse, null, 2));
 
             if (historyResponse.success && historyResponse.data) {
                 // Sort by date (most recent first)

@@ -10,7 +10,7 @@ const FormField = ({title, value, placeholder, handleChangeText, otherStyles, la
       <Text className={`text-base ${labelStyles}`}>{title}</Text>
       <View className={`w-full h-16 px-4 border-2 rounded-full items-center flex-row ${outerInput}`}>
         <TextInput 
-            className={`flex-1 font-semibold text-base ${inputStyles}`}
+            className={`flex-1 font-semibold text-base text-gray-900 ${inputStyles}`}
             value={value}
             placeholder={placeholder}
             placeholderTextColor="#d1d5db"
@@ -20,13 +20,13 @@ const FormField = ({title, value, placeholder, handleChangeText, otherStyles, la
         />
 
         {title === 'Password' && (
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Image source = {!showPassword ? icons.eye : icons.eyeHide} className="w-6 h-6 " resizeMode='contain'/>
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} activeOpacity={1}>
+            <Image source={!showPassword ? icons.eye : icons.eyeHide} className="w-6 h-6" resizeMode="contain" tintColor="#374151" />
           </TouchableOpacity>
         )}
         {title === 'Confirm Password' && (
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Image source = {!showPassword ? icons.eye : icons.eyeHide} className="w-6 h-6 " resizeMode='contain'/>
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} activeOpacity={1}>
+            <Image source={!showPassword ? icons.eye : icons.eyeHide} className="w-6 h-6" resizeMode="contain" tintColor="#374151" />
           </TouchableOpacity>
         )}        
 

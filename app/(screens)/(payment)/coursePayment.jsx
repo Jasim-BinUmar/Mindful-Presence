@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, CreditCard, CheckCircle } from 'lucide-react-native';
@@ -13,6 +13,20 @@ const CoursePayment = () => {
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
+  useEffect(() => {
+    if (!courseId) return;
+    let cancelled = false;
+    api.courses.getCourseWithEnrollment(courseId).then((res) => {
+      if (cancelled) return;
+      const data = res?.success ? res.data : (res?.data || res);
+      const enrolled = !!(data?.isEnrolled === true || data?.enrollment?.status === 'active' || (data?.enrollment && data?.enrollment._id));
+      if (enrolled) {
+        router.replace({ pathname: '/(courseView)/CourseDetails', params: { courseId } });
+      }
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [courseId]);
+
   // Function to go back to the previous screen
   const goBack = () => {
     router.back();
@@ -23,8 +37,6 @@ const CoursePayment = () => {
     try {
       setLoading(true);
 
-      // Create payment intent on backend
-      console.log('Creating payment intent for course:', courseId);
       const response = await api.payments.createPaymentIntent({
         courseId,
       });
@@ -33,19 +45,24 @@ const CoursePayment = () => {
         throw new Error('Failed to create payment intent');
       }
 
+      if (response.data?.isPaid === true || response.data?.isEnrolled === true) {
+        router.replace({ pathname: '/(courseView)/CourseDetails', params: { courseId } });
+        setLoading(false);
+        return;
+      }
+
       const { clientSecret, paymentIntentId, customerEphemeralKeySecret, customerId } = response.data;
 
-      // Initialize payment sheet
-      const { error: initError } = await initPaymentSheet({
+      const sheetParams = {
         merchantDisplayName: 'Mindful Presence',
         paymentIntentClientSecret: clientSecret,
-        customerId: customerId,
-        customerEphemeralKeySecret: customerEphemeralKeySecret,
-        defaultBillingDetails: {
-          name: 'User',
-        },
+        defaultBillingDetails: { name: 'User' },
         returnURL: 'mindfulpresence://payment-success',
-      });
+      };
+      if (customerId) sheetParams.customerId = customerId;
+      if (customerEphemeralKeySecret) sheetParams.customerEphemeralKeySecret = customerEphemeralKeySecret;
+
+      const { error: initError } = await initPaymentSheet(sheetParams);
 
       if (initError) {
         console.error('Payment sheet init error:', initError);
@@ -54,7 +71,6 @@ const CoursePayment = () => {
         return;
       }
 
-      // Present payment sheet
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
@@ -68,7 +84,6 @@ const CoursePayment = () => {
         
         if (isCanceled) {
           // User canceled - silently handle, no error shown
-          console.log('ℹ️ User canceled the payment');
           setLoading(false);
           return;
         }
@@ -84,7 +99,6 @@ const CoursePayment = () => {
       }
 
       // Payment successful - confirm on backend
-      console.log('Payment successful, confirming...');
       const confirmResponse = await api.payments.confirmPayment({
         paymentIntentId,
       });
@@ -123,7 +137,6 @@ const CoursePayment = () => {
       
       if (isCancelError) {
         // User canceled - silently handle
-        console.log('ℹ️ Payment was canceled');
       } else {
         // Real error - show alert
         console.error('❌ Payment error:', error);

@@ -33,28 +33,19 @@ export default function Component() {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            console.log('👤 Fetching profile data...');
-            console.log('👤 Current user context:', JSON.stringify(user, null, 2));
 
             const response = await api.user.getProfile();
-            console.log('👤 Profile API response:', JSON.stringify(response, null, 2));
 
             if (response.success && response.data) {
                 const apiData = response.data;
-                console.log('👤 Setting profile data from API:', apiData);
-                console.log('👤 API Name:', apiData.name || `${apiData.firstName || ''} ${apiData.lastName || ''}`.trim());
-                console.log('👤 API Email:', apiData.email);
                 setProfileData(apiData);
             } else {
-                console.log('👤 API response not successful, using user context data');
-                console.log('👤 User context name:', user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
                 // Fallback to user data from context if profile API fails
                 setProfileData(user);
             }
         } catch (error) {
             console.error('❌ Error fetching profile:', error);
             console.error('❌ Error details:', JSON.stringify(error, null, 2));
-            console.log('👤 Using user context as fallback:', user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
             // Fallback to user data from context
             setProfileData(user);
         } finally {

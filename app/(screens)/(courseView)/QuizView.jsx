@@ -28,23 +28,17 @@ const QuizView = () => {
 
       // Determine if this is a multi-quiz or single-quiz
       let id = quizId || quizContentId || blockId;
-      console.log('🔍 Fetching quiz with ID:', id);
-      console.log('Available params:', { quizId, quizContentId, blockId, lessonId, courseId });
 
       // Try to fetch quiz directly
       try {
         const endpoint = quizId ? `/quizzes/full/${quizId}` : `/quizzes/${id}`;
         const response = await api.quizzes.getQuiz(id);
-        console.log('✅ Quiz fetched successfully:', response);
 
         const quizData = response.success ? response.data : (response.data || response);
 
         // Detect if this is a multi-quiz (has questions array)
         const hasMultipleQuestions = Array.isArray(quizData.questions) && quizData.questions.length > 0;
         setIsMultiQuiz(hasMultipleQuestions);
-
-        console.log('📋 Quiz type:', hasMultipleQuestions ? 'Multi-Quiz' : 'Single-Quiz');
-        console.log('📋 Questions count:', hasMultipleQuestions ? quizData.questions.length : 1);
 
         setQuiz(quizData);
 
@@ -56,20 +50,14 @@ const QuizView = () => {
         setStartTime(Date.now());
         return;
       } catch (quizError) {
-        console.log('⚠️ Direct quiz fetch failed, trying to fetch block first...', quizError);
-
         // If quiz fetch fails and we have blockId, try fetching the block first
         if (blockId && (!quizContentId || quizContentId === blockId)) {
           try {
-            console.log('📦 Fetching block to get quiz content ID:', blockId);
             const blockResponse = await api.courses.getBlock(blockId);
             const blockData = blockResponse.success ? blockResponse.data : (blockResponse.data || blockResponse);
 
-            console.log('📦 Block data:', blockData);
-
             // Check if this is a multiQuiz block
             if (blockData.type === 'multiQuiz' && blockData.quizId) {
-              console.log('✅ Detected multiQuiz block, fetching full quiz:', blockData.quizId);
               const quizResponse = await api.quizzes.getQuiz(blockData.quizId);
               const quizData = quizResponse.success ? quizResponse.data : (quizResponse.data || quizResponse);
 
@@ -89,7 +77,6 @@ const QuizView = () => {
 
             if (!actualQuizContentId && lessonId) {
               try {
-                console.log('🔍 quizContentId not in block response, trying to get from lesson blocks...');
                 const lessonBlocksResponse = await api.courses.getBlocksByLesson(lessonId);
                 const lessonBlocks = lessonBlocksResponse.success
                   ? lessonBlocksResponse.data
@@ -101,7 +88,6 @@ const QuizView = () => {
 
                 if (foundBlock?.quizContentId) {
                   actualQuizContentId = foundBlock.quizContentId;
-                  console.log('✅ Found quizContentId from lesson blocks:', actualQuizContentId);
                 }
               } catch (lessonError) {
                 console.warn('⚠️ Could not get quizContentId from lesson blocks:', lessonError);
@@ -114,7 +100,6 @@ const QuizView = () => {
             }
 
             if (actualQuizContentId && actualQuizContentId !== blockId) {
-              console.log('✅ Using quiz content ID:', actualQuizContentId);
               id = actualQuizContentId;
 
               const quizResponse = await api.quizzes.getQuiz(id);
@@ -188,14 +173,7 @@ const QuizView = () => {
           timeTakenSeconds: timeTaken
         };
 
-        console.log('Submitting multi-quiz:', {
-          quizId: quiz._id,
-          submissionData,
-          totalQuestions: quiz.questions.length
-        });
-
         const response = await api.quizzes.submitFullQuiz(quiz._id, submissionData);
-        console.log('Multi-quiz results:', response);
         setQuizResults(response.data || response);
         setShowResults(true);
         return;
@@ -230,15 +208,6 @@ const QuizView = () => {
         hintsUsed: 0
       };
 
-      console.log('Submitting single quiz:', {
-        submissionData,
-        quizQuestionType: quiz?.questionType,
-        selectedAnswer,
-        isMultipleChoice,
-        answerArray,
-        params: { quizContentId, blockId, lessonId, courseId }
-      });
-
       const id = quizContentId || blockId;
       if (!id) {
         Alert.alert('Error', 'Quiz content ID is missing. Cannot submit quiz.');
@@ -253,7 +222,6 @@ const QuizView = () => {
 
       const response = await api.quizzes.submitQuizAttempt(id, submissionData);
 
-      console.log('Quiz results:', response);
       setQuizResults(response.data || response);
       setShowResults(true);
     } catch (err) {
@@ -284,8 +252,6 @@ const QuizView = () => {
   const handleAnswerSelect = (answerId, isMultipleChoice = false) => {
     if (showResults) return;
 
-    console.log('🎯 Answer selected:', { answerId, isMultipleChoice, currentAnswers: selectedAnswers });
-
     setSelectedAnswers(prev => {
       // Use currentQuestionIndex for multi-quiz, 0 for single-quiz
       const questionIndex = isMultiQuiz ? currentQuestionIndex : 0;
@@ -303,11 +269,9 @@ const QuizView = () => {
           currentArray.push(answerId);
         }
 
-        console.log('✅ Updated multiple choice answers:', currentArray);
         return { ...prev, [questionIndex]: currentArray };
       } else {
         // For single choice, replace selection
-        console.log('✅ Updated single choice answer:', answerId);
         return { ...prev, [questionIndex]: answerId };
       }
     });
