@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import FormField from '../../components/FormField';
@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 import { useGlobalContext } from '../../lib/globalContext';
 
 const Login = () => {
-    const [email, setEmail] = useState('ericangelo1503@gmail.com');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +52,17 @@ const Login = () => {
         <SafeAreaView className="flex-1 bg-gray-50 h-full">
             <StatusBar style="dark" translucent />
             <StandardHeader title="Login" centeredTitle={true} backgroundColor="#F9FAFB" />
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+            <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: 32, flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
                 <View className="items-center px-6 pt-8 pb-4">
                     <Text className="font-black text-3xl text-black-200 mb-2">Welcome Back!</Text>
                     <Text className="text-gray-500 text-center text-base">Please enter your credentials to continue your journey.</Text>
@@ -116,6 +126,7 @@ const Login = () => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };

@@ -94,6 +94,10 @@ export const endpoints = {
     getFavorites: `${BASE_URL}/user/favorites`,
     getFavoriteIds: `${BASE_URL}/user/favorites/ids`,
     toggleFavorite: (courseId) => `${BASE_URL}/user/favorites/${courseId}`,
+
+    // Settings
+    getSettings: `${BASE_URL}/user/settings`,
+    updateSettings: `${BASE_URL}/user/settings`,
   },
 
   // ==================== COURSES ====================

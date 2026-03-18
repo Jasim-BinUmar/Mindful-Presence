@@ -7,7 +7,7 @@ import images from '../../../constants/images';
 import { icons } from '../../../constants';
 import CustomButton from '../../../components/CustomButton';
 import ContentCard from '../../../components/ContentCard';
-import { router, useRouter } from 'expo-router';
+import { router, useRouter, useFocusEffect } from 'expo-router';
 import { useGlobalContext } from '../../../lib/globalContext';
 import { api } from '../../../services/api';
 import { assessmentService } from '../../../services/assessmentService';
@@ -15,28 +15,30 @@ import { normalizeMediaUrl, getImageSource } from '../../../utils/imageUtils';
 
 export default function Component() {
   const routerInstance = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading } = useGlobalContext();
+  const { user, isAuthenticated, isLoading: authLoading, showRecommendations } = useGlobalContext();
 
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
   const [profileInsights, setProfileInsights] = useState(null);
 
   useEffect(() => {
-    // Redirect to auth screen if not authenticated
     if (!authLoading && !isAuthenticated) {
       routerInstance.replace('/(auth)/userAuthScreen');
-      return;
     }
+  }, [authLoading, isAuthenticated]);
 
-    if (isAuthenticated) {
+  useFocusEffect(
+    useCallback(() => {
+      if (authLoading || !isAuthenticated) return;
       loadData();
-    }
-  }, [isAuthenticated, authLoading]);
+    }, [authLoading, isAuthenticated, showRecommendations])
+  );
 
   const loadData = async () => {
     try {
@@ -66,57 +68,53 @@ export default function Component() {
         console.warn('Error fetching user context on Home:', err);
       }
 
-      // Fetch recommended courses and insights if assessment completed
       if (hasResponses) {
         try {
-          // Fetch profile insights first
           const insightsResponse = await api.user.getProfileInsights();
           if (insightsResponse.success && insightsResponse.data) {
             setProfileInsights(insightsResponse.data);
           }
-
-          // Fetch recommended courses directly from API: GET /api/v1/user/recommendations
-          const recommendations = await api.recommendations.getUserRecommendations({ page: 1, limit: 10 });
-
-          if (recommendations.success && recommendations.data) {
-            // Handle different response structures from /api/v1/user/recommendations
-            let recData = [];
-
-            // Check if data is an array
-            if (Array.isArray(recommendations.data)) {
-              recData = recommendations.data;
-            }
-            // Check for paginated response
-            else if (recommendations.data.courses && Array.isArray(recommendations.data.courses)) {
-              recData = recommendations.data.courses;
-            }
-            // Check for items array
-            else if (recommendations.data.items && Array.isArray(recommendations.data.items)) {
-              recData = recommendations.data.items;
-            }
-            // Check for nested data
-            else if (recommendations.data.data) {
-              if (Array.isArray(recommendations.data.data)) {
-                recData = recommendations.data.data;
-              } else if (recommendations.data.data.courses) {
-                recData = recommendations.data.data.courses;
-              }
-            }
-
-            setRecommendedCourses(recData);
-          } else {
-            console.warn('No recommended courses data in response:', recommendations);
-            setRecommendedCourses([]);
-          }
         } catch (error) {
-          console.error('Error fetching recommendations:', error);
+          console.error('[Home] Error fetching profile insights:', error);
         }
       }
 
-      // Fetch all published courses (public courses)
-      const coursesResponse = await api.courses.getAll({ limit: 20, status: 'published' });
+      if (showRecommendations && hasResponses) {
+        try {
+          setRecommendationsLoading(true);
+          const recParams = { page: 1, limit: 10 };
+          const recommendations = await api.recommendations.getUserRecommendations(recParams);
+          if (recommendations.success && recommendations.data) {
+            let recData = [];
+            if (Array.isArray(recommendations.data)) {
+              recData = recommendations.data;
+            } else if (recommendations.data?.courses && Array.isArray(recommendations.data.courses)) {
+              recData = recommendations.data.courses;
+            } else if (recommendations.data?.items && Array.isArray(recommendations.data.items)) {
+              recData = recommendations.data.items;
+            } else if (recommendations.data?.data) {
+              recData = Array.isArray(recommendations.data.data)
+                ? recommendations.data.data
+                : (recommendations.data.data?.courses || []);
+            }
+            setRecommendedCourses(recData);
+          } else {
+            setRecommendedCourses([]);
+          }
+        } catch (error) {
+          console.error('[Home] Error fetching recommendations:', error);
+          setRecommendedCourses([]);
+        } finally {
+          setRecommendationsLoading(false);
+        }
+      } else {
+        setRecommendedCourses([]);
+        setRecommendationsLoading(false);
+      }
+
+      const coursesParams = { limit: 20, status: 'published' };
+      const coursesResponse = await api.courses.getAll(coursesParams);
       if (coursesResponse.success && coursesResponse.data) {
-        // Handle both array and paginated response
         const coursesData = Array.isArray(coursesResponse.data)
           ? coursesResponse.data
           : (coursesResponse.data.courses || coursesResponse.data.items || []);
@@ -300,7 +298,7 @@ export default function Component() {
 
           <View className="flex-1 bg-secondary rounded-t-3xl pt-8 -mt-5">
             {/* Recommended Courses Section - On Top */}
-            {hasCompletedAssessment && (
+            {showRecommendations && hasCompletedAssessment && (
               <View className="mb-6">
                 <View className="flex-row items-center justify-between mx-5 mb-4">
                   <Text className="text-lg font-semibold">Recommended For You</Text>
@@ -336,7 +334,12 @@ export default function Component() {
                 )}
 
                 {/* Recommended Courses from API */}
-                {recommendedCourses.length > 0 ? (
+                {recommendationsLoading ? (
+                  <View className="mx-5 mb-4 p-4 bg-gray-50 rounded-lg items-center justify-center">
+                    <ActivityIndicator size="large" color="#623AD9" />
+                    <Text className="text-sm text-gray-600 text-center mt-2">Loading recommended courses...</Text>
+                  </View>
+                ) : recommendedCourses.length > 0 ? (
                   <FlatList
                     data={recommendedCourses}
                     renderItem={({ item, index }) => {
@@ -416,7 +419,7 @@ export default function Component() {
             )}
 
             {/* Show message if no recommended courses but insights exist */}
-            {hasCompletedAssessment && recommendedCourses.length === 0 && profileInsights && (
+            {showRecommendations && hasCompletedAssessment && !recommendationsLoading && recommendedCourses.length === 0 && profileInsights && (
               <View className="mx-5 mb-6 p-4 bg-gray-50 rounded-lg">
                 <Text className="text-sm text-gray-600 text-center">
                   {profileInsights.recommendations && profileInsights.recommendations.length > 0

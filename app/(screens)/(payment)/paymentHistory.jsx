@@ -25,6 +25,7 @@ const PaymentHistory = () => {
           title: item.type === 'course' ? (item.courseId?.title || 'Course Purchase') : 'Expert Session',
           type: item.type.charAt(0).toUpperCase() + item.type.slice(1),
           amount: item.amount || 0,
+          currency: item.currency || 'usd',
           date: new Date(item.createdAt),
           status: item.status.charAt(0).toUpperCase() + item.status.slice(1),
           icon: item.type === 'course' ? <BookOpen size={20} color="#623AD9" /> : <Calendar size={20} color="#623AD9" />
@@ -73,7 +74,7 @@ const PaymentHistory = () => {
 
       <View className="items-end">
         <Text className="text-base font-bold text-gray-900">
-          ₹{item.amount}
+          {item.currency === 'inr' ? '₹' : '$'}{typeof item.amount === 'number' ? item.amount.toFixed(2) : item.amount}
         </Text>
         <View className="bg-green-100 px-2 py-0.5 rounded-full mt-1">
           <Text className="text-green-700 text-[10px] font-bold uppercase">{item.status}</Text>

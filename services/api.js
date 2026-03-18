@@ -81,6 +81,12 @@ const clearTokens = async () => {
   }
 };
 
+let sessionExpiredHandler = null;
+
+const setSessionExpiredHandler = (callback) => {
+  sessionExpiredHandler = callback;
+};
+
 /**
  * Refresh access token using refresh token
  */
@@ -154,7 +160,13 @@ const apiRequest = async (url, options = {}) => {
         headers,
       });
     } catch (error) {
-      // Refresh failed, clear tokens and throw error
+      if (sessionExpiredHandler) {
+        try {
+          sessionExpiredHandler();
+        } catch (handlerError) {
+          console.error('Session expired handler error:', handlerError);
+        }
+      }
       await clearTokens();
       throw new Error('Session expired. Please login again.');
     }
@@ -217,6 +229,8 @@ const apiRequest = async (url, options = {}) => {
  * API Service Methods
  */
 export const api = {
+  setSessionExpiredHandler,
+
   // ==================== AUTHENTICATION ====================
   auth: {
     /**
@@ -501,6 +515,24 @@ export const api = {
      */
     getDashboardActivity: async () => {
       return await apiRequest(endpoints.user.getDashboardActivity);
+    },
+
+    /**
+     * Get user settings
+     */
+    getSettings: async () => {
+      return await apiRequest(endpoints.user.getSettings);
+    },
+
+    /**
+     * Update user settings
+     * @param {Object} settings - Settings to update (e.g. { recommendation: true, theme: "dark" })
+     */
+    updateSettings: async (settings) => {
+      return await apiRequest(endpoints.user.updateSettings, {
+        method: 'PUT',
+        body: JSON.stringify({ settings }),
+      });
     },
   },
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, User } from 'lucide-react-native';
+import { ChevronRight, User, Settings } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
 import { icons } from '../../../constants';
 import { router } from 'expo-router';
@@ -121,6 +121,11 @@ export default function Component() {
             icon: icons.bookingIcon,
         },
         {
+            title: 'Settings',
+            link: '/(profile)/profileSettings',
+            lucideIcon: Settings,
+        },
+        {
             title: 'Support',
             link: '/(support)/support',
             icon: icons.supportIcon,
@@ -189,6 +194,37 @@ export default function Component() {
                                             <Text className="text-gray-600 text-sm">Phone: </Text>
                                             <Text className="text-gray-800 font-medium">
                                                 {profileData.phoneNumber}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+
+                                {(profileData?.gender || user?.gender) != null && (profileData?.gender || user?.gender) !== '' && (
+                                    <View className="mt-2">
+                                        <View className="flex-row items-center justify-center">
+                                            <Text className="text-gray-600 text-sm">Gender: </Text>
+                                            <Text className="text-gray-800 font-medium">
+                                                {profileData?.gender ?? user?.gender}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                                {(profileData?.age != null || user?.age != null) && (
+                                    <View className="mt-2">
+                                        <View className="flex-row items-center justify-center">
+                                            <Text className="text-gray-600 text-sm">Age: </Text>
+                                            <Text className="text-gray-800 font-medium">
+                                                {profileData?.age ?? user?.age}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                                {(profileData?.religion || user?.religion) != null && (profileData?.religion || user?.religion) !== '' && (
+                                    <View className="mt-2">
+                                        <View className="flex-row items-center justify-center">
+                                            <Text className="text-gray-600 text-sm">Religion: </Text>
+                                            <Text className="text-gray-800 font-medium">
+                                                {profileData?.religion ?? user?.religion}
                                             </Text>
                                         </View>
                                     </View>
@@ -313,7 +349,13 @@ export default function Component() {
                                 onPress={() => { router.push({ pathname: item.link, params: { fromProfile: 'true' } }); }}
                             >
                                 <View className="flex-row items-center space-x-3 ">
-                                    <Image source={item.icon} className="mr-4" />
+                                    {item.lucideIcon ? (
+                                        <View className="mr-4">
+                                            <item.lucideIcon size={24} color="#666" />
+                                        </View>
+                                    ) : (
+                                        <Image source={item.icon} className="mr-4" />
+                                    )}
                                     <Text className="text-base font-medium">{item.title}</Text>
                                 </View>
                                 <ChevronRight size={20} color="#666" />

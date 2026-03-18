@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { User } from 'lucide-react-native';
 import StandardHeader from '../../../components/StandardHeader';
 import { useGlobalContext } from '../../../lib/globalContext';
 import { api } from '../../../services/api';
 import { getImageSource } from '../../../utils/imageUtils';
+
+const GENDER_OPTIONS = ['Male', 'Female'];
+const RELIGION_OPTIONS = ['Christianity', 'Islam', 'Hinduism', 'Buddhism', 'Sikhism', 'Judaism', 'Other'];
 
 export default function EditProfile() {
     const { user } = useGlobalContext();
@@ -18,7 +22,9 @@ export default function EditProfile() {
         lastName: '',
         email: '',
         phoneNumber: '',
-      
+        gender: '',
+        age: '',
+        religion: '',
         profilePicture: null,
     });
 
@@ -51,10 +57,12 @@ export default function EditProfile() {
                     email: data.email || user?.email || '',
                     phoneNumber: data.phoneNumber || user?.phoneNumber || '',
                     dateOfBirth: data.dateOfBirth || '',
-                    gender: data.gender || '',
-                    address: typeof data.address === 'string' 
-                        ? data.address 
-                        : data.address 
+                    gender: (data.gender === 'Male' || data.gender === 'Female') ? data.gender : '',
+                    age: data.age != null ? String(data.age) : '',
+                    religion: data.religion ?? '',
+                    address: typeof data.address === 'string'
+                        ? data.address
+                        : data.address
                             ? `${data.address.street || ''} ${data.address.city || ''} ${data.address.country || ''}`.trim()
                             : '',
                     bio: data.bio || '',
@@ -70,6 +78,8 @@ export default function EditProfile() {
                     phoneNumber: user?.phoneNumber || '',
                     dateOfBirth: '',
                     gender: '',
+                    age: '',
+                    religion: '',
                     address: '',
                     bio: '',
                     profilePicture: user?.profilePicture || user?.avatar || null,
@@ -86,6 +96,8 @@ export default function EditProfile() {
                 phoneNumber: user?.phoneNumber || '',
                 dateOfBirth: '',
                 gender: '',
+                age: '',
+                religion: '',
                 address: '',
                 bio: '',
                 profilePicture: user?.profilePicture || user?.avatar || null,
@@ -101,16 +113,24 @@ export default function EditProfile() {
     }, []);
 
     const handleSave = async () => {
+        if (profileData.age.trim()) {
+            const ageNum = parseInt(profileData.age.trim(), 10);
+            if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+                Alert.alert('Error', 'Age must be a number between 1 and 120');
+                return;
+            }
+        }
         try {
             setSaving(true);
-            
-            // Prepare update data
+
             const updateData = {
                 name: `${profileData.firstName} ${profileData.lastName}`.trim(),
                 email: profileData.email,
                 phoneNumber: profileData.phoneNumber,
                 dateOfBirth: profileData.dateOfBirth || undefined,
-                gender: profileData.gender || undefined,
+                gender: (profileData.gender === 'Male' || profileData.gender === 'Female') ? profileData.gender : undefined,
+                age: profileData.age?.trim() ? parseInt(profileData.age.trim(), 10) : undefined,
+                religion: RELIGION_OPTIONS.includes(profileData.religion) ? profileData.religion : undefined,
                 address: profileData.address || undefined,
                 bio: profileData.bio || undefined,
             };
@@ -217,12 +237,48 @@ export default function EditProfile() {
                             />
                         </View>
 
-                       
-                     
+                        <View className="py-2">
+                            <Text className="text-black font-medium">Gender (optional)</Text>
+                            <View className="border-b border-gray-300 py-2">
+                                <Picker
+                                    selectedValue={profileData.gender}
+                                    onValueChange={(value) => setProfileData({ ...profileData, gender: value })}
+                                    style={{ height: 52 }}
+                                >
+                                    <Picker.Item label="Select gender" value="" />
+                                    {GENDER_OPTIONS.map((opt) => (
+                                        <Picker.Item key={opt} label={opt} value={opt} />
+                                    ))}
+                                </Picker>
+                            </View>
+                        </View>
 
-                      
+                        <View className="py-2">
+                            <Text className="text-black font-medium">Age (optional)</Text>
+                            <TextInput
+                                className="py-2 border-b border-gray-300"
+                                placeholder="1–120"
+                                value={profileData.age}
+                                onChangeText={(text) => setProfileData({ ...profileData, age: text.replace(/\D/g, '').slice(0, 3) })}
+                                keyboardType="number-pad"
+                            />
+                        </View>
 
-                        
+                        <View className="py-2">
+                            <Text className="text-black font-medium">Religion (optional)</Text>
+                            <View className="border-b border-gray-300 py-2">
+                                <Picker
+                                    selectedValue={profileData.religion}
+                                    onValueChange={(value) => setProfileData({ ...profileData, religion: value })}
+                                    style={{ height: 52 }}
+                                >
+                                    <Picker.Item label="Select religion" value="" />
+                                    {RELIGION_OPTIONS.map((opt) => (
+                                        <Picker.Item key={opt} label={opt} value={opt} />
+                                    ))}
+                                </Picker>
+                            </View>
+                        </View>
                     </View>
 
                     {/* Save Button */}
